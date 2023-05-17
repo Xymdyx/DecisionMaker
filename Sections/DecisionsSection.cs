@@ -13,7 +13,7 @@ namespace DecisionMaker
         private const string NO_CATEGORIES_MSG = "Hmm. There appear to be no decision categories for us to choose from.";
         private const string INVALID_CHOICE_MSG = "What you inputted was not a valid option, please try again.";
         private const string MENU_EXIT_MSG = "Exiting to main menu";
-        private const string STOP_INFO_MSG = "type any positive number, \"stop\", or \"exit\" to stop adding)";
+        private const string STOP_INFO_MSG = "(type any positive number, \"stop\", or \"exit\" to stop adding)";
 
         // INT CONSTANTS
         private const int INVALID_OPT = Int32.MinValue;
@@ -264,7 +264,7 @@ namespace DecisionMaker
             try
             {
                 Console.WriteLine("Please help us create a new decision category...");
-                // inputDecisionCategory();
+                inputDecisionCategory();
             }
             catch(Exception e)
             {
@@ -337,29 +337,34 @@ namespace DecisionMaker
                     accepted = tryAcceptNewCategoryChoice(choiceInput, acceptedChoices); // choose to accept or reject into choiceInputs
 
                 printAddChoiceLoopMsg(accepted, choiceInput, acceptedChoices);
-            }while(acceptedChoices.Count == 0 && !stopWanted);
+            }while(acceptedChoices.Count == 0 || !stopWanted);
 
-            Console.WriteLine($"Choices approved for {currCategory}: {acceptedChoices}");
+            Console.WriteLine($"Choices approved for {currCategory}: {prettyStringifyList(acceptedChoices)}");
             return acceptedChoices;
         }
 
         private void printAddChoiceLoopInstructions(List<string> acceptedChoices)
         {
             const string introStart = "Please provide an alphanumeric string for a choice that hasn't already been added";
-            string introEnd = (acceptedChoices.Count == 0) ? ":" : $"{STOP_INFO_MSG}:";
+            string introEnd = (acceptedChoices.Count == 0) ? ":" : $" {STOP_INFO_MSG}:";
             Console.WriteLine(introStart + introEnd);
+        }
+
+        private string prettyStringifyList(List<string> items)
+        {
+            return string.Join(", ", items);
         }
 
         private void printAddChoiceLoopMsg(bool wasAccepted, string choiceStr, List<string> acceptedChoices)
         {
             string outputMsg = "";
             if(wasAccepted)
-                outputMsg = $"{choiceStr} accepted into {acceptedChoices}";
-            else if(acceptedChoices.Contains(choiceStr.ToLower()))
+                outputMsg = $"{choiceStr} accepted!";
+            else if (acceptedChoices.Contains(choiceStr.ToLower()))
                 outputMsg = $"{choiceStr} was already accepted";
-            else if(!isInputAcceptable(choiceStr))
+            else if (!isInputAcceptable(choiceStr))
                 outputMsg = "What you inputted was simply unaceeptable";
-            
+
             if(outputMsg != "")
                 Console.WriteLine(outputMsg);
         }
