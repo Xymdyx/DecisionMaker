@@ -5,7 +5,9 @@
 */
 
 public struct Personality{
-    private string _userGreeting;
+    private string _mainGreeting;
+    private string _decisionGreeting;
+
     private string _userPromptMsg;
     private string _selectionPrompt;
 }

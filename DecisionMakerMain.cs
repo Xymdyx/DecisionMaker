@@ -49,7 +49,7 @@ namespace DecisionMaker{
         }
         private int promptUser()
         {
-            Console.WriteLine("Please enter a valid number: ");
+            Console.Write("Please enter a valid number: ");
             string input = Console.ReadLine()!;
             int opt = getUserInput(input);
             processMenuInput(opt);
@@ -75,6 +75,7 @@ namespace DecisionMaker{
             switch(opt)
             {
                 case 1:
+                    Console.WriteLine("Entering decision menu...");
                     this.decisionsSect.doMenuLoop();
                     break;
                 case 2:
