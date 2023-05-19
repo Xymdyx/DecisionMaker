@@ -7,11 +7,13 @@ namespace DecisionMaker
     {
         // STRING CONSTANTS
         private const string DEFAULT_CATEGORY_DIRECTORY = ".\\Decisions\\Categories\\";
+        private const string DEFAULT_WIP_FILE = "wipcat";
+        private const string TXT = ".txt";
         // category files with items delimited by newlines
         private const string DECISION_DELIMITER = "\n";
         private const string NO_CATEGORIES_DIR_MSG = "No decisions directory detected in the desired location...Creating";
         private const string NO_CATEGORIES_MSG = "Hmm. There appear to be no decision categories for us to choose from.";
-        private const string INVALID_CHOICE_MSG = "What you inputted was not a valid option, please try again.";
+        private const string INVALID_CHOICE_MSG = "What you inputted was not a valid Choice, please try again.";
         private const string MENU_EXIT_MSG = "Exiting to main menu";
         private const string STOP_INFO_MSG = "(type any positive number, \"stop\", or \"exit\" to stop adding)";
 
@@ -49,6 +51,8 @@ namespace DecisionMaker
             // categoryMap.Add(KV<catName, desc>)
         }
 
+        private List<string> scanForCategories(){return null!;}
+
         /// <summary>
         /// initialize categories directory on startup if it doesn't exist already
         /// </summary>
@@ -84,13 +88,13 @@ namespace DecisionMaker
 
         private void writeMenu()
         {
-            // if(hasDecisionCategories()) //FIXME: uncomment after initial test
-            // {
-            //     Console.WriteLine("What would you like us to choose today?");
-            //     printSavedCategories();
-            //     printExitChoice();                
-            //     return;
-            // }
+            if(hasDecisionCategories()) //FIXME: uncomment after initial test
+            {
+                Console.WriteLine("What would you like us to choose today?");
+                printSavedCategories();
+                printExitChoice();                
+                return;
+            }
             Console.WriteLine(NO_CATEGORIES_MSG);
             add1stDecisionCategory();
             return;
@@ -116,14 +120,14 @@ namespace DecisionMaker
             Console.WriteLine("Let's add a decision category shall we? Please confirm that you would like to do so.");
             Console.WriteLine(
                 "1. Yes\n" +
-                "2. No\n");
+                "2. No\n"
+            );
         }
 
         private void printExitChoice()
         {
             Console.WriteLine($"{EXIT_CODE}. Exit");
         }
-
 
         /// <summary>
         /// main user choice parsing method where they must choose from listed integers
@@ -166,7 +170,7 @@ namespace DecisionMaker
         // processes existing categories menu input
         private void processCategoriesMenuInput(int opt)
         {
-            if(isChoiceInOptionRange(opt))
+            if(isChoiceInChoiceRange(opt))
             {
                 int catIdx = opt-1;
                 Console.WriteLine($"Going to {categoryMap.Keys.ElementAt(catIdx)} menu...");
@@ -179,7 +183,6 @@ namespace DecisionMaker
             else
                 Console.WriteLine(INVALID_CHOICE_MSG);
         }
-
 
         // processes no categories menu input, 
         // aka adding the first category to the categories directory
@@ -198,8 +201,8 @@ namespace DecisionMaker
             }
         }
 
-        // determine if the inputted option is for a pre-existing category
-        private bool isChoiceInOptionRange(int opt)
+        // determine if the input is for a pre-existing category
+        private bool isChoiceInChoiceRange(int opt)
         {
             return(categoryMap.Count > 0) && ((opt >= 1) && (opt <= categoryMap.Count));
         }
@@ -225,7 +228,7 @@ namespace DecisionMaker
         private void enterCategoryMenu(int categoryIdx)
         {
             string selectedCategory = categoryMap.ElementAt(categoryIdx).Key;
-            Console.WriteLine($"Here are the options for the {selectedCategory} decision category: ");
+            Console.WriteLine($"Here are the choices for the {selectedCategory} decision category: ");
             for(int i = 0; i < categoryMenuChoices.Length; i++)
                 Console.WriteLine($"{i+1}. {categoryMenuChoices[i]}");
     
@@ -241,13 +244,9 @@ namespace DecisionMaker
         private void processCategoryMenuInput(int opt)
         {
             if(isChoiceCategoryAction(opt))
-            {
                 processCategoryAction(opt);
-            }
             else if(isChoiceMainExit(opt))
-            {
                 Console.WriteLine(MENU_EXIT_MSG);
-            }
             else
                 Console.WriteLine(INVALID_CHOICE_MSG);
         }
@@ -256,30 +255,21 @@ namespace DecisionMaker
     /// Attempt to create a new decision category.
     /// </summary>
     /// <returns>
-    /// bool - true if a user's new decision category was successfully configured
+    /// bool- true if a user's new decision category was successfully configured
+    /// false otherwise
     /// </returns>
         private bool createDecisionCategory()
         {
             printExistingDecisionCategories();
-            try
-            {
-                Console.WriteLine("Please help us create a new decision category...");
-                inputDecisionCategory();
-            }
-            catch(Exception e)
-            {
-                //TODO: save progress to a temporary file that's checked on bootup?
-                // make Category object? -- 5/17/23
-                Console.WriteLine($"{e} Failed to add new decision category. Saving any made progress");
-                return false;
-            }
-            return true;
+            Console.WriteLine("Please help us create a new decision category...");
+            return inputDecisionCategory();
         }
 
-        // Read all existing categories.
+        // Read all saved categories.
         private void printExistingDecisionCategories()
         {
-            if(hasDecisionCategories()){
+            if(hasDecisionCategories())
+            {
                 Console.WriteLine("Here are the existing decision categories:");
                 printSavedCategories();
             }
@@ -287,18 +277,42 @@ namespace DecisionMaker
 
         // accept user input for a new decision category step-by-step
         // TODO: extract to a category object for easy bundling
-        private void inputDecisionCategory()
+        private bool inputDecisionCategory()
         {
-                string categoryName = nameDecisionCategory();
-                string categoryDesc = describeDecisionCategory();
-                List<string> categoryChoices =  addChoicesToDecisionCategory(categoryName);
-                string categoryPath = $"{DEFAULT_CATEGORY_DIRECTORY}{categoryName}.txt";
-                File.WriteAllText(categoryPath, $"{categoryName}\n");
-                File.WriteAllText(categoryPath, categoryDesc);
-                File.WriteAllLines(categoryPath, categoryChoices);
+            string categoryName = "";
+            string categoryDesc = "";
+            List<string> categoryChoices = new();
+            try
+            {
+                categoryName = nameDecisionCategory();
+                categoryDesc = describeDecisionCategory();
+                categoryChoices = addChoicesToDecisionCategory(categoryName);
+                saveDecisionCategoryFile(categoryName, categoryDesc, categoryChoices);
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine($"{e} Failed to add new decision category. Saving any made progress");
+                saveWIPCategoryFile(categoryName, categoryDesc, categoryChoices);
+                return false;
+            }
+            return true;
         }
 
+        private void saveDecisionCategoryFile(string name, string desc, List<string> choices)
+        {
+            string categoryPath = DEFAULT_CATEGORY_DIRECTORY + name + TXT;
+            File.WriteAllText(categoryPath, $"{name}\n");
+            File.WriteAllText(categoryPath, desc);
+            File.WriteAllLines(categoryPath, choices);
+        }
 
+        private void saveWIPCategoryFile(string name, string desc, List<string> choices)
+        {
+            string categoryPath = DEFAULT_CATEGORY_DIRECTORY + DEFAULT_WIP_FILE;
+            File.WriteAllText(categoryPath, $"{name}\n");
+            File.WriteAllText(categoryPath, desc);
+            File.WriteAllLines(categoryPath, choices);
+        }
 
         private string nameDecisionCategory()
         {
@@ -323,12 +337,13 @@ namespace DecisionMaker
             return categoryDesc;
         }
 
-        private List<string> addChoicesToDecisionCategory(string currCategory)
+        private List<string> addChoicesToDecisionCategory(string category)
         {
-            List<string> acceptedChoices = new();
+            List<string> acceptedChoices = checkCategoryExists(category) ? readExistingCategory(category) : new();
             string choiceInput = "";
             bool stopWanted = false;
-            do{
+            do
+            {
                 printAddChoiceLoopInstructions(acceptedChoices);
                 choiceInput = Console.ReadLine()!;
                 stopWanted = isInputStopCommand(choiceInput);
@@ -339,8 +354,13 @@ namespace DecisionMaker
                 printAddChoiceLoopMsg(accepted, choiceInput, acceptedChoices);
             }while(acceptedChoices.Count == 0 || !stopWanted);
 
-            Console.WriteLine($"Choices approved for {currCategory}: {prettyStringifyList(acceptedChoices)}");
+            Console.WriteLine($"Choices approved for {category}: {prettyStringifyList(acceptedChoices)}");
             return acceptedChoices;
+        }
+
+        private bool checkCategoryExists(string category)
+        {
+            return File.Exists(DEFAULT_CATEGORY_DIRECTORY + category + TXT);
         }
 
         private void printAddChoiceLoopInstructions(List<string> acceptedChoices)
@@ -350,30 +370,25 @@ namespace DecisionMaker
             Console.WriteLine(introStart + introEnd);
         }
 
-        private string prettyStringifyList(List<string> items)
-        {
-            return string.Join(", ", items);
-        }
-
-        private void printAddChoiceLoopMsg(bool wasAccepted, string choiceStr, List<string> acceptedChoices)
+        private void printAddChoiceLoopMsg(bool wasAccepted, string candidate, List<string> acceptedChoices)
         {
             string outputMsg = "";
             if(wasAccepted)
-                outputMsg = $"{choiceStr} accepted!";
-            else if (acceptedChoices.Contains(choiceStr.ToLower()))
-                outputMsg = $"{choiceStr} was already accepted";
-            else if (!isInputAcceptable(choiceStr))
+                outputMsg = $"{candidate} accepted!";
+            else if (isItemInChoices(candidate, acceptedChoices))
+                outputMsg = $"{candidate} was already accepted";
+            else if (!isInputAcceptable(candidate))
                 outputMsg = "What you inputted was simply unaceeptable";
 
             if(outputMsg != "")
                 Console.WriteLine(outputMsg);
         }
 
-        bool tryAcceptNewCategoryChoice(string tentativeChoice, List<string> acceptedChoices)
+        bool tryAcceptNewCategoryChoice(string candidate, List<string> acceptedChoices)
         {
-            if(isInputAcceptable(tentativeChoice) && !acceptedChoices.Contains(tentativeChoice.ToLower()))
+            if(isInputAcceptable(candidate) && !isItemInChoices(candidate, acceptedChoices))
             {
-                acceptedChoices.Add(tentativeChoice);
+                acceptedChoices.Add(candidate);
                 return true;
             }
             return false;
@@ -382,6 +397,11 @@ namespace DecisionMaker
         bool isInputAcceptable(string input)
         {
             return !String.IsNullOrWhiteSpace(input) && input.Length <= MAX_STRING_LEN;
+        }
+
+        private bool isItemInChoices(string candidate, List<string> accepted)
+        {
+            return accepted.Exists(choice => choice.ToLower() == candidate.ToLower());
         }
 
         private bool isChoiceCategoryAction(int opt)
@@ -399,10 +419,13 @@ namespace DecisionMaker
                     // print choices
                     break;
                 case 3:
+                    // print description
                     break;
                 case 4:
+                    // add choices
                     break;
                 case 5:
+                    // remove choices
                     break;
                 case 6:
                     // delete category file
@@ -429,26 +452,38 @@ namespace DecisionMaker
         }
 
         private void addItemToList(){}
-        private void printCategoryOptions(){}
+        private List<string> getCategoryChoices(string category)
+        {
+            return File.ReadAllLines(category + TXT).ToList();
+        }
+
         private void decideForUser(List<string> categoryChoices){}
         private int runRNG(){return 0;}
-        private List<string> scanForCategories(){return null!;}
 
+        // TODO: move to util class
         private bool isInputStopCommand(string input)
         {
             string lCaseInput = input.ToLower();
             return lCaseInput == "stop" || lCaseInput == "exit" || isNumeric(lCaseInput);
         }
 
+        // TODO: move to util class
         private bool isNumeric(string input)
         {
             Regex numericOnly = new(@"^[0-9]+$");
             return numericOnly.IsMatch(input);
         }
 
+        // TODO: move to util class
         private bool isAlphaNumeric(string input){
             Regex alphaNumeric = new(@"^[0-9a-zA-Z\s,]*$");
             return alphaNumeric.IsMatch(input);
+        }
+
+        //TODO: MOVE TO UTIL CLASS - 5/17/23
+        private string prettyStringifyList(List<string> items)
+        {
+            return string.Join(", ", items);
         }
     }
 }

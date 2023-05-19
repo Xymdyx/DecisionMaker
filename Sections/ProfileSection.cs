@@ -15,7 +15,7 @@ namespace DecisionMaker
         private void processMenuInput(int opt){}
         private void readExistingLists(){}
         private void addItemToList(){}
-        private void decideForUser(List<string> options){}
+        private void decideForUser(List<string> choices){}
         private int runRNG(){return 0;}
         private void changeUsername(){}
         private void changeGreeting(){}

@@ -10,8 +10,8 @@ namespace DecisionMaker
         private void readExistingLists(){}
         private void askUserForFutureItems(){}
         private void addItemToList(){}
-        private void printCategoryOptions(){}
-        private void decideForUser(List<string> options){}
+        private void printCategoryChoices(){}
+        private void decideForUser(List<string> choices){}
         private int runRNG(){return 0;}
     }
 }
