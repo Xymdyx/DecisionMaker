@@ -343,17 +343,17 @@ namespace DecisionMaker
         private void saveDecisionCategoryFile(string name, string desc, List<string> choices)
         {
             string categoryPath = formatCategoryPath(name);
-            File.WriteAllText(categoryPath, $"{name}\n");
-            File.WriteAllText(categoryPath, desc);
-            File.WriteAllLines(categoryPath, choices);
+            File.WriteAllText(categoryPath, name + "\n");
+            File.AppendAllText(categoryPath, desc + "\n");
+            File.AppendAllLines(categoryPath, choices);
         }
 
         private void saveWIPCategoryFile(string name, string desc, List<string> choices)
         {
             string categoryPath = formatCategoryPath(DEFAULT_WIP_FILE);
-            File.WriteAllText(categoryPath, $"{name}\n");
-            File.WriteAllText(categoryPath, desc);
-            File.WriteAllLines(categoryPath, choices);
+            File.WriteAllText(categoryPath, name + "\n");
+            File.AppendAllText(categoryPath, desc + "\n");
+            File.AppendAllLines(categoryPath, choices);
         }
 
         private string nameDecisionCategory()
