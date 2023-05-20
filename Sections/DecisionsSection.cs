@@ -27,6 +27,7 @@ namespace DecisionMaker
         private const int MAX_STRING_LEN = 360;
 
         private const int DESC_LINE_IDX = 1;
+        private const int INFO_LEN = 2;
 
         // need file reader/writer
         private FileStream categoryStream;
@@ -269,18 +270,23 @@ namespace DecisionMaker
 
         private void enterCategoryMenu(int categoryIdx)
         {
-            string selectedCategory = categoryMap.ElementAt(categoryIdx).Key;
-            Console.WriteLine($"Here are the choices for the {selectedCategory} decision category: ");
+            string selected = categoryMap.ElementAt(categoryIdx).Key;
+            int categoryOpt = INVALID_OPT;
+            do
+            {
+                writeCategoryActionsMenu(selected);
+                categoryOpt = promptUser();
+                processCategoryMenuInput(categoryOpt, selected);
+            }while(!isChoiceMainExit(categoryOpt));
+        }
+
+        private void writeCategoryActionsMenu(string category)
+        {
+            Console.WriteLine($"Here are the choices for the {category} decision category: ");
             for(int i = 0; i < categoryMenuChoices.Length; i++)
                 Console.WriteLine($"{i+1}. {categoryMenuChoices[i]}");
     
             printExitChoice();
-            int categoryOpt = INVALID_OPT;
-            do
-            {
-                categoryOpt = promptUser();
-                processCategoryMenuInput(categoryOpt, selectedCategory);
-            }while(!isChoiceMainExit(categoryOpt));
         }
 
         private void processCategoryMenuInput(int opt, string category)
@@ -495,7 +501,7 @@ namespace DecisionMaker
 
         private List<string> getCategoryChoices(string category)
         {
-            return File.ReadAllLines(category + TXT).ToList();
+            return File.ReadAllLines(formatCategoryPath(category)).Skip(INFO_LEN).ToList();
         }
 
         private string getCategoryDesc(string category)
