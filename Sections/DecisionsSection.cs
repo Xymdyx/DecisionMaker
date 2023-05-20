@@ -6,7 +6,7 @@ namespace DecisionMaker
     public class DecisionsSection : IDecisionMakerSection
     {
         // STRING CONSTANTS
-        private const string DEFAULT_CATEGORY_DIRECTORY = ".\\Decisions\\Categories\\";
+        private const string DEFAULT_CATEGORY_DIRECTORY = @".\Decisions\Categories\";
         private const string DEFAULT_WIP_FILE = "wipcat";
         private const string TXT = ".txt";
         // category files with items delimited by newlines
@@ -16,6 +16,7 @@ namespace DecisionMaker
         private const string INVALID_CHOICE_MSG = "What you inputted was not a valid Choice, please try again.";
         private const string MENU_EXIT_MSG = "Exiting to main menu";
         private const string STOP_INFO_MSG = "(type any positive number, \"stop\", or \"exit\" to stop adding)";
+        private const string DNE_CAT_MSG = "This category doesn't exist";
 
         // INT CONSTANTS
         private const int INVALID_OPT = Int32.MinValue;
@@ -24,6 +25,8 @@ namespace DecisionMaker
         private const int YES_CODE = 1;
         private const int NO_CODE = 2;
         private const int MAX_STRING_LEN = 360;
+
+        private const int DESC_LINE_IDX = 1;
 
         // need file reader/writer
         private FileStream categoryStream;
@@ -37,21 +40,60 @@ namespace DecisionMaker
             this.categoryStream = null!;
             this.categoryMap = new();
             checkAndInitCategoryDir();
-            initCategoryMap();
+            addNewCategoriesToMap();
         }
 
-        /// <summary>
-        /// initialize the category map by reading files in the categories directory
-        /// </summary>
-        private void initCategoryMap()
+        private void fullyUpdateCategories()
         {
-            //foreach filename in DecisionCategories dir
-            // str catName = filename/ 1st line of file
-            // str desc = 2nd line of file
-            // categoryMap.Add(KV<catName, desc>)
+            addNewCategoriesToMap();
+            removeOldCategoriesFromMap();
         }
 
-        private List<string> scanForCategories(){return null!;}
+        /// initialize the category map by reading files in the categories directory
+        private void addNewCategoriesToMap()
+        {
+            List<string> existing = scanForCategories();
+            Console.WriteLine(prettyStringifyList(existing));
+            foreach(string cat in existing.Where(c => !categoryMap.ContainsKey(c)))
+            {
+                string[] catLines = File.ReadAllLines(formatCategoryPath(cat));
+                categoryMap.Add(cat, catLines[DESC_LINE_IDX]);
+            }
+        }
+
+        private string formatCategoryPath(string category)
+        {
+            return DEFAULT_CATEGORY_DIRECTORY + category + TXT;
+        }
+
+        /// remove map categories no longer in Categories directory
+        private void removeOldCategoriesFromMap()
+        {
+            List<string> existing = scanForCategories();
+            foreach(string cat in categoryMap.Keys.Where(c => !existing.Contains(c)).ToList())
+                categoryMap.Remove(cat);
+        }
+
+        private List<string> scanForCategories()
+        {
+            try
+            {
+                List<string> files = Directory.GetFiles(DEFAULT_CATEGORY_DIRECTORY, $"*{TXT}").ToList();
+                int i = 0;
+                foreach (string path in files.ToList())
+                {
+                    int catLen = path.Length - DEFAULT_CATEGORY_DIRECTORY.Length - TXT.Length;
+                    files[i] = path.Substring(DEFAULT_CATEGORY_DIRECTORY.Length, catLen);
+                    ++i;
+                }
+                return files;
+            }
+            catch(Exception err)
+            {
+                Console.WriteLine($"DecisionSect.cs: Error scanning for categories... {err}");
+            }
+            return new();
+        }
 
         /// <summary>
         /// initialize categories directory on startup if it doesn't exist already
@@ -77,6 +119,7 @@ namespace DecisionMaker
             {
                 writeMenu();
                 opt = promptUser();
+                processMenuInput(opt);
             }while(!isEitherExit(opt));
             return 0;
         }
@@ -140,7 +183,6 @@ namespace DecisionMaker
             Console.WriteLine("Please choose a valid number: ");
             string input = Console.ReadLine()!;
             int opt = convertInputToInt(input);
-            processMenuInput(opt);
             return opt;        
         }
 
@@ -237,14 +279,14 @@ namespace DecisionMaker
             do
             {
                 categoryOpt = promptUser();
-                processCategoryMenuInput(categoryOpt);
+                processCategoryMenuInput(categoryOpt, selectedCategory);
             }while(!isChoiceMainExit(categoryOpt));
         }
 
-        private void processCategoryMenuInput(int opt)
+        private void processCategoryMenuInput(int opt, string category)
         {
             if(isChoiceCategoryAction(opt))
-                processCategoryAction(opt);
+                processCategoryAction(opt, category);
             else if(isChoiceMainExit(opt))
                 Console.WriteLine(MENU_EXIT_MSG);
             else
@@ -300,7 +342,7 @@ namespace DecisionMaker
 
         private void saveDecisionCategoryFile(string name, string desc, List<string> choices)
         {
-            string categoryPath = DEFAULT_CATEGORY_DIRECTORY + name + TXT;
+            string categoryPath = formatCategoryPath(name);
             File.WriteAllText(categoryPath, $"{name}\n");
             File.WriteAllText(categoryPath, desc);
             File.WriteAllLines(categoryPath, choices);
@@ -308,7 +350,7 @@ namespace DecisionMaker
 
         private void saveWIPCategoryFile(string name, string desc, List<string> choices)
         {
-            string categoryPath = DEFAULT_CATEGORY_DIRECTORY + DEFAULT_WIP_FILE;
+            string categoryPath = formatCategoryPath(DEFAULT_WIP_FILE);
             File.WriteAllText(categoryPath, $"{name}\n");
             File.WriteAllText(categoryPath, desc);
             File.WriteAllLines(categoryPath, choices);
@@ -339,7 +381,7 @@ namespace DecisionMaker
 
         private List<string> addChoicesToDecisionCategory(string category)
         {
-            List<string> acceptedChoices = checkCategoryExists(category) ? readExistingCategory(category) : new();
+            List<string> acceptedChoices = checkCategoryExists(category) ? getCategoryChoices(category) : new();
             string choiceInput = "";
             bool stopWanted = false;
             do
@@ -354,13 +396,13 @@ namespace DecisionMaker
                 printAddChoiceLoopMsg(accepted, choiceInput, acceptedChoices);
             }while(acceptedChoices.Count == 0 || !stopWanted);
 
-            Console.WriteLine($"Choices approved for {category}: {prettyStringifyList(acceptedChoices)}");
+            Console.WriteLine($"Choices approved for {category}: {prettyStringifyList(acceptedChoices)}\n");
             return acceptedChoices;
         }
 
         private bool checkCategoryExists(string category)
         {
-            return File.Exists(DEFAULT_CATEGORY_DIRECTORY + category + TXT);
+            return File.Exists(formatCategoryPath(category));
         }
 
         private void printAddChoiceLoopInstructions(List<string> acceptedChoices)
@@ -409,20 +451,26 @@ namespace DecisionMaker
             return (opt >= 1) && (opt <= categoryMenuChoices.Length);
         }
  
-        private void processCategoryAction(int actionNum)
+        /// <summary>
+        /// process actions after choosing an existing category
+        /// </summary>
+        /// <param name="actionNum">- the number the user inputted...</param>
+        /// <param name="category">- the existing chosen category... </param>
+        private void processCategoryAction(int actionNum, string category)
         {
-            switch(actionNum){
+            switch(actionNum)
+            {
                 case 1:
                     // decide
                     break;
                 case 2:
-                    // print choices
+                    readExistingCategory(category);
                     break;
                 case 3:
-                    // print description
+                    Console.WriteLine(getCategoryDesc(category));
                     break;
                 case 4:
-                    // add choices
+                    addChoicesToDecisionCategory(category);
                     break;
                 case 5:
                     // remove choices
@@ -436,13 +484,26 @@ namespace DecisionMaker
             }
         }
 
-        private List<string> readExistingCategory(string category)
+        // print all options in a categories file line-by-line
+        private void readExistingCategory(string category)
         {
-            // open the relevant txt file
-            // one category per line
-            // store in an array and return
-            return null!;
+            Console.WriteLine("Feel free to decide on your own if this list inspires you: ");
+            List<string> choices = getCategoryChoices(category);
+            foreach(string c in choices)
+                Console.WriteLine(c);
         }
+
+        private List<string> getCategoryChoices(string category)
+        {
+            return File.ReadAllLines(category + TXT).ToList();
+        }
+
+        private string getCategoryDesc(string category)
+        {
+            string catDesc = categoryMap[category];
+            return (catDesc != null) ? catDesc : DNE_CAT_MSG;
+        }
+
         private void askUserForFutureCategoryChoices(string category)
         {
             // input loop for one new choice at a time
@@ -452,10 +513,7 @@ namespace DecisionMaker
         }
 
         private void addItemToList(){}
-        private List<string> getCategoryChoices(string category)
-        {
-            return File.ReadAllLines(category + TXT).ToList();
-        }
+
 
         private void decideForUser(List<string> categoryChoices){}
         private int runRNG(){return 0;}
