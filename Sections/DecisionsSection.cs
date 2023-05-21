@@ -19,6 +19,7 @@ namespace DecisionMaker
         private const string MENU_EXIT_MSG = "Exiting to main menu";
         private const string STOP_INFO_MSG = "(type any positive number, \"stop\", or \"exit\" to stop adding)";
         private const string DNE_CAT_MSG = "This category doesn't exist";
+        private const string NO_CHOICES_MSG = "No choices to choose from! Please add some...";
 
         // INT CONSTANTS
         private const int INVALID_OPT = Int32.MinValue;
@@ -291,7 +292,7 @@ namespace DecisionMaker
                 writeCategoryActionsMenu(selected);
                 categoryOpt = promptUser();
                 doesTerminate = processCategoryActionsMenuInput(categoryOpt, selected);
-            }while(!isChoiceMainExit(categoryOpt) || doesTerminate);
+            }while(!isChoiceMainExit(categoryOpt) && !doesTerminate);
         }
 
         private void writeCategoryActionsMenu(string category)
@@ -498,7 +499,7 @@ namespace DecisionMaker
                     readExistingCategory(category);
                     break;
                 case 3:
-                    Console.WriteLine($"Description for {category}: {getCategoryDesc(category)}");
+                    readCategoryDesc(category);
                     break;
                 case 4:
                     addChoicesToExistingDC(category);
@@ -507,7 +508,7 @@ namespace DecisionMaker
                     removeChoicesFromDC(category);
                     break;
                 case 6:
-                    // delete category file
+                    deleteDC(category);
                     break;
                 default:
                     Console.WriteLine("DecisionSect.cs: Invalid Category Action in process action. Something's up");
@@ -522,6 +523,12 @@ namespace DecisionMaker
         /// <param name="category">- the category to pull a choice from </param>
         private void decideForUser(string category)
         {
+            if(!doesDCHaveChoices(category))
+            {
+                Console.WriteLine(NO_CHOICES_MSG);
+                return;
+            }
+
             List<string> choices = getCategoryChoices(category);
             int chosen = runRNG(choices);
             Console.WriteLine($"For {category}, we've decided upon: {choices[chosen]}");
@@ -530,10 +537,22 @@ namespace DecisionMaker
         // print all options in a categories file line-by-line
         private void readExistingCategory(string category)
         {
+            if(!doesDCHaveChoices(category))
+            {
+                Console.WriteLine(NO_CHOICES_MSG);
+                return;
+            }
+            
             Console.WriteLine("Feel free to decide on your own if this list inspires you: ");
             List<string> choices = getCategoryChoices(category);
             foreach(string c in choices)
                 Console.WriteLine(c);
+        }
+
+        private void readCategoryDesc(string category)
+        {
+            if(checkCategoryExists(category))
+                Console.WriteLine($"Description for {category}: {getCategoryDesc(category)}");
         }
 
         private string getCategoryDesc(string category)
@@ -550,11 +569,19 @@ namespace DecisionMaker
 
         private void removeChoicesFromDC(string category)
         {
-            if (!checkCategoryExists(category))
-                return; 
-            
+            if (!doesDCHaveChoices(category))
+            {
+                Console.WriteLine(NO_CHOICES_MSG);
+                return;
+            }
+
             List<string> remainingChoices = removeChoicesFromDCLoop(category);
             saveDCFile(category, getCategoryDesc(category), remainingChoices);
+        }
+
+        private bool doesDCHaveChoices(string category)
+        {
+            return checkCategoryExists(category) && !isStringListEmpty(getCategoryChoices(category));
         }
 
         /// <summary>
@@ -567,14 +594,14 @@ namespace DecisionMaker
             List<string> remainingChoices = getCategoryChoices(category);
             int opt = INVALID_OPT;
             bool isExit = false;
-            do
+            while(!isStringListEmpty(remainingChoices) && !isExit)
             {
                 writeRemoveChoicesMenu(remainingChoices);
                 opt = promptUser();
                 isExit = isChoiceMainExit(opt);
                 string removed = processRemoveDecisionChoice(opt, remainingChoices);
                 if(!isExit) printRemoveChoicesLoopMsg(removed, remainingChoices, category);
-            }while(!isStringListEmpty(remainingChoices) && !isExit);
+            }
 
             return remainingChoices;
         }
@@ -636,6 +663,25 @@ namespace DecisionMaker
                 Console.WriteLine($"Successfully removed {removed} option!");
 
             Console.WriteLine($"{category} choices remaining: {prettyStringifyList(remainingChoices)}");
+        }
+
+        private void deleteDC(string category)
+        {
+            if(checkCategoryExists(category))
+            {
+                try
+                {
+                    string catPath = formatCategoryPath(category);
+                    File.Delete(catPath);
+                    Console.WriteLine($"Successfully deleted {category} and its file");
+                }
+                catch
+                {
+                    Console.WriteLine($"Failed to delete {category} file...");
+                }
+            }
+            else
+                Console.WriteLine($"{category} does not exist and therefore can't be deleted...");
         }
 
         private int runRNG(List<string> choices)
