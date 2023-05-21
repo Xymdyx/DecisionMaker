@@ -1,6 +1,6 @@
 using System;
 using System.Text.RegularExpressions;
-
+using System.Collections.Specialized;
 namespace DecisionMaker
 {
     public class DecisionsSection : IDecisionMakerSection
@@ -29,16 +29,25 @@ namespace DecisionMaker
         private const int DESC_LINE_IDX = 1;
         private const int INFO_LEN = 2;
 
-        // need file reader/writer
-        private FileStream categoryStream;
+        // for rng
+        private readonly Random rng;
+
         // private map of categories with matching prompts
         private Dictionary<string, string> categoryMap;
-        private readonly string[] categoryMenuChoices = {"Make a decision", "View decisions",
-                                                        "Read category description", "Add choices",
-                                                         "Remove choices", "Delete entire category"};
+
+        // private map for category actions of form <Action Name, terminateLoop>
+        private readonly OrderedDictionary categoryActions = new()
+        {
+            {"Make a decision", true},
+            {"View decisions", false},
+            {"Read category description", false},
+            {"Add choices", false},
+            {"Remove choices", false},
+            {"Delete entire category", true}
+        };
         public DecisionsSection()
         {
-            this.categoryStream = null!;
+            this.rng = new();
             this.categoryMap = new();
             checkAndInitCategoryDir();
             addNewCategoriesToMap();
@@ -217,7 +226,7 @@ namespace DecisionMaker
             {
                 int catIdx = opt-1;
                 Console.WriteLine($"Going to {categoryMap.Keys.ElementAt(catIdx)} menu...");
-                enterCategoryMenu(catIdx);
+                enterCategoryActionsMenu(catIdx);
             }
             else if(isChoiceMainExit(opt))
                 Console.WriteLine(MENU_EXIT_MSG);
@@ -268,7 +277,7 @@ namespace DecisionMaker
             return opt == ADD_CAT_CODE;
         }
 
-        private void enterCategoryMenu(int categoryIdx)
+        private void enterCategoryActionsMenu(int categoryIdx)
         {
             string selected = categoryMap.ElementAt(categoryIdx).Key;
             int categoryOpt = INVALID_OPT;
@@ -276,20 +285,21 @@ namespace DecisionMaker
             {
                 writeCategoryActionsMenu(selected);
                 categoryOpt = promptUser();
-                processCategoryMenuInput(categoryOpt, selected);
+                processCategoryActionsMenuInput(categoryOpt, selected);
             }while(!isChoiceMainExit(categoryOpt));
         }
 
         private void writeCategoryActionsMenu(string category)
         {
             Console.WriteLine($"Here are the choices for the {category} decision category: ");
-            for(int i = 0; i < categoryMenuChoices.Length; i++)
-                Console.WriteLine($"{i+1}. {categoryMenuChoices[i]}");
+            string[] actionNames = getDecisionActionKeys();
+            for(int i = 0; i < actionNames.Length; i++)
+                Console.WriteLine($"{i+1}. {actionNames[i]}");
     
             printExitChoice();
         }
 
-        private void processCategoryMenuInput(int opt, string category)
+        private void processCategoryActionsMenuInput(int opt, string category)
         {
             if(isChoiceCategoryAction(opt))
                 processCategoryAction(opt, category);
@@ -324,7 +334,6 @@ namespace DecisionMaker
         }
 
         // accept user input for a new decision category step-by-step
-        // TODO: extract to a category object for easy bundling
         private bool inputDecisionCategory()
         {
             string categoryName = "";
@@ -454,7 +463,7 @@ namespace DecisionMaker
 
         private bool isChoiceCategoryAction(int opt)
         {
-            return (opt >= 1) && (opt <= categoryMenuChoices.Length);
+            return (opt >= 1) && (opt <= categoryActions.Count);
         }
  
         /// <summary>
@@ -462,12 +471,13 @@ namespace DecisionMaker
         /// </summary>
         /// <param name="actionNum">- the number the user inputted...</param>
         /// <param name="category">- the existing chosen category... </param>
-        private void processCategoryAction(int actionNum, string category)
+        /// <returns>- whether the chosen action should terminate the category menu loop</returns>
+        private bool processCategoryAction(int actionNum, string category)
         {
             switch(actionNum)
             {
                 case 1:
-                    // decide
+                    decideForUser(category);
                     break;
                 case 2:
                     readExistingCategory(category);
@@ -488,6 +498,18 @@ namespace DecisionMaker
                     Console.WriteLine("DecisionSect.cs: Invalid Category Action in process action. Something's up");
                     break;
             }
+            return getDecisionActionTerminateVals()[actionNum - 1];
+        }
+
+        /// <summary>
+        /// given a decision category, choose a random item from that decision category for the user to commit to
+        /// </summary>
+        /// <param name="category">- the category to pull a choice from </param>
+        private void decideForUser(string category)
+        {
+            List<string> choices = getCategoryChoices(category);
+            int chosen = runRNG(choices);
+            Console.WriteLine($"For {category}, we've decided upon: {choices[chosen]}");
         }
 
         // print all options in a categories file line-by-line
@@ -499,30 +521,38 @@ namespace DecisionMaker
                 Console.WriteLine(c);
         }
 
-        private List<string> getCategoryChoices(string category)
-        {
-            return File.ReadAllLines(formatCategoryPath(category)).Skip(INFO_LEN).ToList();
-        }
-
         private string getCategoryDesc(string category)
         {
             string catDesc = categoryMap[category];
             return (catDesc != null) ? catDesc : DNE_CAT_MSG;
-        }
+        }        
 
-        private void askUserForFutureCategoryChoices(string category)
+        // choose a random index in a list
+        private int runRNG(List<string> choices)
         {
-            // input loop for one new choice at a time
-            // if the choice doesn't exist already, add to new array
-            // user can exit via entering any number or typing "exit"
-            // add new choices to end of category file
+            int endIdx = choices.Count - 1;
+            return rng.Next(0, endIdx);
         }
 
-        private void addItemToList(){}
+    //
+        private string[] getDecisionActionKeys()
+        {
+            string[] actionKeys = new string[this.categoryActions.Count];
+            this.categoryActions.Keys.CopyTo(actionKeys, 0);
+            return actionKeys;
+        }
 
+        private bool[] getDecisionActionTerminateVals()
+        {
+            bool[] terminateVals = new bool[this.categoryActions.Count];
+            this.categoryActions.Values.CopyTo(terminateVals, 0);
+            return terminateVals;
+        }
 
-        private void decideForUser(List<string> categoryChoices){}
-        private int runRNG(){return 0;}
+        private List<string> getCategoryChoices(string category)
+        {
+            return File.ReadAllLines(formatCategoryPath(category)).Skip(INFO_LEN).ToList();
+        }
 
         // TODO: move to util class
         private bool isInputStopCommand(string input)
