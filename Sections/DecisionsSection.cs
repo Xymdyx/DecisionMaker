@@ -10,18 +10,30 @@ namespace DecisionMaker
         // STRING CONSTANTS
         private const string DEFAULT_DC_DIRECTORY = @".\Decisions\Categories\";
         private const string DEFAULT_WIP_FILE = "wipcat";
-        private const string TXT = ".txt";
+        private const string TXT = ".txt"; //TODO: UTIL CLASS - 5/23/23
         private const string DECISION_DELIMITER = "\n"; // DC files delimited by newlines
         private const string NO_DC_DIR_MSG = "No decisions directory detected in the desired location...Creating";
         private const string HAS_DCS_MSG = "What would you like us to choose today?";
         private const string NO_DCS_MSG = "Hmm. There appear to be no decision categories for us to choose from.";
-        private const string INVALID_CHOICE_MSG = "What you inputted was not a valid Choice, please try again.";
+        private const string ADD_1ST_DC_CONFIRM_MSG = "Let's add a decision category shall we? Please confirm that you would like to do so.";
+        private const string INVALID_CHOICE_MSG = "What you inputted was not a valid choice, please try again."; //TODO: UTIL CLASS - 5/23/23
         private const string MENU_EXIT_MSG = "Exiting to main menu";
-        private const string STOP_INFO_MSG = "(type any positive number, \"stop\", or \"exit\" to stop adding)";
+        private const string STOP_INFO_MSG = "to stop adding";
         private const string DNE_DC_MSG = "This decision category doesn't exist";
         private const string NO_CHOICES_MSG = "No choices to choose from! Please add some...";
-        private const string BINARY_CHOICE_MSG ="1. Yes\n2. No\n";
+        private const string BINARY_CHOICE_MSG ="1. Yes\n2. No\n"; //TODO: UTIL CLASS - 5/23/23
+        private const string CHOOSE_NUM_MSG = "Please choose a valid number: "; //TODO: UTIL CLASS - 5/23/23
         private const string DECISIONS_WELCOME_MSG = "Welcome to the Decisions menu. This is where the magic happens!";
+        private const string ADD_CHOICE_INTRO_MSG = "Please provide an alphanumeric string for a choice that hasn't already been added";
+        private const string REMOVE_CHOICES_MENU_MSG = "Please select the number of the item you'd like to remove (can remove until nothing remains)...";
+        private const string CREATE_DC_MSG = "Please help us create a new decision category...";
+        private const string SHOW_DCS_MSG = "Here are the existing decision categories:";
+        private const string NAME_DC_MSG = "Please name this new decision category (no duplicates allowed)";
+        private const string DESCRIBE_DC_MSG = "Please give a description for this category:";
+        private const string READ_DC_MSG = "Feel free to decide on your own if this list inspires you:";
+        private const string ADD_CHOICE_REJECT_MSG = "What you inputted was simply unaceeptable";
+        private const string REMOVE_CHOICE_REJECT_MSG = "What you inputted was invalid. Therefore, nothing was removed...";
+        private const string DS_ERR_INTRO = "DecisionSect.cs: ";
 
         // INT CONSTANTS
         private const int INVALID_OPT = Int32.MinValue; //TODO: UTIL CLASS - 5/23/23
@@ -47,6 +59,7 @@ namespace DecisionMaker
             {"Remove choices", false},
             {"Delete entire category", true}
         };
+        private readonly string[] stopWords = { "stop", "exit", "done", "good" };
 
         // CONSTRUCTOR
         public DecisionsSection()
@@ -104,7 +117,7 @@ namespace DecisionMaker
             }
             catch(Exception e)
             {
-                Console.WriteLine($"DecisionSect.cs: Error scanning for categories... {e}");
+                Console.WriteLine(DS_ERR_INTRO + $"Error scanning for categories... {e}");
             }
             return new();
         }
@@ -191,7 +204,7 @@ namespace DecisionMaker
 
         private void add1stDC()
         {
-            Console.WriteLine("Let's add a decision category shall we? Please confirm that you would like to do so.");
+            Console.WriteLine(ADD_1ST_DC_CONFIRM_MSG);
             Console.WriteLine(BINARY_CHOICE_MSG);
         }
 
@@ -203,7 +216,7 @@ namespace DecisionMaker
         /// </returns>
         private int promptUser()
         {
-            Console.WriteLine("Please choose a valid number: ");
+            Console.WriteLine(CHOOSE_NUM_MSG);
             string input = Console.ReadLine()!;
             int opt = convertInputToInt(input);
             return opt;        
@@ -218,7 +231,7 @@ namespace DecisionMaker
             }
             catch(Exception e) 
             {
-                Console.Error.WriteLine($"DecisionSect.cs: Cannot convert input to integer: {e}");
+                Console.Error.WriteLine(DS_ERR_INTRO + $"Cannot convert input to integer: {e}");
             }
             return opt;
         }
@@ -347,7 +360,7 @@ namespace DecisionMaker
         private bool createDC()
         {
             printExistingDCs();
-            Console.WriteLine("Please help us create a new decision category...");
+            Console.WriteLine(CREATE_DC_MSG);
             return inputDC();
         }
 
@@ -356,7 +369,7 @@ namespace DecisionMaker
         {
             if(hasDCs())
             {
-                Console.WriteLine("Here are the existing decision categories:");
+                Console.WriteLine(SHOW_DCS_MSG);
                 printSavedDCs();
             }
         }
@@ -404,7 +417,7 @@ namespace DecisionMaker
             string categoryName = "";
             do
             {
-                Console.WriteLine("Please name this new decision category (no duplicates allowed)");
+                Console.WriteLine(NAME_DC_MSG);
                 categoryName = Console.ReadLine()!;
             }while(String.IsNullOrWhiteSpace(categoryName) || categoryMap.Keys.Contains(categoryName));
 
@@ -416,7 +429,7 @@ namespace DecisionMaker
             string categoryDesc = "";
             do
             {
-                Console.WriteLine("Please give a description for this category: ");
+                Console.WriteLine(DESCRIBE_DC_MSG);
                 categoryDesc = Console.ReadLine()!;
             }while(!isInputAcceptable(categoryDesc));
             return categoryDesc;
@@ -450,9 +463,14 @@ namespace DecisionMaker
 
         private void printAddChoiceLoopInstructions(List<string> acceptedChoices)
         {
-            const string introStart = "Please provide an alphanumeric string for a choice that hasn't already been added";
-            string introEnd = (isStringListEmpty(acceptedChoices)) ? ":" : $" {STOP_INFO_MSG}:";
-            Console.WriteLine(introStart + introEnd);
+            string introEnd = (isStringListEmpty(acceptedChoices)) ? ":" : $" {getAddChoicesStopMsg()}:";
+            Console.WriteLine(ADD_CHOICE_INTRO_MSG + introEnd);
+        }
+
+        private string getAddChoicesStopMsg()
+        {
+            string stops = prettyStringifyList(stopWords.ToList());
+            return $"({STOP_INFO_MSG}, type any positive number or any of the following in lowercase: {stops})";
         }
 
         private void printAddChoiceLoopMsg(bool wasAccepted, string candidate, List<string> acceptedChoices)
@@ -463,7 +481,7 @@ namespace DecisionMaker
             else if (isItemAlreadyAccepted(candidate, acceptedChoices))
                 outputMsg = $"{candidate} was already accepted";
             else if (!isInputAcceptable(candidate))
-                outputMsg = "What you inputted was simply unaceeptable";
+                outputMsg = ADD_CHOICE_REJECT_MSG;
 
             if(outputMsg != "")
                 Console.WriteLine(outputMsg);
@@ -523,7 +541,7 @@ namespace DecisionMaker
                     deleteDC(category);
                     break;
                 default:
-                    Console.WriteLine("DecisionSect.cs: Invalid Category Action in process action. Something's up");
+                    Console.WriteLine(DS_ERR_INTRO + "Invalid Category Action in process action. Something's up");
                     break;
             }
             return getDCActionTerminateVals()[actionNum-1];
@@ -555,7 +573,7 @@ namespace DecisionMaker
                 return;
             }
             
-            Console.WriteLine("Feel free to decide on your own if this list inspires you: ");
+            Console.WriteLine(READ_DC_MSG);
             List<string> choices = getChoicesDC(category);
             foreach(string c in choices)
                 Console.WriteLine(c);
@@ -632,14 +650,14 @@ namespace DecisionMaker
                 isExit = isChoiceMenuExit(opt);
                 string removed = processRemoveDecisionChoice(opt, remainingChoices);
                 if(!isExit) printRemoveChoicesLoopMsg(removed, remainingChoices, category);
+                Console.WriteLine();
             }
-
             return remainingChoices;
         }
 
          private void writeRemoveChoicesMenu(List<string> remaining)
          {
-            Console.WriteLine("Please select the number of the item you'd like to remove (can remove until nothing remains)...");
+            Console.WriteLine(REMOVE_CHOICES_MENU_MSG);
             writeListAsNumberMenu(remaining);
             printExitChoice();
             printDeleteAllChoices();
@@ -689,7 +707,7 @@ namespace DecisionMaker
                 return;
             }
             else if (removed == "")
-                Console.WriteLine("What you inputted was invalid. Therefore, nothing was removed...");
+                Console.WriteLine(REMOVE_CHOICE_REJECT_MSG);
             else
                 Console.WriteLine($"Successfully removed {removed} option!");
 
@@ -724,8 +742,7 @@ namespace DecisionMaker
         // TODO: move to util class
         private bool isInputStopCommand(string input)
         {
-            string lCaseInput = input.ToLower();
-            return lCaseInput == "stop" || lCaseInput == "exit" || isNumeric(lCaseInput);
+            return this.stopWords.Contains(input) || isNumeric(input);
         }
 
         // TODO: move to util class
