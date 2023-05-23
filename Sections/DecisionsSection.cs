@@ -8,37 +8,36 @@ namespace DecisionMaker
     public class DecisionsSection : IDecisionMakerSection
     {
         // STRING CONSTANTS
-        private const string DEFAULT_CATEGORY_DIRECTORY = @".\Decisions\Categories\";
+        private const string DEFAULT_DC_DIRECTORY = @".\Decisions\Categories\";
         private const string DEFAULT_WIP_FILE = "wipcat";
         private const string TXT = ".txt";
-        // category files with items delimited by newlines
-        private const string DECISION_DELIMITER = "\n";
-        private const string NO_CATEGORIES_DIR_MSG = "No decisions directory detected in the desired location...Creating";
-        private const string NO_CATEGORIES_MSG = "Hmm. There appear to be no decision categories for us to choose from.";
+        private const string DECISION_DELIMITER = "\n"; // DC files delimited by newlines
+        private const string NO_DC_DIR_MSG = "No decisions directory detected in the desired location...Creating";
+        private const string HAS_DCS_MSG = "What would you like us to choose today?";
+        private const string NO_DCS_MSG = "Hmm. There appear to be no decision categories for us to choose from.";
         private const string INVALID_CHOICE_MSG = "What you inputted was not a valid Choice, please try again.";
         private const string MENU_EXIT_MSG = "Exiting to main menu";
         private const string STOP_INFO_MSG = "(type any positive number, \"stop\", or \"exit\" to stop adding)";
-        private const string DNE_CAT_MSG = "This category doesn't exist";
+        private const string DNE_DC_MSG = "This decision category doesn't exist";
         private const string NO_CHOICES_MSG = "No choices to choose from! Please add some...";
+        private const string BINARY_CHOICE_MSG ="1. Yes\n2. No\n";
+        private const string DECISIONS_WELCOME_MSG = "Welcome to the Decisions menu. This is where the magic happens!";
 
         // INT CONSTANTS
-        private const int INVALID_OPT = Int32.MinValue;
-        private const int ADD_CAT_CODE = -1;
+        private const int INVALID_OPT = Int32.MinValue; //TODO: UTIL CLASS - 5/23/23
+        private const int ADD_DC_CODE = -1;
         private const int DELETE_ALL_CHOICES_CODE = -1;
-        private const int EXIT_CODE = 0;
-        private const int YES_CODE = 1;
-        private const int NO_CODE = 2;
-        private const int MAX_STRING_LEN = 360;
-
+        private const int EXIT_CODE = 0; //TODO: UTIL CLASS - 5/23/23
+        private const int YES_CODE = 1; //TODO: UTIL CLASS - 5/23/23
+        private const int NO_CODE = 2; //TODO: UTIL CLASS - 5/23/23
+        private const int MAX_STRING_LEN = 360; //TODO: UTIL CLASS - 5/23/23
         private const int DESC_LINE_IDX = 1;
         private const int INFO_LEN = 2;
 
-        // for rng
+        // FIELDS
         private readonly Random rng;
-
         // private map of categories with matching prompts
         private Dictionary<string, string> categoryMap;
-
         // private map for category actions of form <Action Name, terminateLoop>
         private readonly OrderedDictionary categoryActions = new()
         {
@@ -49,55 +48,57 @@ namespace DecisionMaker
             {"Remove choices", false},
             {"Delete entire category", true}
         };
+
+        // CONSTRUCTOR
         public DecisionsSection()
         {
             this.rng = new();
             this.categoryMap = new();
-            checkAndInitCategoryDir();
+            checkAndInitDCDir();
             addNewCategoriesToMap();
         }
 
-        private void fullyUpdateCategories()
+        private void fullyUpdateStoredDCs()
         {
             addNewCategoriesToMap();
             removeOldCategoriesFromMap();
         }
 
-        /// initialize the category map by reading files in the categories directory
+        // initialize the category map by reading files in the categories directory
         private void addNewCategoriesToMap()
         {
-            List<string> existing = scanForCategories();
+            List<string> existing = scanForDCs();
             Console.WriteLine(prettyStringifyList(existing));
             foreach(string cat in existing.Where(c => !categoryMap.ContainsKey(c)))
             {
-                string[] catLines = File.ReadAllLines(formatCategoryPath(cat));
+                string[] catLines = File.ReadAllLines(formatDCPath(cat));
                 categoryMap.Add(cat, catLines[DESC_LINE_IDX]);
             }
         }
 
-        private string formatCategoryPath(string category)
-        {
-            return DEFAULT_CATEGORY_DIRECTORY + category + TXT;
-        }
-
-        /// remove map categories no longer in Categories directory
+        // remove map categories no longer in Categories directory
         private void removeOldCategoriesFromMap()
         {
-            List<string> existing = scanForCategories();
+            List<string> existing = scanForDCs();
             foreach(string cat in categoryMap.Keys.Where(c => !existing.Contains(c)).ToList())
                 categoryMap.Remove(cat);
         }
 
-        private List<string> scanForCategories()
+        private string formatDCPath(string category)
+        {
+            return DEFAULT_DC_DIRECTORY + category + TXT;
+        }
+
+        private List<string> scanForDCs()
         {
             try
             {
-                List<string> files = Directory.GetFiles(DEFAULT_CATEGORY_DIRECTORY, $"*{TXT}").ToList();
+                List<string> files = Directory.GetFiles(DEFAULT_DC_DIRECTORY, $"*{TXT}").ToList();
                 int i = 0;
                 foreach (string path in files.ToList())
                 {
-                    int catLen = path.Length - DEFAULT_CATEGORY_DIRECTORY.Length - TXT.Length;
-                    files[i] = path.Substring(DEFAULT_CATEGORY_DIRECTORY.Length, catLen);
+                    int catLen = path.Length - DEFAULT_DC_DIRECTORY.Length - TXT.Length;
+                    files[i] = path.Substring(DEFAULT_DC_DIRECTORY.Length, catLen);
                     ++i;
                 }
                 return files;
@@ -112,12 +113,12 @@ namespace DecisionMaker
         /// <summary>
         /// initialize categories directory on startup if it doesn't exist already
         /// </summary>
-        private void checkAndInitCategoryDir()
+        private void checkAndInitDCDir()
         {
-            if(!Directory.Exists(DEFAULT_CATEGORY_DIRECTORY))
+            if(!Directory.Exists(DEFAULT_DC_DIRECTORY))
             {
-                Console.WriteLine(NO_CATEGORIES_DIR_MSG);
-                Directory.CreateDirectory(DEFAULT_CATEGORY_DIRECTORY);
+                Console.WriteLine(NO_DC_DIR_MSG);
+                Directory.CreateDirectory(DEFAULT_DC_DIRECTORY);
             }
         }
 
@@ -127,42 +128,43 @@ namespace DecisionMaker
         /// <returns></returns>
         public int doMenuLoop()
         {
-            Console.WriteLine("Welcome to the Decisions menu. This is where the magic happens!");
+            Console.WriteLine(DECISIONS_WELCOME_MSG);
             int opt = INVALID_OPT;
             do
             {
-                writeMenu();
+                writeStartMenu();
                 opt = promptUser();
-                processMenuInput(opt);
-            }while(!isEitherExit(opt));
+                processStartMenuInput(opt);
+                fullyUpdateStoredDCs();
+            }while(!wantsToExit(opt));
             return 0;
         }
 
-        private bool isEitherExit(int opt)
+        private bool wantsToExit(int opt)
         {
-            return isChoiceMainExit(opt) || (isChoiceNo(opt) && !hasDecisionCategories());
+            return isChoiceMenuExit(opt) || (isChoiceNo(opt) && !hasDCs());
         }
 
-        private void writeMenu()
+        private void writeStartMenu()
         {
-            if(hasDecisionCategories()) //FIXME: uncomment after initial test
+            if(hasDCs())
             {
-                Console.WriteLine("What would you like us to choose today?");
-                printSavedCategories();
+                Console.WriteLine(HAS_DCS_MSG);
+                printSavedDCs();
                 printExitChoice();                
                 return;
             }
-            Console.WriteLine(NO_CATEGORIES_MSG);
+            Console.WriteLine(NO_DCS_MSG);
             add1stDC();
             return;
         }
 
-        private bool hasDecisionCategories()
+        private bool hasDCs()
         {
             return categoryMap.Count > 0;
         }
 
-        private void printSavedCategories()
+        private void printSavedDCs()
         {
             int totalCategories = categoryMap.Count;            
             for(int i = 0; i < totalCategories; i++)
@@ -172,18 +174,15 @@ namespace DecisionMaker
             }
         }
 
-        private void add1stDC()
-        {
-            Console.WriteLine("Let's add a decision category shall we? Please confirm that you would like to do so.");
-            Console.WriteLine(
-                "1. Yes\n" +
-                "2. No\n"
-            );
-        }
-
         private void printExitChoice()
         {
             Console.WriteLine($"{EXIT_CODE}. Exit");
+        }
+
+        private void add1stDC()
+        {
+            Console.WriteLine("Let's add a decision category shall we? Please confirm that you would like to do so.");
+            Console.WriteLine(BINARY_CHOICE_MSG);
         }
 
         /// <summary>
@@ -215,36 +214,40 @@ namespace DecisionMaker
         }
 
         // this is for processing the entry point menu
-        private void processMenuInput(int opt)
+        private void processStartMenuInput(int opt)
         {
-            if(hasDecisionCategories())
-                processCategoriesMenuInput(opt);
+            if(hasDCs())
+                processDCsMenuInput(opt);
             else
-                process1stCategoryConfirmation(opt);
+                process1stDCConfirmation(opt);
         }
 
         // processes existing categories menu input
-        private void processCategoriesMenuInput(int opt)
+        private void processDCsMenuInput(int opt)
         {
             if(isChoiceInChoiceRange(opt))
             {
                 int catIdx = opt-1;
                 Console.WriteLine($"Going to {categoryMap.Keys.ElementAt(catIdx)} menu...");
-                enterCategoryActionsMenu(catIdx);
+                enterDCActionsMenu(catIdx);
             }
-            else if(isChoiceMainExit(opt))
+            else if(isChoiceMenuExit(opt))
                 Console.WriteLine(MENU_EXIT_MSG);
-            else if(isChoiceAddNewCategory(opt))
+            else if(isChoiceAddNewDC(opt))
                 createDC();
             else
                 Console.WriteLine(INVALID_CHOICE_MSG);
         }
 
-        // processes no categories menu input, 
-        // aka adding the first category to the categories directory
-        private void process1stCategoryConfirmation(int opt)
+        /// <summary>
+        /// processes no categories menu input,
+        /// aka adding the first category to the categories directory
+        /// </summary>
+        /// <param name="opt">- the processed option from processStartMenuInput </param>
+        private void process1stDCConfirmation(int opt)
         {
-            switch(opt){
+            switch(opt)
+            {
                 case YES_CODE:
                     createDC();
                     break;
@@ -257,48 +260,46 @@ namespace DecisionMaker
             }
         }
 
-        // determine if the input is for a pre-existing category
+        // determine if the input is for an existing category
         private bool isChoiceInChoiceRange(int opt)
         {
-            return(hasDecisionCategories()) && ((opt >= 1) && (opt <= categoryMap.Count));
+            return(hasDCs()) && ((opt >= 1) && (opt <= categoryMap.Count));
         }
 
-        // determines if the inputted number is for exiting e main menu.
-        private bool isChoiceMainExit(int opt)
+        // determines if the inputted number is for exiting a menu.
+        private bool isChoiceMenuExit(int opt)
         {
             return opt == EXIT_CODE;
         }
 
-        // determines if inputted number is NO
         private bool isChoiceNo(int opt)
         {
             return opt == NO_CODE;
         }
 
-        // determines if the inputted number is for adding a new category
-        private bool isChoiceAddNewCategory(int opt)
+        private bool isChoiceAddNewDC(int opt)
         {
-            return opt == ADD_CAT_CODE;
+            return opt == ADD_DC_CODE;
         }
 
-        // loop for choosing what to do with a decision category
-        private void enterCategoryActionsMenu(int categoryIdx)
+        // loop for choosing what to do with a selected decision category
+        private void enterDCActionsMenu(int categoryIdx)
         {
             string selected = categoryMap.ElementAt(categoryIdx).Key;
             int categoryOpt = INVALID_OPT;
             bool doesTerminate = false;
             do
             {
-                writeCategoryActionsMenu(selected);
+                writeDCActionsMenu(selected);
                 categoryOpt = promptUser();
-                doesTerminate = processCategoryActionsMenuInput(categoryOpt, selected);
-            }while(!isChoiceMainExit(categoryOpt) && !doesTerminate);
+                doesTerminate = processDCActionsMenuInput(categoryOpt, selected);
+            }while(!isChoiceMenuExit(categoryOpt) && !doesTerminate);
         }
 
-        private void writeCategoryActionsMenu(string category)
+        private void writeDCActionsMenu(string category)
         {
             Console.WriteLine($"Here are the choices for the {category} decision category: ");
-            List<string> actionNames = getDecisionActionKeys().ToList();
+            List<string> actionNames = getDCActionKeys().ToList();
             writeListAsNumberMenu(actionNames);
             printExitChoice();
         }
@@ -309,12 +310,12 @@ namespace DecisionMaker
         /// <param name="opt">- the valid/invalid option a user inputted </param>
         /// <param name="category">- the category we're currently in </param>
         /// <returns>whether the categoryActions loop should terminate</returns>
-        private bool processCategoryActionsMenuInput(int opt, string category)
+        private bool processDCActionsMenuInput(int opt, string category)
         {
             bool doesTerminate = false;
-            if(isChoiceCategoryAction(opt))
-                doesTerminate = processCategoryAction(opt, category);
-            else if (isChoiceMainExit(opt))
+            if(isChoiceDCAction(opt))
+                doesTerminate = processDCAction(opt, category);
+            else if (isChoiceMenuExit(opt))
             {
                 Console.WriteLine(MENU_EXIT_MSG);
                 doesTerminate = true;
@@ -325,27 +326,27 @@ namespace DecisionMaker
             return doesTerminate;
         }
 
-    /// <summary>
-    /// Attempt to create a new decision category.
-    /// </summary>
-    /// <returns>
-    /// bool- true if a user's new decision category was successfully configured
-    /// false otherwise
-    /// </returns>
+        /// <summary>
+        /// Attempt to create a new decision category.
+        /// </summary>
+        /// <returns>
+        /// bool- true if a user's new decision category was successfully configured
+        /// false otherwise
+        /// </returns>
         private bool createDC()
         {
-            printExistingDecisionCategories();
+            printExistingDCs();
             Console.WriteLine("Please help us create a new decision category...");
             return inputDC();
         }
 
         // Read all saved categories.
-        private void printExistingDecisionCategories()
+        private void printExistingDCs()
         {
-            if(hasDecisionCategories())
+            if(hasDCs())
             {
                 Console.WriteLine("Here are the existing decision categories:");
-                printSavedCategories();
+                printSavedDCs();
             }
         }
 
@@ -365,7 +366,7 @@ namespace DecisionMaker
             catch(Exception e)
             {
                 Console.WriteLine($"{e} Failed to add new decision category. Saving any made progress");
-                saveWIPCategoryFile(categoryName, categoryDesc, categoryChoices);
+                saveUnfinishedDC(categoryName, categoryDesc, categoryChoices);
                 return false;
             }
             return true;
@@ -373,17 +374,17 @@ namespace DecisionMaker
 
         private void saveDCFile(string name, string desc, List<string> choices)
         {
-            string categoryPath = formatCategoryPath(name);
-            File.WriteAllText(categoryPath, name + "\n");
-            File.AppendAllText(categoryPath, desc + "\n");
+            string categoryPath = formatDCPath(name);
+            File.WriteAllText(categoryPath, name + DECISION_DELIMITER);
+            File.AppendAllText(categoryPath, desc + DECISION_DELIMITER);
             File.AppendAllLines(categoryPath, choices);
         }
 
-        private void saveWIPCategoryFile(string name, string desc, List<string> choices)
+        private void saveUnfinishedDC(string name, string desc, List<string> choices)
         {
-            string categoryPath = formatCategoryPath(DEFAULT_WIP_FILE);
-            File.WriteAllText(categoryPath, name + "\n");
-            File.AppendAllText(categoryPath, desc + "\n");
+            string categoryPath = formatDCPath(DEFAULT_WIP_FILE);
+            File.WriteAllText(categoryPath, name + DECISION_DELIMITER);
+            File.AppendAllText(categoryPath, desc + DECISION_DELIMITER);
             File.AppendAllLines(categoryPath, choices);
         }
 
@@ -412,7 +413,7 @@ namespace DecisionMaker
 
         private List<string> addChoicesToDC(string category)
         {
-            List<string> acceptedChoices = checkCategoryExists(category) ? getCategoryChoices(category) : new();
+            List<string> acceptedChoices = checkDCExists(category) ? getChoicesDC(category) : new();
             string choiceInput = "";
             bool stopWanted = false;
             do
@@ -422,18 +423,18 @@ namespace DecisionMaker
                 stopWanted = isInputStopCommand(choiceInput);
                 bool accepted = false;
                 if(!stopWanted)
-                    accepted = tryAcceptNewCategoryChoice(choiceInput, acceptedChoices); // choose to accept or reject into choiceInputs
+                    accepted = tryAcceptNewDCChoice(choiceInput, acceptedChoices); // choose to accept or reject into choiceInputs
 
                 printAddChoiceLoopMsg(accepted, choiceInput, acceptedChoices);
             }while(isStringListEmpty(acceptedChoices) || !stopWanted);
 
-            Console.WriteLine($"Choices approved for {category}: {prettyStringifyList(acceptedChoices)}\n");
+            Console.WriteLine($"Choices for {category}: {prettyStringifyList(acceptedChoices)}\n");
             return acceptedChoices;
         }
 
-        private bool checkCategoryExists(string category)
+        private bool checkDCExists(string category)
         {
-            return File.Exists(formatCategoryPath(category));
+            return File.Exists(formatDCPath(category));
         }
 
         private void printAddChoiceLoopInstructions(List<string> acceptedChoices)
@@ -448,7 +449,7 @@ namespace DecisionMaker
             string outputMsg = "";
             if(wasAccepted)
                 outputMsg = $"{candidate} accepted!";
-            else if (isItemInChoices(candidate, acceptedChoices))
+            else if (isItemAlreadyAccepted(candidate, acceptedChoices))
                 outputMsg = $"{candidate} was already accepted";
             else if (!isInputAcceptable(candidate))
                 outputMsg = "What you inputted was simply unaceeptable";
@@ -457,9 +458,9 @@ namespace DecisionMaker
                 Console.WriteLine(outputMsg);
         }
 
-        bool tryAcceptNewCategoryChoice(string candidate, List<string> acceptedChoices)
+        bool tryAcceptNewDCChoice(string candidate, List<string> acceptedChoices)
         {
-            if(isInputAcceptable(candidate) && !isItemInChoices(candidate, acceptedChoices))
+            if(isInputAcceptable(candidate) && !isItemAlreadyAccepted(candidate, acceptedChoices))
             {
                 acceptedChoices.Add(candidate);
                 return true;
@@ -472,12 +473,12 @@ namespace DecisionMaker
             return !String.IsNullOrWhiteSpace(input) && input.Length <= MAX_STRING_LEN;
         }
 
-        private bool isItemInChoices(string candidate, List<string> accepted)
+        private bool isItemAlreadyAccepted(string candidate, List<string> accepted)
         {
             return accepted.Exists(choice => choice.ToLower() == candidate.ToLower());
         }
 
-        private bool isChoiceCategoryAction(int opt)
+        private bool isChoiceDCAction(int opt)
         {
             return (opt >= 1) && (opt <= categoryActions.Count);
         }
@@ -488,7 +489,7 @@ namespace DecisionMaker
         /// <param name="actionNum">- the number the user inputted...</param>
         /// <param name="category">- the existing chosen category... </param>
         /// <returns>- whether the chosen action should terminate the category menu loop</returns>
-        private bool processCategoryAction(int actionNum, string category)
+        private bool processDCAction(int actionNum, string category)
         {
             switch(actionNum)
             {
@@ -496,10 +497,10 @@ namespace DecisionMaker
                     decideForUser(category);
                     break;
                 case 2:
-                    readExistingCategory(category);
+                    readExistingDC(category);
                     break;
                 case 3:
-                    readCategoryDesc(category);
+                    readDescDC(category);
                     break;
                 case 4:
                     addChoicesToExistingDC(category);
@@ -514,7 +515,7 @@ namespace DecisionMaker
                     Console.WriteLine("DecisionSect.cs: Invalid Category Action in process action. Something's up");
                     break;
             }
-            return getDecisionActionTerminateVals()[actionNum - 1];
+            return getDCActionTerminateVals()[actionNum-1];
         }
 
         /// <summary>
@@ -529,13 +530,13 @@ namespace DecisionMaker
                 return;
             }
 
-            List<string> choices = getCategoryChoices(category);
+            List<string> choices = getChoicesDC(category);
             int chosen = runRNG(choices);
             Console.WriteLine($"For {category}, we've decided upon: {choices[chosen]}");
         }
 
         // print all options in a categories file line-by-line
-        private void readExistingCategory(string category)
+        private void readExistingDC(string category)
         {
             if(!doesDCHaveChoices(category))
             {
@@ -544,27 +545,27 @@ namespace DecisionMaker
             }
             
             Console.WriteLine("Feel free to decide on your own if this list inspires you: ");
-            List<string> choices = getCategoryChoices(category);
+            List<string> choices = getChoicesDC(category);
             foreach(string c in choices)
                 Console.WriteLine(c);
         }
 
-        private void readCategoryDesc(string category)
+        private void readDescDC(string category)
         {
-            if(checkCategoryExists(category))
-                Console.WriteLine($"Description for {category}: {getCategoryDesc(category)}");
+            if(checkDCExists(category))
+                Console.WriteLine($"Description for {category}: {getDescDC(category)}");
         }
 
-        private string getCategoryDesc(string category)
+        private string getDescDC(string category)
         {
             string catDesc = categoryMap[category];
-            return (catDesc != null) ? catDesc : DNE_CAT_MSG;
+            return (catDesc != null) ? catDesc : DNE_DC_MSG;
         }
 
         private void addChoicesToExistingDC(string category)
         {
             List<string> addedChoices = addChoicesToDC(category);
-            saveDCFile(category, getCategoryDesc(category), addedChoices);
+            saveDCFile(category, getDescDC(category), addedChoices);
         }
 
         private void removeChoicesFromDC(string category)
@@ -576,12 +577,31 @@ namespace DecisionMaker
             }
 
             List<string> remainingChoices = removeChoicesFromDCLoop(category);
-            saveDCFile(category, getCategoryDesc(category), remainingChoices);
+            saveDCFile(category, getDescDC(category), remainingChoices);
         }
+
+        private void deleteDC(string category)
+        {
+            if(checkDCExists(category))
+            {
+                try
+                {
+                    string catPath = formatDCPath(category);
+                    File.Delete(catPath);
+                    Console.WriteLine($"Successfully deleted {category} and its file");
+                }
+                catch
+                {
+                    Console.WriteLine($"Failed to delete {category} file...");
+                }
+            }
+            else
+                Console.WriteLine($"{category} does not exist and therefore can't be deleted...");
+        }        
 
         private bool doesDCHaveChoices(string category)
         {
-            return checkCategoryExists(category) && !isStringListEmpty(getCategoryChoices(category));
+            return checkDCExists(category) && !isStringListEmpty(getChoicesDC(category));
         }
 
         /// <summary>
@@ -591,14 +611,14 @@ namespace DecisionMaker
         /// <returns></returns>
         private List<string> removeChoicesFromDCLoop(string category)
         {
-            List<string> remainingChoices = getCategoryChoices(category);
+            List<string> remainingChoices = getChoicesDC(category);
             int opt = INVALID_OPT;
             bool isExit = false;
             while(!isStringListEmpty(remainingChoices) && !isExit)
             {
                 writeRemoveChoicesMenu(remainingChoices);
                 opt = promptUser();
-                isExit = isChoiceMainExit(opt);
+                isExit = isChoiceMenuExit(opt);
                 string removed = processRemoveDecisionChoice(opt, remainingChoices);
                 if(!isExit) printRemoveChoicesLoopMsg(removed, remainingChoices, category);
             }
@@ -665,48 +685,29 @@ namespace DecisionMaker
             Console.WriteLine($"{category} choices remaining: {prettyStringifyList(remainingChoices)}");
         }
 
-        private void deleteDC(string category)
-        {
-            if(checkCategoryExists(category))
-            {
-                try
-                {
-                    string catPath = formatCategoryPath(category);
-                    File.Delete(catPath);
-                    Console.WriteLine($"Successfully deleted {category} and its file");
-                }
-                catch
-                {
-                    Console.WriteLine($"Failed to delete {category} file...");
-                }
-            }
-            else
-                Console.WriteLine($"{category} does not exist and therefore can't be deleted...");
-        }
-
         private int runRNG(List<string> choices)
         {
             int endIdx = choices.Count - 1;
             return rng.Next(0, endIdx);
         }        
 
-        private string[] getDecisionActionKeys()
+        private string[] getDCActionKeys()
         {
             string[] actionKeys = new string[this.categoryActions.Count];
             this.categoryActions.Keys.CopyTo(actionKeys, 0);
             return actionKeys;
         }
 
-        private bool[] getDecisionActionTerminateVals()
+        private bool[] getDCActionTerminateVals()
         {
             bool[] terminateVals = new bool[this.categoryActions.Count];
             this.categoryActions.Values.CopyTo(terminateVals, 0);
             return terminateVals;
         }
 
-        private List<string> getCategoryChoices(string category)
+        private List<string> getChoicesDC(string category)
         {
-            return File.ReadAllLines(formatCategoryPath(category)).Skip(INFO_LEN).ToList();
+            return File.ReadAllLines(formatDCPath(category)).Skip(INFO_LEN).ToList();
         }
 
         // TODO: move to util class
@@ -750,6 +751,7 @@ namespace DecisionMaker
                 Console.WriteLine($"{i+1}. {list[i]}");
          }
 
+        // TODO: MOVE TO UTIL CLASS - 5/23/23
          private bool isStringListEmpty(List<string> strings)
          {
             return strings.Count == 0;
