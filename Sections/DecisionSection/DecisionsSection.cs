@@ -16,13 +16,10 @@ namespace DecisionMaker
         private const string HAS_DCS_MSG = "What would you like us to choose today?";
         private const string NO_DCS_MSG = "Hmm. There appear to be no decision categories for us to choose from.";
         private const string ADD_1ST_DC_CONFIRM_MSG = "Let's add a decision category shall we? Please confirm that you would like to do so.";
-        private const string INVALID_CHOICE_MSG = "What you inputted was not a valid choice, please try again."; //TODO: UTIL CLASS - 5/23/23
         private const string MENU_EXIT_MSG = "Exiting to main menu";
         private const string STOP_INFO_MSG = "to stop adding";
         private const string DNE_DC_MSG = "This decision category doesn't exist";
         private const string NO_CHOICES_MSG = "No choices to choose from! Please add some...";
-        private const string BINARY_CHOICE_MSG ="1. Yes\n2. No\n"; //TODO: UTIL CLASS - 5/23/23
-        private const string CHOOSE_NUM_MSG = "Please choose a valid number: "; //TODO: UTIL CLASS - 5/23/23
         private const string DECISIONS_WELCOME_MSG = "Welcome to the Decisions menu. This is where the magic happens!";
         private const string ADD_CHOICE_INTRO_MSG = "Please provide an alphanumeric string for a choice that hasn't already been added";
         private const string REMOVE_CHOICES_MENU_MSG = "Please select the number of the item you'd like to remove (can remove until nothing remains)...";
@@ -34,14 +31,17 @@ namespace DecisionMaker
         private const string ADD_CHOICE_REJECT_MSG = "What you inputted was simply unaceeptable";
         private const string REMOVE_CHOICE_REJECT_MSG = "What you inputted was invalid. Therefore, nothing was removed...";
         private const string DS_ERR_INTRO = "DecisionSect.cs: ";
+        private const string BINARY_CHOICE_MSG ="1. Yes\n2. No\n"; //TODO: UTIL CLASS - 5/23/23
+        private const string CHOOSE_NUM_MSG = "Please choose a valid number: "; //TODO: UTIL CLASS - 5/23/23
+        private const string INVALID_CHOICE_MSG = "What you inputted was not a valid choice, please try again."; //TODO: UTIL CLASS - 5/23/23
 
         // INT CONSTANTS
         private const int INVALID_OPT = Int32.MinValue; //TODO: UTIL CLASS - 5/23/23
-        private const int DELETE_ALL_CHOICES_CODE = -1;
         private const int EXIT_CODE = 0; //TODO: UTIL CLASS - 5/23/23
         private const int YES_CODE = 1; //TODO: UTIL CLASS - 5/23/23
         private const int NO_CODE = 2; //TODO: UTIL CLASS - 5/23/23
         private const int MAX_STRING_LEN = 360; //TODO: UTIL CLASS - 5/23/23
+        private const int DELETE_ALL_CHOICES_CODE = -1;
         private const int DESC_LINE_IDX = 1;
         private const int INFO_LEN = 2;
 
@@ -59,7 +59,7 @@ namespace DecisionMaker
             {"Remove choices", false},
             {"Delete entire category", true}
         };
-        private readonly string[] stopWords = { "stop", "exit", "done", "good" };
+        private readonly string[] stopWords = { "stop", "exit", "done", "good", "quit", "finished" };
 
         // CONSTRUCTOR
         public DecisionsSection()
@@ -80,7 +80,6 @@ namespace DecisionMaker
         private void addNewCategoriesToMap()
         {
             List<string> existing = scanForDCs();
-            Console.WriteLine(prettyStringifyList(existing));
             foreach(string cat in existing.Where(c => !categoryMap.ContainsKey(c)))
             {
                 string[] catLines = File.ReadAllLines(formatDCPath(cat));
