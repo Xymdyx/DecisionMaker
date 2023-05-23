@@ -25,7 +25,6 @@ namespace DecisionMaker
 
         // INT CONSTANTS
         private const int INVALID_OPT = Int32.MinValue; //TODO: UTIL CLASS - 5/23/23
-        private const int ADD_DC_CODE = -1;
         private const int DELETE_ALL_CHOICES_CODE = -1;
         private const int EXIT_CODE = 0; //TODO: UTIL CLASS - 5/23/23
         private const int YES_CODE = 1; //TODO: UTIL CLASS - 5/23/23
@@ -149,9 +148,7 @@ namespace DecisionMaker
         {
             if(hasDCs())
             {
-                Console.WriteLine(HAS_DCS_MSG);
-                printSavedDCs();
-                printExitChoice();                
+                writeDCsMenu();
                 return;
             }
             Console.WriteLine(NO_DCS_MSG);
@@ -164,14 +161,27 @@ namespace DecisionMaker
             return categoryMap.Count > 0;
         }
 
+        private void writeDCsMenu()
+        {
+            Console.WriteLine(HAS_DCS_MSG);
+            printSavedDCs();
+            printAddDC();
+            printExitChoice();
+        }
+
         private void printSavedDCs()
         {
             int totalCategories = categoryMap.Count;            
             for(int i = 0; i < totalCategories; i++)
             {
                 KeyValuePair<string,string> category = categoryMap.ElementAt(i);
-                Console.WriteLine($" {i+1}. {category.Key}: {category.Value}");
+                Console.WriteLine($"{i+1}. {category.Key}: {category.Value}");
             }
+        }
+
+        private void printAddDC()
+        {
+            Console.WriteLine($"{categoryMap.Count + 1}. Add a whole new Decision Category");
         }
 
         private void printExitChoice()
@@ -279,7 +289,7 @@ namespace DecisionMaker
 
         private bool isChoiceAddNewDC(int opt)
         {
-            return opt == ADD_DC_CODE;
+            return opt == (categoryMap.Count + 1);
         }
 
         // loop for choosing what to do with a selected decision category
@@ -323,6 +333,7 @@ namespace DecisionMaker
             else
                 Console.WriteLine(INVALID_CHOICE_MSG);
 
+            Console.WriteLine();
             return doesTerminate;
         }
 

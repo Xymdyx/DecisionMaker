@@ -41,7 +41,7 @@ namespace DecisionMaker{
         private void writeMenu()
         {
             Console.Write(
-            "1. Category menu\n" +
+            "1. Decisions menu\n" +
             "2. Profile menu\n" +
             "3. File management menu\n" +
             "4. Help\n" +

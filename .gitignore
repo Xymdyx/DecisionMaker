@@ -133,3 +133,6 @@ _NCrunch*
 
 # ignore jsons
 *.json
+
+# ignore personal Decision Categories
+Decisions/Categories/
