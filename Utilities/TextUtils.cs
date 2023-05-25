@@ -9,8 +9,8 @@ namespace DecisionMaker
 {
     public static class TextUtils
     {
-        public static string TXT = ".txt";
-        public static int MAX_STRING_LEN = 360;
+        public const string TXT = ".txt";
+        public const int MAX_STRING_LEN = 360;
         public static string[] stopWords = { "stop", "exit", "done", "good", "quit", "finished" };
 
         public static bool isInputAcceptable(string input)

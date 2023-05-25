@@ -2,6 +2,7 @@ using System;
 using System.Text.RegularExpressions;
 using System.Collections.Specialized;
 
+
 namespace DecisionMaker
 {
     // NOTES: DC == "Decision Category"
@@ -10,13 +11,11 @@ namespace DecisionMaker
         // STRING CONSTANTS
         private const string DEFAULT_DC_DIRECTORY = @".\Decisions\Categories\";
         private const string DEFAULT_WIP_FILE = "wipcat";
-        private const string TXT = ".txt"; //TODO: UTIL CLASS - 5/23/23
         private const string DECISION_DELIMITER = "\n"; // DC files delimited by newlines
         private const string NO_DC_DIR_MSG = "No decisions directory detected in the desired location...Creating";
         private const string HAS_DCS_MSG = "What would you like us to choose today?";
         private const string NO_DCS_MSG = "Hmm. There appear to be no decision categories for us to choose from.";
         private const string ADD_1ST_DC_CONFIRM_MSG = "Let's add a decision category shall we? Please confirm that you would like to do so.";
-        private const string MENU_EXIT_MSG = "Exiting to main menu";
         private const string STOP_INFO_MSG = "to stop adding";
         private const string DNE_DC_MSG = "This decision category doesn't exist";
         private const string NO_CHOICES_MSG = "No choices to choose from! Please add some...";
@@ -31,16 +30,8 @@ namespace DecisionMaker
         private const string ADD_CHOICE_REJECT_MSG = "What you inputted was simply unaceeptable";
         private const string REMOVE_CHOICE_REJECT_MSG = "What you inputted was invalid. Therefore, nothing was removed...";
         private const string DS_ERR_INTRO = "DecisionSect.cs: ";
-        private const string BINARY_CHOICE_MSG ="1. Yes\n2. No\n"; //TODO: UTIL CLASS - 5/23/23
-        private const string CHOOSE_NUM_MSG = "Please choose a valid number: "; //TODO: UTIL CLASS - 5/23/23
-        private const string INVALID_CHOICE_MSG = "What you inputted was not a valid choice, please try again."; //TODO: UTIL CLASS - 5/23/23
 
         // INT CONSTANTS
-        private const int INVALID_OPT = Int32.MinValue; //TODO: UTIL CLASS - 5/23/23
-        private const int EXIT_CODE = 0; //TODO: UTIL CLASS - 5/23/23
-        private const int YES_CODE = 1; //TODO: UTIL CLASS - 5/23/23
-        private const int NO_CODE = 2; //TODO: UTIL CLASS - 5/23/23
-        private const int MAX_STRING_LEN = 360; //TODO: UTIL CLASS - 5/23/23
         private const int DELETE_ALL_CHOICES_CODE = -1;
         private const int DESC_LINE_IDX = 1;
         private const int INFO_LEN = 2;
@@ -59,7 +50,6 @@ namespace DecisionMaker
             {"Remove choices", false},
             {"Delete entire category", true}
         };
-        private readonly string[] stopWords = { "stop", "exit", "done", "good", "quit", "finished" };
 
         // CONSTRUCTOR
         public DecisionsSection()
@@ -97,18 +87,18 @@ namespace DecisionMaker
 
         private string formatDCPath(string category)
         {
-            return DEFAULT_DC_DIRECTORY + category + TXT;
+            return DEFAULT_DC_DIRECTORY + category + TextUtils.TXT;
         }
 
         private List<string> scanForDCs()
         {
             try
             {
-                List<string> files = Directory.GetFiles(DEFAULT_DC_DIRECTORY, $"*{TXT}").ToList();
+                List<string> files = Directory.GetFiles(DEFAULT_DC_DIRECTORY, $"*{TextUtils.TXT}").ToList();
                 int i = 0;
                 foreach (string path in files.ToList())
                 {
-                    int catLen = path.Length - DEFAULT_DC_DIRECTORY.Length - TXT.Length;
+                    int catLen = path.Length - DEFAULT_DC_DIRECTORY.Length - TextUtils.TXT.Length;
                     files[i] = path.Substring(DEFAULT_DC_DIRECTORY.Length, catLen);
                     ++i;
                 }
@@ -140,11 +130,11 @@ namespace DecisionMaker
         public int doMenuLoop()
         {
             Console.WriteLine(DECISIONS_WELCOME_MSG);
-            int opt = INVALID_OPT;
+            int opt = MenuUtils.INVALID_OPT;
             do
             {
                 writeStartMenu();
-                opt = promptUser();
+                opt = MenuUtils.promptUser();
                 processStartMenuInput(opt);
                 fullyUpdateStoredDCs();
             }while(!wantsToExit(opt));
@@ -153,7 +143,7 @@ namespace DecisionMaker
 
         private bool wantsToExit(int opt)
         {
-            return isChoiceMenuExit(opt) || (isChoiceNo(opt) && !hasDCs());
+            return MenuUtils.isChoiceMenuExit(opt) || (MenuUtils.isChoiceNo(opt) && !hasDCs());
         }
 
         private void writeStartMenu()
@@ -198,41 +188,13 @@ namespace DecisionMaker
 
         private void printExitChoice()
         {
-            Console.WriteLine($"{EXIT_CODE}. Exit");
+            Console.WriteLine($"{MenuUtils.EXIT_CODE}. Exit");
         }
 
         private void add1stDC()
         {
             Console.WriteLine(ADD_1ST_DC_CONFIRM_MSG);
-            Console.WriteLine(BINARY_CHOICE_MSG);
-        }
-
-        /// <summary>
-        /// main user choice parsing method where they must choose from listed integers
-        /// </summary>
-        /// <returns>
-        /// a processed integer... INVALID_OPT for invalid choice
-        /// </returns>
-        private int promptUser()
-        {
-            Console.WriteLine(CHOOSE_NUM_MSG);
-            string input = Console.ReadLine()!;
-            int opt = convertInputToInt(input);
-            return opt;        
-        }
-
-        private int convertInputToInt(string input)
-        {
-            int opt = INVALID_OPT;
-            try
-            {
-                opt = System.Int32.Parse(input);
-            }
-            catch(Exception e) 
-            {
-                Console.Error.WriteLine(DS_ERR_INTRO + $"Cannot convert input to integer: {e}");
-            }
-            return opt;
+            Console.WriteLine(MenuUtils.BINARY_CHOICE_MSG);
         }
 
         // this is for processing the entry point menu
@@ -253,12 +215,12 @@ namespace DecisionMaker
                 Console.WriteLine($"Going to {categoryMap.Keys.ElementAt(catIdx)} menu...");
                 enterDCActionsMenu(catIdx);
             }
-            else if(isChoiceMenuExit(opt))
-                Console.WriteLine(MENU_EXIT_MSG);
+            else if(MenuUtils.isChoiceMenuExit(opt))
+                Console.WriteLine(MenuUtils.MENU_EXIT_MSG);
             else if(isChoiceAddNewDC(opt))
                 createDC();
             else
-                Console.WriteLine(INVALID_CHOICE_MSG);
+                Console.WriteLine(MenuUtils.INVALID_CHOICE_MSG);
         }
 
         /// <summary>
@@ -270,14 +232,14 @@ namespace DecisionMaker
         {
             switch(opt)
             {
-                case YES_CODE:
+                case MenuUtils.YES_CODE:
                     createDC();
                     break;
-                case NO_CODE:
-                    Console.WriteLine(MENU_EXIT_MSG);
+                case MenuUtils.NO_CODE:
+                    Console.WriteLine(MenuUtils.MENU_EXIT_MSG);
                     break;
                 default:
-                    Console.WriteLine(INVALID_CHOICE_MSG);
+                    Console.WriteLine(MenuUtils.INVALID_CHOICE_MSG);
                     break;
             }
         }
@@ -285,18 +247,7 @@ namespace DecisionMaker
         // determine if the input is for an existing category
         private bool isChoiceInChoiceRange(int opt)
         {
-            return(hasDCs()) && ((opt >= 1) && (opt <= categoryMap.Count));
-        }
-
-        // determines if the inputted number is for exiting a menu.
-        private bool isChoiceMenuExit(int opt)
-        {
-            return opt == EXIT_CODE;
-        }
-
-        private bool isChoiceNo(int opt)
-        {
-            return opt == NO_CODE;
+            return(hasDCs()) && ((opt >= MenuUtils.MENU_START) && (opt <= categoryMap.Count));
         }
 
         private bool isChoiceAddNewDC(int opt)
@@ -308,21 +259,21 @@ namespace DecisionMaker
         private void enterDCActionsMenu(int categoryIdx)
         {
             string selected = categoryMap.ElementAt(categoryIdx).Key;
-            int categoryOpt = INVALID_OPT;
+            int categoryOpt = MenuUtils.INVALID_OPT;
             bool doesTerminate = false;
             do
             {
                 writeDCActionsMenu(selected);
-                categoryOpt = promptUser();
+                categoryOpt = MenuUtils.promptUser();
                 doesTerminate = processDCActionsMenuInput(categoryOpt, selected);
-            }while(!isChoiceMenuExit(categoryOpt) && !doesTerminate);
+            }while(!MenuUtils.isChoiceMenuExit(categoryOpt) && !doesTerminate);
         }
 
         private void writeDCActionsMenu(string category)
         {
             Console.WriteLine($"Here are the choices for the {category} decision category: ");
             List<string> actionNames = getDCActionKeys().ToList();
-            writeListAsNumberMenu(actionNames);
+            TextUtils.writeListAsNumberMenu(actionNames);
             printExitChoice();
         }
 
@@ -337,13 +288,13 @@ namespace DecisionMaker
             bool doesTerminate = false;
             if(isChoiceDCAction(opt))
                 doesTerminate = processDCAction(opt, category);
-            else if (isChoiceMenuExit(opt))
+            else if (MenuUtils.isChoiceMenuExit(opt))
             {
-                Console.WriteLine(MENU_EXIT_MSG);
+                Console.WriteLine(MenuUtils.MENU_EXIT_MSG);
                 doesTerminate = true;
             }
             else
-                Console.WriteLine(INVALID_CHOICE_MSG);
+                Console.WriteLine(MenuUtils.INVALID_CHOICE_MSG);
 
             Console.WriteLine();
             return doesTerminate;
@@ -430,7 +381,7 @@ namespace DecisionMaker
             {
                 Console.WriteLine(DESCRIBE_DC_MSG);
                 categoryDesc = Console.ReadLine()!;
-            }while(!isInputAcceptable(categoryDesc));
+            }while(!TextUtils.isInputAcceptable(categoryDesc));
             return categoryDesc;
         }
 
@@ -443,15 +394,15 @@ namespace DecisionMaker
             {
                 printAddChoiceLoopInstructions(acceptedChoices);
                 choiceInput = Console.ReadLine()!;
-                stopWanted = isInputStopCommand(choiceInput);
+                stopWanted = TextUtils.isInputStopCommand(choiceInput);
                 bool accepted = false;
                 if(!stopWanted)
                     accepted = tryAcceptNewDCChoice(choiceInput, acceptedChoices); // choose to accept or reject into choiceInputs
 
                 printAddChoiceLoopMsg(accepted, choiceInput, acceptedChoices);
-            }while(isStringListEmpty(acceptedChoices) || !stopWanted);
+            }while(TextUtils.isStringListEmpty(acceptedChoices) || !stopWanted);
 
-            Console.WriteLine($"Choices for {category}: {prettyStringifyList(acceptedChoices)}\n");
+            Console.WriteLine($"Choices for {category}: {TextUtils.prettyStringifyList(acceptedChoices)}\n");
             return acceptedChoices;
         }
 
@@ -462,13 +413,13 @@ namespace DecisionMaker
 
         private void printAddChoiceLoopInstructions(List<string> acceptedChoices)
         {
-            string introEnd = (isStringListEmpty(acceptedChoices)) ? ":" : $" {getAddChoicesStopMsg()}:";
+            string introEnd = (TextUtils.isStringListEmpty(acceptedChoices)) ? ":" : $" {getAddChoicesStopMsg()}:";
             Console.WriteLine(ADD_CHOICE_INTRO_MSG + introEnd);
         }
 
         private string getAddChoicesStopMsg()
         {
-            string stops = prettyStringifyList(stopWords.ToList());
+            string stops = TextUtils.prettyStringifyList(TextUtils.stopWords.ToList());
             return $"({STOP_INFO_MSG}, type any positive number or any of the following in lowercase: {stops})";
         }
 
@@ -479,7 +430,7 @@ namespace DecisionMaker
                 outputMsg = $"{candidate} accepted!";
             else if (isItemAlreadyAccepted(candidate, acceptedChoices))
                 outputMsg = $"{candidate} was already accepted";
-            else if (!isInputAcceptable(candidate))
+            else if (!TextUtils.isInputAcceptable(candidate))
                 outputMsg = ADD_CHOICE_REJECT_MSG;
 
             if(outputMsg != "")
@@ -488,17 +439,12 @@ namespace DecisionMaker
 
         bool tryAcceptNewDCChoice(string candidate, List<string> acceptedChoices)
         {
-            if(isInputAcceptable(candidate) && !isItemAlreadyAccepted(candidate, acceptedChoices))
+            if(TextUtils.isInputAcceptable(candidate) && !isItemAlreadyAccepted(candidate, acceptedChoices))
             {
                 acceptedChoices.Add(candidate);
                 return true;
             }
             return false;
-        }
-
-        bool isInputAcceptable(string input)
-        {
-            return !String.IsNullOrWhiteSpace(input) && input.Length <= MAX_STRING_LEN;
         }
 
         private bool isItemAlreadyAccepted(string candidate, List<string> accepted)
@@ -508,7 +454,7 @@ namespace DecisionMaker
 
         private bool isChoiceDCAction(int opt)
         {
-            return (opt >= 1) && (opt <= categoryActions.Count);
+            return (opt >= MenuUtils.MENU_START) && (opt <= categoryActions.Count);
         }
  
         /// <summary>
@@ -629,7 +575,7 @@ namespace DecisionMaker
 
         private bool doesDCHaveChoices(string category)
         {
-            return checkDCExists(category) && !isStringListEmpty(getChoicesDC(category));
+            return checkDCExists(category) && !TextUtils.isStringListEmpty(getChoicesDC(category));
         }
 
         /// <summary>
@@ -640,13 +586,13 @@ namespace DecisionMaker
         private List<string> removeChoicesFromDCLoop(string category)
         {
             List<string> remainingChoices = getChoicesDC(category);
-            int opt = INVALID_OPT;
+            int opt = MenuUtils.INVALID_OPT;
             bool isExit = false;
-            while(!isStringListEmpty(remainingChoices) && !isExit)
+            while(!TextUtils.isStringListEmpty(remainingChoices) && !isExit)
             {
                 writeRemoveChoicesMenu(remainingChoices);
-                opt = promptUser();
-                isExit = isChoiceMenuExit(opt);
+                opt = MenuUtils.promptUser();
+                isExit = MenuUtils.isChoiceMenuExit(opt);
                 string removed = processRemoveDecisionChoice(opt, remainingChoices);
                 if(!isExit) printRemoveChoicesLoopMsg(removed, remainingChoices, category);
                 Console.WriteLine();
@@ -657,7 +603,7 @@ namespace DecisionMaker
          private void writeRemoveChoicesMenu(List<string> remaining)
          {
             Console.WriteLine(REMOVE_CHOICES_MENU_MSG);
-            writeListAsNumberMenu(remaining);
+            TextUtils.writeListAsNumberMenu(remaining);
             printExitChoice();
             printDeleteAllChoices();
         }
@@ -681,7 +627,7 @@ namespace DecisionMaker
         private string tryRemoveChoice(int choiceOpt, List<string> remainingChoices)
         {
             string removed = "";
-            if((1 <= choiceOpt) && (choiceOpt <= remainingChoices.Count))
+            if((MenuUtils.MENU_START <= choiceOpt) && (choiceOpt <= remainingChoices.Count))
             {
                 try
                 {
@@ -700,7 +646,7 @@ namespace DecisionMaker
 
         private void printRemoveChoicesLoopMsg(string removed, List<string> remainingChoices, string category)
         {
-            if (isStringListEmpty(remainingChoices))
+            if (TextUtils.isStringListEmpty(remainingChoices))
             {
                 Console.WriteLine($"All choices removed from {category} category");
                 return;
@@ -710,7 +656,7 @@ namespace DecisionMaker
             else
                 Console.WriteLine($"Successfully removed {removed} option!");
 
-            Console.WriteLine($"{category} choices remaining: {prettyStringifyList(remainingChoices)}");
+            Console.WriteLine($"{category} choices remaining: {TextUtils.prettyStringifyList(remainingChoices)}");
         }
 
         private int runRNG(List<string> choices)
@@ -736,52 +682,6 @@ namespace DecisionMaker
         private List<string> getChoicesDC(string category)
         {
             return File.ReadAllLines(formatDCPath(category)).Skip(INFO_LEN).ToList();
-        }
-
-        // TODO: move to util class
-        private bool isInputStopCommand(string input)
-        {
-            return this.stopWords.Contains(input) || isNumeric(input);
-        }
-
-        // TODO: move to util class
-        private bool isNumeric(string input)
-        {
-            Regex numericOnly = new(@"^[0-9]+$");
-            return numericOnly.IsMatch(input);
-        }
-
-        // TODO: move to util class
-        private bool isAlpha(string input){
-            Regex alphaNumeric = new(@"^[a-zA-Z\s,]*$");
-            return alphaNumeric.IsMatch(input);
-        }
-
-        //TODO: MOVE TO UTIL CLASS - 5/17/23
-        private string prettyStringifyList(List<string> items)
-        {
-            return string.Join(", ", items);
-        }
-
-        //TODO: MOVE TO UTIL CLASS - 5/21/23
-        /// <summary>
-        /// prints a list in the form:
-        /// 1. [string]
-        /// 2. [string]
-        /// ...
-        /// n. [string]
-        /// </summary>
-        /// <param name="list"> - the list to print</param>
-         private void writeListAsNumberMenu(List<string> list)
-         {
-            for(int i = 0; i < list.Count; i++)
-                Console.WriteLine($"{i+1}. {list[i]}");
-         }
-
-        // TODO: MOVE TO UTIL CLASS - 5/23/23
-         private bool isStringListEmpty(List<string> strings)
-         {
-            return strings.Count == 0;
         }
     }
 }
