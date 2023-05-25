@@ -4,13 +4,13 @@
 * date started: 4/4/2023
 */
 using System;
-namespace DecisionMaker{
+namespace DecisionMaker
+{
     public class DecisionMakerMain : IDecisionMakerSection
     {
         private ProfileSection profileSect;
         private DecisionsSection decisionsSect;
-        private const int EXIT_CODE = 5;
-
+        
         public DecisionMakerMain()
         {
             this.profileSect = new();
@@ -33,8 +33,8 @@ namespace DecisionMaker{
             do
             {
                 writeMenu();
-                choice = promptUser();
-            }while(choice != EXIT_CODE);
+                choice = MenuUtils.promptUser();
+            }while(choice != MenuUtils.EXIT_CODE);
             return 0;
         }
 
@@ -44,32 +44,9 @@ namespace DecisionMaker{
             "1. Decisions menu\n" +
             "2. Profile menu\n" +
             "3. File management menu\n" +
-            "4. Help\n" +
-            "5. Exit\n");
+            "4. Help\n");
+            MenuUtils.printExitChoice();
         }
-        private int promptUser()
-        {
-            Console.Write("Please enter a valid number: ");
-            string input = Console.ReadLine()!;
-            int opt = getUserInput(input);
-            processMenuInput(opt);
-            return opt;
-        }
-
-        private int getUserInput(string input)
-        {
-            int opt = -1;
-            try
-            {
-                opt = System.Int32.Parse(input);
-            }
-            catch(Exception e) 
-            {
-                Console.Error.WriteLine($"Cannot convert input to integer: {e}");
-            }
-            return opt;
-        }
-
         private void processMenuInput(int opt)
         {
             switch(opt)
@@ -87,8 +64,8 @@ namespace DecisionMaker{
                 case 4:
                     // print help message
                     break;
-                case EXIT_CODE:
-                    Console.WriteLine("exiting");
+                case MenuUtils.EXIT_CODE:
+                    Console.WriteLine("Exiting DecisionMaker!");
                     break;
                 default:
                     Console.WriteLine("Unrecognized command, please try again");
