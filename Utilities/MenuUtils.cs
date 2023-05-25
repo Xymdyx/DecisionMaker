@@ -5,7 +5,7 @@ namespace DecisionMaker
         public static string BINARY_CHOICE_MSG ="1. Yes\n2. No\n"; 
         public const string CHOOSE_NUM_MSG = "Please choose a valid number: "; 
         public const string INVALID_CHOICE_MSG = "What you inputted was not a valid choice, please try again."; 
-        public const string MENU_EXIT_MSG = "Exiting to main menu";
+        public const string MENU_EXIT_MSG = "Exiting to previous menu";
         private const string MU_ERR_INTRO = "MenuUtils.cs: ";
 
         public const int INVALID_OPT = Int32.MinValue; 
@@ -13,7 +13,7 @@ namespace DecisionMaker
         public const int YES_CODE = 1; 
         public const int NO_CODE = 2;
         public const int MENU_START = 1;
-        
+
         /// <summary>
         /// main user choice parsing method where they must choose from listed integers
         /// </summary>
@@ -22,7 +22,7 @@ namespace DecisionMaker
         /// </returns>
         public static int promptUser()
         {
-            Console.WriteLine(MenuUtils.CHOOSE_NUM_MSG);
+            Console.WriteLine(CHOOSE_NUM_MSG);
             string input = Console.ReadLine()!;
             int opt = convertInputToInt(input);
             return opt;        
@@ -44,17 +44,22 @@ namespace DecisionMaker
 
         public static bool isChoiceMenuExit(int opt)
         {
-            return opt == MenuUtils.EXIT_CODE;
+            return opt == EXIT_CODE;
         }
 
         public static bool isChoiceYes(int opt)
         {
-            return opt == MenuUtils.YES_CODE;
+            return opt == YES_CODE;
         }        
 
         public static bool isChoiceNo(int opt)
         {
-            return opt == MenuUtils.NO_CODE;
+            return opt == NO_CODE;
+        }
+
+        public static void printExitChoice()
+        {
+            Console.WriteLine($"{EXIT_CODE}. Exit");
         }
     }
 }

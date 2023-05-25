@@ -168,7 +168,7 @@ namespace DecisionMaker
             Console.WriteLine(HAS_DCS_MSG);
             printSavedDCs();
             printAddDC();
-            printExitChoice();
+            MenuUtils.printExitChoice();
         }
 
         private void printSavedDCs()
@@ -186,10 +186,6 @@ namespace DecisionMaker
             Console.WriteLine($"{categoryMap.Count + 1}. Add a whole new Decision Category");
         }
 
-        private void printExitChoice()
-        {
-            Console.WriteLine($"{MenuUtils.EXIT_CODE}. Exit");
-        }
 
         private void add1stDC()
         {
@@ -274,7 +270,7 @@ namespace DecisionMaker
             Console.WriteLine($"Here are the choices for the {category} decision category: ");
             List<string> actionNames = getDCActionKeys().ToList();
             TextUtils.writeListAsNumberMenu(actionNames);
-            printExitChoice();
+            MenuUtils.printExitChoice();
         }
 
         /// <summary>
@@ -604,7 +600,7 @@ namespace DecisionMaker
          {
             Console.WriteLine(REMOVE_CHOICES_MENU_MSG);
             TextUtils.writeListAsNumberMenu(remaining);
-            printExitChoice();
+            MenuUtils.printExitChoice();
             printDeleteAllChoices();
         }
 
