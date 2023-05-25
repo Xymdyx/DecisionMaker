@@ -55,12 +55,15 @@ namespace DecisionMaker
                     this.decisionsSect.doMenuLoop();
                     break;
                 case 2:
-                    // send to profileMenu()
+                    Console.WriteLine("Coming next...");
+                    profileSect.doMenuLoop();
                     break;
                 case 3:
+                    Console.WriteLine("Coming later...");
                     // send to fileManagement();
                     break;
                 case 4:
+                    Console.WriteLine("Coming last...");
                     // print help message
                     break;
                 case MenuUtils.EXIT_CODE:
