@@ -2,9 +2,8 @@ namespace DecisionMaker
 {
     public class ProfileSection:IDecisionMakerSection
     {
-        private const int EXIT_CODE = 5;
         // need profile directory path
-        private const string PROFILE_DEFAULT_PATH = ".\\profile-storage\\profile.txt";
+        private const string PROFILE_DEFAULT_PATH = ".\\ProfileStorage\\profile.txt";
         private const string DEFAULT_GREETING = "Hello there, friend!";
         private const string DEFAULT_EXIT_MSG = "Goodbye, friend. We hope you found what you were looking for!";
         public ProfileSection()

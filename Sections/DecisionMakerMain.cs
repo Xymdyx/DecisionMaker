@@ -25,16 +25,15 @@ namespace DecisionMaker
             Console.WriteLine("Thanks for consulting us!");
             return 0;
         }
-        private void parseCommandLine(){}
-
         private int doMenuLoop()
         {
-            int choice = -1;
+            int opt = -1;
             do
             {
                 writeMenu();
-                choice = MenuUtils.promptUser();
-            }while(choice != MenuUtils.EXIT_CODE);
+                opt = MenuUtils.promptUser();
+                processMenuInput(opt);
+            }while(opt != MenuUtils.EXIT_CODE);
             return 0;
         }
 
@@ -72,10 +71,5 @@ namespace DecisionMaker
                     break;
             }
         }
-
-        private void readExistingLists(){}
-        private void addItemToList(){}
-        private void decideForUser(List<string> options){}
-        private int runRNG(){return 0;}
     }
 }
