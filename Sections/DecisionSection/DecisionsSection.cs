@@ -186,11 +186,10 @@ namespace DecisionMaker
             Console.WriteLine($"{categoryMap.Count + 1}. Add a whole new Decision Category");
         }
 
-
         private void add1stDC()
         {
             Console.WriteLine(ADD_1ST_DC_CONFIRM_MSG);
-            Console.WriteLine(MenuUtils.BINARY_CHOICE_MSG);
+            Console.WriteLine(MenuUtils.BINARY_CHOICE_MSG); //TODO: change to use writeBianryMenu()
         }
 
         // this is for processing the entry point menu
