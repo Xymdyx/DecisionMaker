@@ -3,10 +3,11 @@ namespace DecisionMaker
     public class ProfileSection:IDecisionMakerSection
     {
          private const string PROFILE_DEFAULT_DIR = ".\\ProfileStorage\\";
-        private const string PROFILE_DEFAULT_PATH = ".\\ProfileStorage\\profile.txt";
-        private const string PROFILE_GREETING_PATH = ".\\ProfileStorage\\greeting.txt";
-        private const string PROFILE_EXITING_PATH = ".\\ProfileStorage\\exiting.txt";
-        private const string PROFILE_DISPLAY_NAME_PATH = ".\\ProfileStorage\\displayname.txt";
+        private const string PROFILE_DEFAULT_PATH = PROFILE_DEFAULT_DIR + "profile.txt";
+        private const string PROFILE_GREETING_PATH = PROFILE_DEFAULT_DIR + "greeting.txt";
+        private const string PROFILE_EXITING_PATH = PROFILE_DEFAULT_DIR + "exiting.txt";
+        private const string PROFILE_DISPLAY_NAME_PATH = PROFILE_DEFAULT_DIR + "displayname.txt";
+        private const string PROFILE_NO_SAVE_MSG = "Exited without saving any data";
 
         private const string DEFAULT_GREETING = "Hello there, friend!";
         private const string PROFILE_MENU_GREETING = "Welcome to the Profile Menu. This is where you can customize this program's configurable messages!";
@@ -14,17 +15,38 @@ namespace DecisionMaker
         private const string CHANGE_EXITING_MSG = "Please type a custom exit message:";
         private const string CHANGE_DISPLAY_NAME_MSG = "Please type what you would like us to call you:";
         private const string DEFAULT_EXIT_MSG = "Goodbye, friend. We hope you found what you were looking for!";
+
         private const int CHANGE_GREETING_CODE = 1;
         private const int CHANGE_EXITING_CODE = 2;
         private const int CHANGE_DISPLAY_NAME_CODE = 3;
 
         private const string PS_ERR_INTRO = "ProfileSect.cs: ";
 
+        Personality appPersonality;
+
         public ProfileSection()
         {
-            scanForConfigurations();
             checkAndInitProfileDir();
+            this.appPersonality = scanForConfigurations();
+            Console.WriteLine(appPersonality);
         }
+
+        private Personality scanForConfigurations()
+        {
+            string greeting = "";
+            string exiting = ""; 
+            string displayName = "";
+
+            if(File.Exists(PROFILE_GREETING_PATH))
+                greeting = File.ReadAllText(PROFILE_GREETING_PATH);             
+            if(File.Exists(PROFILE_EXITING_PATH))
+                exiting = File.ReadAllText(PROFILE_EXITING_PATH);
+            if(File.Exists(PROFILE_DISPLAY_NAME_PATH))
+                displayName = File.ReadAllText(PROFILE_DISPLAY_NAME_PATH);
+
+            return new Personality(greeting, exiting, displayName);
+        }
+
 
         private void checkAndInitProfileDir()
         {
@@ -49,7 +71,6 @@ namespace DecisionMaker
         private void writeMenu()
         {
             /* TODO: 5/24/23
-            3. Confirm change with a Binary confirmation
             4. Store customizations in txts and read from them at initialization
             */
             Console.WriteLine("1. Change app greeting message\n" +
@@ -146,10 +167,9 @@ namespace DecisionMaker
 
         private void writeProfilePartExitMsg(string path, string ans, bool saved)
         {
-            string exitConfirmMsg = saved ? $"Saving \"{ans}\" to {path}" :  "Exited without saving any data";
+            string exitConfirmMsg = saved ? $"Saving \"{ans}\" to {path}" : PROFILE_NO_SAVE_MSG;
             Console.WriteLine(exitConfirmMsg);
         }
 
-        private void scanForConfigurations(){}
     }
 }
