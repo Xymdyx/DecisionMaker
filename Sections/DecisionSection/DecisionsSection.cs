@@ -215,7 +215,7 @@ namespace DecisionMaker
             else if(isChoiceAddNewDC(opt))
                 createDC();
             else
-                Console.WriteLine(MenuUtils.INVALID_CHOICE_MSG);
+                MenuUtils.writeInvalidMsg();
         }
 
         /// <summary>
@@ -234,7 +234,7 @@ namespace DecisionMaker
                     Console.WriteLine(MenuUtils.MENU_EXIT_MSG);
                     break;
                 default:
-                    Console.WriteLine(MenuUtils.INVALID_CHOICE_MSG);
+                    MenuUtils.writeInvalidMsg();
                     break;
             }
         }
@@ -289,7 +289,7 @@ namespace DecisionMaker
                 doesTerminate = true;
             }
             else
-                Console.WriteLine(MenuUtils.INVALID_CHOICE_MSG);
+                MenuUtils.writeInvalidMsg();
 
             Console.WriteLine();
             return doesTerminate;

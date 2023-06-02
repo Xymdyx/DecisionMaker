@@ -57,6 +57,11 @@ namespace DecisionMaker
             return opt == NO_CODE;
         }
 
+        public static void printToPreviousMenu()
+        {
+            Console.WriteLine("Returning to previous menu");
+        }
+
         public static void printExitChoice()
         {
             Console.WriteLine($"{EXIT_CODE}. Exit");
@@ -71,6 +76,11 @@ namespace DecisionMaker
         {
             Console.WriteLine(BINARY_CHOICE_MSG);
             printExitChoice();
+        }
+
+        public static void writeInvalidMsg()
+        {
+            Console.WriteLine(MenuUtils.INVALID_CHOICE_MSG);
         }
     }
 }
