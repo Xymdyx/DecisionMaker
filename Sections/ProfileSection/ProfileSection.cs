@@ -9,7 +9,7 @@ namespace DecisionMaker
         private const string PROFILE_DISPLAY_NAME_PATH = PROFILE_DEFAULT_DIR + "displayname.txt";
         private const string PROFILE_NO_SAVE_MSG = "Exited without saving any data";
 
-        private const string DEFAULT_GREETING = "Hello there, friend!";
+        private const string DEFAULT_GREETING = "Hello there!";
         private const string PROFILE_MENU_GREETING = "Welcome to the Profile Menu. This is where you can customize this program's configurable messages!";
         private const string CHANGE_GREETING_MSG = "Please type a custom greeting message:";
         private const string CHANGE_EXITING_MSG = "Please type a custom exit message:";
@@ -22,13 +22,13 @@ namespace DecisionMaker
 
         private const string PS_ERR_INTRO = "ProfileSect.cs: ";
 
-        Personality appPersonality;
+        private readonly string[] profileOptions = { "Change app greeting message", "Change app exit message", "Change display name" };
+        public Personality appPersonality { get; private set; }
 
         public ProfileSection()
         {
             checkAndInitProfileDir();
             this.appPersonality = scanForConfigurations();
-            Console.WriteLine(appPersonality);
         }
 
         private Personality scanForConfigurations()
@@ -47,13 +47,10 @@ namespace DecisionMaker
             return new Personality(greeting, exiting, displayName);
         }
 
-
         private void checkAndInitProfileDir()
         {
             if(!Directory.Exists(PROFILE_DEFAULT_DIR))
-            {
                 Directory.CreateDirectory(PROFILE_DEFAULT_DIR);
-            }
         }
 
         public int doMenuLoop()
@@ -68,16 +65,13 @@ namespace DecisionMaker
             } while(!MenuUtils.isChoiceMenuExit(opt));
             return 0;
         }
+
         private void writeMenu()
         {
-            /* TODO: 5/24/23
-            4. Store customizations in txts and read from them at initialization
-            */
-            Console.WriteLine("1. Change app greeting message\n" +
-                            "2. Change app exit message\n" +
-                            "3. Change display name");
+            TextUtils.writeListAsNumberMenu(this.profileOptions.ToList());
             MenuUtils.printExitChoice();
         }
+
         private void processMenuInput(int opt)
         {
             switch(opt)
@@ -92,10 +86,10 @@ namespace DecisionMaker
                     changeUsername();
                     break;
                 case MenuUtils.EXIT_CODE:
-                    Console.WriteLine("Exiting");
+                    MenuUtils.printToPreviousMenu();
                     break;
                 default:
-                    Console.WriteLine(MenuUtils.INVALID_CHOICE_MSG);
+                    MenuUtils.writeInvalidMsg();
                     break;
             }
         }
