@@ -2,7 +2,7 @@ namespace DecisionMaker
 {
     public static class MenuUtils
     {
-        public static string BINARY_CHOICE_MSG ="1. Yes\n2. No\n"; 
+        public static string BINARY_CHOICE_MSG ="1. Yes\n2. No"; 
         public const string CHOOSE_NUM_MSG = "Please choose a valid number: "; 
         public const string INVALID_CHOICE_MSG = "What you inputted was not a valid choice, please try again."; 
         public const string MENU_EXIT_MSG = "Exiting to previous menu";
@@ -57,9 +57,30 @@ namespace DecisionMaker
             return opt == NO_CODE;
         }
 
+        public static void printToPreviousMenu()
+        {
+            Console.WriteLine("Returning to previous menu");
+        }
+
         public static void printExitChoice()
         {
             Console.WriteLine($"{EXIT_CODE}. Exit");
+        }
+
+        public static bool isBinaryChoiceExit(int opt)
+        {
+            return MenuUtils.isChoiceYes(opt) || MenuUtils.isChoiceMenuExit(opt);
+        }
+
+        public static void writeBinaryMenu()
+        {
+            Console.WriteLine(BINARY_CHOICE_MSG);
+            printExitChoice();
+        }
+
+        public static void writeInvalidMsg()
+        {
+            Console.WriteLine(MenuUtils.INVALID_CHOICE_MSG);
         }
     }
 }
