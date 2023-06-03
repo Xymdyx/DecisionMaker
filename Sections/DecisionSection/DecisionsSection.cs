@@ -186,11 +186,10 @@ namespace DecisionMaker
             Console.WriteLine($"{categoryMap.Count + 1}. Add a whole new Decision Category");
         }
 
-
         private void add1stDC()
         {
             Console.WriteLine(ADD_1ST_DC_CONFIRM_MSG);
-            Console.WriteLine(MenuUtils.BINARY_CHOICE_MSG);
+            Console.WriteLine(MenuUtils.BINARY_CHOICE_MSG); //TODO: change to use writeBianryMenu()
         }
 
         // this is for processing the entry point menu
@@ -216,7 +215,7 @@ namespace DecisionMaker
             else if(isChoiceAddNewDC(opt))
                 createDC();
             else
-                Console.WriteLine(MenuUtils.INVALID_CHOICE_MSG);
+                MenuUtils.writeInvalidMsg();
         }
 
         /// <summary>
@@ -235,7 +234,7 @@ namespace DecisionMaker
                     Console.WriteLine(MenuUtils.MENU_EXIT_MSG);
                     break;
                 default:
-                    Console.WriteLine(MenuUtils.INVALID_CHOICE_MSG);
+                    MenuUtils.writeInvalidMsg();
                     break;
             }
         }
@@ -290,7 +289,7 @@ namespace DecisionMaker
                 doesTerminate = true;
             }
             else
-                Console.WriteLine(MenuUtils.INVALID_CHOICE_MSG);
+                MenuUtils.writeInvalidMsg();
 
             Console.WriteLine();
             return doesTerminate;

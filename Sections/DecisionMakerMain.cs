@@ -10,21 +10,32 @@ namespace DecisionMaker
     {
         private ProfileSection profileSect;
         private DecisionsSection decisionsSect;
+        private Personality personality;
+
+        private readonly string[] navigationMenu = { "Decisions menu", "Profile menu", "File management menu", "Help"};
         
         public DecisionMakerMain()
         {
             this.profileSect = new();
             this.decisionsSect = new();
+            this.personality = profileSect.appPersonality;
         }
 
         public int main(string[] argv)
         {
-            Console.WriteLine("Holey moley here we go again...");
-            Console.WriteLine("We will ask you what you want a decision for shortly...");
+            greet();
             doMenuLoop();
-            Console.WriteLine("Thanks for consulting us!");
+            depart();
             return 0;
         }
+
+        private void greet()
+        {
+            Console.WriteLine(this.personality.mainGreeting);
+            if(this.personality.isDisplayNameCustom())
+                Console.WriteLine($"Welcome back, {this.personality.displayName}!");
+        }
+        
         private int doMenuLoop()
         {
             int opt = -1;
@@ -37,15 +48,19 @@ namespace DecisionMaker
             return 0;
         }
 
+        private void depart()
+        {
+            Console.WriteLine(this.personality.mainExit);
+            if(this.personality.isDisplayNameCustom())
+                Console.WriteLine($"Until next time, {this.personality.displayName}!");
+        }        
+
         private void writeMenu()
         {
-            Console.Write(
-            "1. Decisions menu\n" +
-            "2. Profile menu\n" +
-            "3. File management menu\n" +
-            "4. Help\n");
+            TextUtils.writeListAsNumberMenu(navigationMenu.ToList());
             MenuUtils.printExitChoice();
         }
+
         private void processMenuInput(int opt)
         {
             switch(opt)
@@ -67,7 +82,7 @@ namespace DecisionMaker
                     // print help message
                     break;
                 case MenuUtils.EXIT_CODE:
-                    Console.WriteLine("Exiting DecisionMaker!");
+                    Console.WriteLine("Exiting app!");
                     break;
                 default:
                     Console.WriteLine("Unrecognized command, please try again");
