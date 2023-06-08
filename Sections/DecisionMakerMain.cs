@@ -11,6 +11,7 @@ namespace DecisionMaker
         private ProfileSection profileSect;
         private DecisionsSection decisionsSect;
         private Personality personality;
+        private FilesSection fileSect;
 
         private readonly string[] navigationMenu = { "Decisions menu", "Profile menu", "File management menu", "Help"};
         
@@ -19,6 +20,7 @@ namespace DecisionMaker
             this.profileSect = new();
             this.decisionsSect = new();
             this.personality = profileSect.appPersonality;
+            this.fileSect = new(this.decisionsSect);
         }
 
         public int main(string[] argv)
@@ -70,12 +72,10 @@ namespace DecisionMaker
                     this.decisionsSect.doMenuLoop();
                     break;
                 case 2:
-                    Console.WriteLine("Coming next...");
                     profileSect.doMenuLoop();
                     break;
                 case 3:
-                    Console.WriteLine("Coming later...");
-                    // send to fileManagement();
+                    fileSect.doMenuLoop();
                     break;
                 case 4:
                     Console.WriteLine("Coming last...");

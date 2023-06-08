@@ -9,7 +9,7 @@ namespace DecisionMaker
     public class DecisionsSection : IDecisionMakerSection
     {
         // STRING CONSTANTS
-        private const string DEFAULT_DC_DIRECTORY = @".\Decisions\Categories\";
+        public const string DEFAULT_DC_DIRECTORY = @".\Decisions\Categories\";
         private const string DEFAULT_WIP_FILE = "wipcat";
         private const string DECISION_DELIMITER = "\n"; // DC files delimited by newlines
         private const string NO_DC_DIR_MSG = "No decisions directory detected in the desired location...Creating";
@@ -51,6 +51,9 @@ namespace DecisionMaker
             {"Delete entire category", true}
         };
 
+
+        public Dictionary<string, string> CategoryMap { get => categoryMap; }
+
         // CONSTRUCTOR
         public DecisionsSection()
         {
@@ -60,8 +63,9 @@ namespace DecisionMaker
             addNewCategoriesToMap();
         }
 
-        private void fullyUpdateStoredDCs()
+        public void fullyUpdateStoredDCs()
         {
+            checkAndInitDCDir();
             addNewCategoriesToMap();
             removeOldCategoriesFromMap();
         }
@@ -85,11 +89,12 @@ namespace DecisionMaker
                 categoryMap.Remove(cat);
         }
 
-        private string formatDCPath(string category)
+        public string formatDCPath(string category)
         {
             return DEFAULT_DC_DIRECTORY + category + TextUtils.TXT;
         }
 
+        // used by FileSection.cs to print the exisiting categories.
         private List<string> scanForDCs()
         {
             try
@@ -171,7 +176,7 @@ namespace DecisionMaker
             MenuUtils.printExitChoice();
         }
 
-        private void printSavedDCs()
+        public void printSavedDCs()
         {
             int totalCategories = categoryMap.Count;            
             for(int i = 0; i < totalCategories; i++)
@@ -206,9 +211,8 @@ namespace DecisionMaker
         {
             if(isChoiceInChoiceRange(opt))
             {
-                int catIdx = opt-1;
-                Console.WriteLine($"Going to {categoryMap.Keys.ElementAt(catIdx)} menu...");
-                enterDCActionsMenu(catIdx);
+                Console.WriteLine($"Going to {getDCNameFromMenuChoice(opt)} menu...");
+                enterDCActionsMenu(opt);
             }
             else if(MenuUtils.isChoiceMenuExit(opt))
                 Console.WriteLine(MenuUtils.MENU_EXIT_MSG);
@@ -216,6 +220,12 @@ namespace DecisionMaker
                 createDC();
             else
                 MenuUtils.writeInvalidMsg();
+        }
+
+
+        public string getDCNameFromMenuChoice(int opt)
+        {
+            return this.categoryMap.ElementAt(opt - 1).Key;
         }
 
         /// <summary>
@@ -240,7 +250,7 @@ namespace DecisionMaker
         }
 
         // determine if the input is for an existing category
-        private bool isChoiceInChoiceRange(int opt)
+        public bool isChoiceInChoiceRange(int opt)
         {
             return(hasDCs()) && ((opt >= MenuUtils.MENU_START) && (opt <= categoryMap.Count));
         }
@@ -251,9 +261,9 @@ namespace DecisionMaker
         }
 
         // loop for choosing what to do with a selected decision category
-        private void enterDCActionsMenu(int categoryIdx)
+        private void enterDCActionsMenu(int dcChoice)
         {
-            string selected = categoryMap.ElementAt(categoryIdx).Key;
+            string selected = getDCNameFromMenuChoice(dcChoice);
             int categoryOpt = MenuUtils.INVALID_OPT;
             bool doesTerminate = false;
             do
