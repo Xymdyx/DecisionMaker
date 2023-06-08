@@ -2,11 +2,10 @@ namespace DecisionMaker
 {
     public class ProfileSection:IDecisionMakerSection
     {
-         private const string PROFILE_DEFAULT_DIR = ".\\ProfileStorage\\";
-        private const string PROFILE_DEFAULT_PATH = PROFILE_DEFAULT_DIR + "profile.txt";
-        private const string PROFILE_GREETING_PATH = PROFILE_DEFAULT_DIR + "greeting.txt";
-        private const string PROFILE_EXITING_PATH = PROFILE_DEFAULT_DIR + "exiting.txt";
-        private const string PROFILE_DISPLAY_NAME_PATH = PROFILE_DEFAULT_DIR + "displayname.txt";
+        public const string PROFILE_DEFAULT_DIR = ".\\ProfileStorage\\";
+        public const string PROFILE_GREETING_PATH = PROFILE_DEFAULT_DIR + "greeting.txt";
+        public const string PROFILE_EXITING_PATH = PROFILE_DEFAULT_DIR + "exiting.txt";
+        public const string PROFILE_DISPLAY_NAME_PATH = PROFILE_DEFAULT_DIR + "displayname.txt";
         private const string PROFILE_NO_SAVE_MSG = "Exited without saving any data";
 
         private const string DEFAULT_GREETING = "Hello there!";
@@ -164,6 +163,5 @@ namespace DecisionMaker
             string exitConfirmMsg = saved ? $"Saving \"{ans}\" to {path}" : PROFILE_NO_SAVE_MSG;
             Console.WriteLine(exitConfirmMsg);
         }
-
     }
 }

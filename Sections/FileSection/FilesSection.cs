@@ -1,5 +1,6 @@
 namespace DecisionMaker
 {
+    using ps = DecisionMaker.ProfileSection;
     public class FilesSection:IDecisionMakerSection
     {
         private enum FileTypeCodes
@@ -24,11 +25,9 @@ namespace DecisionMaker
         }
 
         private const string FS_ERR_HEADER = "FilesSection.cs: ";
-        private readonly string[] fileActions = {"Delete a decision category", "Delete all decision categories",
-                                                "Delete greeting", "Delete exiting", "Delete display name", "Delete full profile" };
         private readonly string[] fileTypes = { "Decision Categories", "Custom Profile" };
         private readonly string[] manageFileActions = {"View contents", "Delete file"};
-        private readonly string[] manageProfileActions = {"Greeting", "Exiting", "Display Name", "Delete full profile"};
+        private readonly string[] manageProfileActions = {"Greeting", "Exiting", "Display Name"};
 
         private DecisionsSection ds;
 
@@ -141,29 +140,38 @@ namespace DecisionMaker
 
         private int doProfileLoop()
         {
-            return 0;
+            int opt = MenuUtils.INVALID_OPT;
+            do
+            {
+                writeManageProfileMenu();
+                opt = MenuUtils.promptUser();
+                processProfileMenuInput(opt);
+            } while (!MenuUtils.isChoiceMenuExit(opt));
+            return opt;
         }
 
         private void writeManageProfileMenu()
         {
-
+            TextUtils.writeListAsNumberMenu(this.manageProfileActions.ToList());
+            MenuUtils.printExitChoice();
+            Console.WriteLine($"{(int)FileActionCodes.DeleteAll}. Delete entire profile");
         }
 
         private void processProfileMenuInput(int opt)
         {
             switch(opt)
             {
-                case 1:
-                    // doFileMenuLoop("greeting");
+                case (int) ProfileActionCodes.GREETING:
+                    doFileMenuLoop(ps.PROFILE_GREETING_PATH);
                     break;
-                case 2:
-                    // doFileMenuLoop("parting")
+                case (int) ProfileActionCodes.DEPARTING:
+                    doFileMenuLoop(ps.PROFILE_EXITING_PATH);
                     break;
-                case 3:
-                    // doFileMenuLoop("displayName")
+                case (int) ProfileActionCodes.DISPLAYNAME:
+                    doFileMenuLoop(ps.PROFILE_DISPLAY_NAME_PATH);
                     break;
-                case 4:
-                    // clearFullProfile();
+                case (int)FileActionCodes.DeleteAll:
+                    deleteDirAndContents(ps.PROFILE_DEFAULT_DIR);
                     break;
                 case MenuUtils.EXIT_CODE:
                     MenuUtils.printToPreviousMenu();
@@ -176,7 +184,6 @@ namespace DecisionMaker
 
         private int doFileMenuLoop(string fName)
         {
-            // TODO: and all its calls - 6/5/23
             int opt = MenuUtils.INVALID_OPT;
             do
             {
