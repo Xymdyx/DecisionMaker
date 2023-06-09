@@ -20,7 +20,7 @@ namespace DecisionMaker
             this.profileSect = new();
             this.decisionsSect = new();
             this.personality = profileSect.appPersonality;
-            this.fileSect = new(this.decisionsSect);
+            this.fileSect = new(this.decisionsSect, this.profileSect);
         }
 
         public int main(string[] argv)

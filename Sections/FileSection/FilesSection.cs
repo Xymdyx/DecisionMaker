@@ -24,16 +24,19 @@ namespace DecisionMaker
             DISPLAYNAME
         }
 
+        public const string DEFAULT_FILES_DIR = ".\\FileManagement\\";
+        public const string DEFAULT_WIP_FILE = DEFAULT_FILES_DIR + "wipcat";
         private const string FS_ERR_HEADER = "FilesSection.cs: ";
-        private readonly string[] fileTypes = { "Decision Categories", "Custom Profile" };
+        private readonly string[] fileTypes = { "Decision Categories", "Custom Profile", "WIP File" };
         private readonly string[] manageFileActions = {"View contents", "Delete file"};
         private readonly string[] manageProfileActions = {"Greeting", "Exiting", "Display Name"};
+        private DecisionsSection decSect;
+        private ProfileSection profSect;
 
-        private DecisionsSection ds;
-
-        public FilesSection(DecisionsSection ds)
+        public FilesSection(DecisionsSection ds, ProfileSection ps)
         {
-            this.ds = ds;
+            this.decSect = ds;
+            this.profSect = ps;
         }
 
         public int doMenuLoop()
@@ -50,12 +53,9 @@ namespace DecisionMaker
 
         private void writeMenu()
         {
-            // 2. implement profile clearing
-            // 4. clear wipcat file
             TextUtils.writeListAsNumberMenu(fileTypes.ToList());
             MenuUtils.printExitChoice();
         }
-
 
         private void processMenuInput(int opt)
         {
@@ -66,6 +66,9 @@ namespace DecisionMaker
                     break;
                 case (int) FileTypeCodes.ProfileFiles:
                     doProfileLoop();
+                    break;
+                case (int) FileTypeCodes.WipFile:
+                    doFileMenuLoop(DEFAULT_WIP_FILE);
                     break;
                 case MenuUtils.EXIT_CODE:
                     MenuUtils.printToPreviousMenu();
@@ -90,14 +93,14 @@ namespace DecisionMaker
 
         private void writeManageDCsMenu()
         {
-            ds.printSavedDCs();
+            decSect.printSavedDCs();
             MenuUtils.printExitChoice();
             Console.WriteLine($"{(int)FileActionCodes.DeleteAll}. Delete all decision categories");
         }
 
         private void processDCsMenuInput(int opt)
         {
-            if (ds.isChoiceInChoiceRange(opt))
+            if (decSect.isChoiceInChoiceRange(opt))
                 manageChosenDC(opt);
             else if(isOptDeleteAll(opt))
                 deleteAllDCs();
@@ -107,12 +110,12 @@ namespace DecisionMaker
 
         private void manageChosenDC(int opt)
         {
-            string dcName = ds.getDCNameFromMenuChoice(opt);
-            string dcPath = ds.formatDCPath(dcName);
+            string dcName = decSect.getDCNameFromMenuChoice(opt);
+            string dcPath = decSect.formatDCPath(dcName);
             int dcOpt = doFileMenuLoop(dcPath);
 
             if(dcOpt == (int) FileActionCodes.DeleteFile)
-                this.ds.fullyUpdateStoredDCs();
+                this.decSect.fullyUpdateStoredDCs();
         }
 
         private bool isOptDeleteAll(int opt)
@@ -123,7 +126,7 @@ namespace DecisionMaker
         private void deleteAllDCs()
         {
             deleteDirAndContents(DecisionsSection.DEFAULT_DC_DIRECTORY);
-            this.ds.fullyUpdateStoredDCs();
+            this.decSect.fullyUpdateStoredDCs();
         }
 
         private void deleteDirAndContents(string dir)
@@ -146,6 +149,7 @@ namespace DecisionMaker
                 writeManageProfileMenu();
                 opt = MenuUtils.promptUser();
                 processProfileMenuInput(opt);
+                profSect.scanForProfileUpdates();
             } while (!MenuUtils.isChoiceMenuExit(opt));
             return opt;
         }
@@ -228,9 +232,14 @@ namespace DecisionMaker
         {
             try
             {
-                string info = $"Contents of {fName}:\n";
-                string fileLines = string.Join("\n", File.ReadAllLines(fName));
-                Console.WriteLine(info + fileLines);
+                if (File.Exists(fName))
+                {
+                    string info = $"Contents of {fName}:\n";
+                    string fileLines = string.Join("\n", File.ReadAllLines(fName));
+                    Console.WriteLine(info + fileLines);
+                }
+                else
+                    Console.WriteLine($"{fName} doesn't exist therefore cannot read!");
             }
             catch(Exception e)
             {
@@ -242,13 +251,18 @@ namespace DecisionMaker
         {
             try
             {
-                Console.WriteLine($"Trying to delete {fName}...");
-                File.Delete(fName);
-                Console.WriteLine("Delete successful!");
+                if (File.Exists(fName))
+                {
+                    Console.WriteLine($"Trying to delete {fName}...");
+                    File.Delete(fName);
+                    Console.WriteLine("Delete successful!");
+                }
+                else
+                    Console.WriteLine($"{fName} doesn't exist therefore cannot delete!");
             }
             catch(Exception e)
             {
-                Console.WriteLine($"{FS_ERR_HEADER} failed to delete {fName}... {e}") ;
+                Console.WriteLine($"{FS_ERR_HEADER} failed to delete {fName}... {e}");
             }
         }
 

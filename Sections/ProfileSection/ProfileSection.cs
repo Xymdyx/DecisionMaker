@@ -14,12 +14,11 @@ namespace DecisionMaker
         private const string CHANGE_EXITING_MSG = "Please type a custom exit message:";
         private const string CHANGE_DISPLAY_NAME_MSG = "Please type what you would like us to call you:";
         private const string DEFAULT_EXIT_MSG = "Goodbye, friend. We hope you found what you were looking for!";
+        private const string PS_ERR_INTRO = "ProfileSect.cs: ";
 
         private const int CHANGE_GREETING_CODE = 1;
         private const int CHANGE_EXITING_CODE = 2;
         private const int CHANGE_DISPLAY_NAME_CODE = 3;
-
-        private const string PS_ERR_INTRO = "ProfileSect.cs: ";
 
         private readonly string[] profileOptions = { "Change app greeting message", "Change app exit message", "Change display name" };
         public Personality appPersonality { get; private set; }
@@ -27,7 +26,7 @@ namespace DecisionMaker
         public ProfileSection()
         {
             checkAndInitProfileDir();
-            this.appPersonality = scanForConfigurations();
+            this.appPersonality = new();
         }
 
         private Personality scanForConfigurations()
@@ -37,7 +36,7 @@ namespace DecisionMaker
             string displayName = "";
 
             if(File.Exists(PROFILE_GREETING_PATH))
-                greeting = File.ReadAllText(PROFILE_GREETING_PATH);             
+                greeting = File.ReadAllText(PROFILE_GREETING_PATH);
             if(File.Exists(PROFILE_EXITING_PATH))
                 exiting = File.ReadAllText(PROFILE_EXITING_PATH);
             if(File.Exists(PROFILE_DISPLAY_NAME_PATH))
@@ -62,6 +61,7 @@ namespace DecisionMaker
                 opt = MenuUtils.promptUser();
                 processMenuInput(opt);
             } while(!MenuUtils.isChoiceMenuExit(opt));
+            scanForProfileUpdates();
             return 0;
         }
 
@@ -162,6 +162,11 @@ namespace DecisionMaker
         {
             string exitConfirmMsg = saved ? $"Saving \"{ans}\" to {path}" : PROFILE_NO_SAVE_MSG;
             Console.WriteLine(exitConfirmMsg);
+        }
+
+        public void scanForProfileUpdates()
+        {
+            appPersonality.applyFileChangesToPersonality();
         }
     }
 }

@@ -10,8 +10,7 @@ namespace DecisionMaker
     {
         // STRING CONSTANTS
         public const string DEFAULT_DC_DIRECTORY = @".\Decisions\Categories\";
-        private const string DEFAULT_WIP_FILE = "wipcat";
-        private const string DECISION_DELIMITER = "\n"; // DC files delimited by newlines
+        private const string DECISION_DELIMITER = "\n";
         private const string NO_DC_DIR_MSG = "No decisions directory detected in the desired location...Creating";
         private const string HAS_DCS_MSG = "What would you like us to choose today?";
         private const string NO_DCS_MSG = "Hmm. There appear to be no decision categories for us to choose from.";
@@ -51,7 +50,6 @@ namespace DecisionMaker
             {"Delete entire category", true}
         };
 
-
         public Dictionary<string, string> CategoryMap { get => categoryMap; }
 
         // CONSTRUCTOR
@@ -70,7 +68,7 @@ namespace DecisionMaker
             removeOldCategoriesFromMap();
         }
 
-        // initialize the category map by reading files in the categories directory
+        // initialize the category map by reading files in Categories directory
         private void addNewCategoriesToMap()
         {
             List<string> existing = scanForDCs();
@@ -154,13 +152,9 @@ namespace DecisionMaker
         private void writeStartMenu()
         {
             if(hasDCs())
-            {
                 writeDCsMenu();
-                return;
-            }
-            Console.WriteLine(NO_DCS_MSG);
-            add1stDC();
-            return;
+            else
+                add1stDC();
         }
 
         private bool hasDCs()
@@ -193,8 +187,9 @@ namespace DecisionMaker
 
         private void add1stDC()
         {
+            Console.WriteLine(NO_DCS_MSG);
             Console.WriteLine(ADD_1ST_DC_CONFIRM_MSG);
-            Console.WriteLine(MenuUtils.BINARY_CHOICE_MSG); //TODO: change to use writeBianryMenu()
+            MenuUtils.writeBinaryMenu();
         }
 
         // this is for processing the entry point menu
@@ -242,6 +237,8 @@ namespace DecisionMaker
                     break;
                 case MenuUtils.NO_CODE:
                     Console.WriteLine(MenuUtils.MENU_EXIT_MSG);
+                    break;
+                case MenuUtils.EXIT_CODE:
                     break;
                 default:
                     MenuUtils.writeInvalidMsg();
@@ -361,7 +358,7 @@ namespace DecisionMaker
 
         private void saveUnfinishedDC(string name, string desc, List<string> choices)
         {
-            string categoryPath = formatDCPath(DEFAULT_WIP_FILE);
+            string categoryPath = formatDCPath(FilesSection.DEFAULT_WIP_FILE);
             File.WriteAllText(categoryPath, name + DECISION_DELIMITER);
             File.AppendAllText(categoryPath, desc + DECISION_DELIMITER);
             File.AppendAllLines(categoryPath, choices);
