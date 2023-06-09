@@ -1,3 +1,8 @@
+/*
+* author: Sam Ford
+* desc: Section for deleting files made by the program
+* date started: approx 5/30/2023
+*/
 namespace DecisionMaker
 {
     using ps = DecisionMaker.ProfileSection;

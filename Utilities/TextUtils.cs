@@ -1,6 +1,7 @@
-/// desc: static class that verifies the format of user input
-/// and also formats input into a new outputted format
-/// author: Sam Ford
+/* desc: static class that verifies the format of user input
+* and also formats input into a new outputted format
+* author: Sam Ford 
+*/
 
 using System;
 using System.Text.RegularExpressions;

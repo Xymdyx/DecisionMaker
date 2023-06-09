@@ -1,12 +1,16 @@
+/*
+* author: Sam Ford
+* desc: Section for decision categories and making decisions from them
+* date started: approx 4/23/2023
+*/
 using System;
 using System.Text.RegularExpressions;
 using System.Collections.Specialized;
 
-
 namespace DecisionMaker
 {
     // NOTES: DC == "Decision Category"
-    public class DecisionsSection : IDecisionMakerSection
+    public class DecisionsSection:IDecisionMakerSection
     {
         // STRING CONSTANTS
         public const string DEFAULT_DC_DIRECTORY = @".\Decisions\Categories\";

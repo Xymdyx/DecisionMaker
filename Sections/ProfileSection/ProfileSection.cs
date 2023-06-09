@@ -1,3 +1,8 @@
+/*
+* author: Sam Ford
+* desc: Section for customizing certain messages said by the program
+* date started: approx 5/15/2023
+*/
 namespace DecisionMaker
 {
     public class ProfileSection:IDecisionMakerSection
@@ -8,12 +13,10 @@ namespace DecisionMaker
         public const string PROFILE_DISPLAY_NAME_PATH = PROFILE_DEFAULT_DIR + "displayname.txt";
         private const string PROFILE_NO_SAVE_MSG = "Exited without saving any data";
 
-        private const string DEFAULT_GREETING = "Hello there!";
         private const string PROFILE_MENU_GREETING = "Welcome to the Profile Menu. This is where you can customize this program's configurable messages!";
         private const string CHANGE_GREETING_MSG = "Please type a custom greeting message:";
         private const string CHANGE_EXITING_MSG = "Please type a custom exit message:";
         private const string CHANGE_DISPLAY_NAME_MSG = "Please type what you would like us to call you:";
-        private const string DEFAULT_EXIT_MSG = "Goodbye, friend. We hope you found what you were looking for!";
         private const string PS_ERR_INTRO = "ProfileSect.cs: ";
 
         private const int CHANGE_GREETING_CODE = 1;
@@ -27,22 +30,6 @@ namespace DecisionMaker
         {
             checkAndInitProfileDir();
             this.appPersonality = new();
-        }
-
-        private Personality scanForConfigurations()
-        {
-            string greeting = "";
-            string exiting = ""; 
-            string displayName = "";
-
-            if(File.Exists(PROFILE_GREETING_PATH))
-                greeting = File.ReadAllText(PROFILE_GREETING_PATH);
-            if(File.Exists(PROFILE_EXITING_PATH))
-                exiting = File.ReadAllText(PROFILE_EXITING_PATH);
-            if(File.Exists(PROFILE_DISPLAY_NAME_PATH))
-                displayName = File.ReadAllText(PROFILE_DISPLAY_NAME_PATH);
-
-            return new Personality(greeting, exiting, displayName);
         }
 
         private void checkAndInitProfileDir()
@@ -93,10 +80,6 @@ namespace DecisionMaker
             }
         }
 
-        private void readExistingLists(){}
-        private void addItemToList(){}
-        private void decideForUser(List<string> choices){}
-        private int runRNG(){return 0;}
         private void changeGreeting()
         {
             trySaveAnswerToProfile(PROFILE_GREETING_PATH, CHANGE_GREETING_MSG);
@@ -168,5 +151,8 @@ namespace DecisionMaker
         {
             appPersonality.applyFileChangesToPersonality();
         }
+
+        private void decideForUser(List<string> choices){}
+        private int runRNG(){return 0;}
     }
 }

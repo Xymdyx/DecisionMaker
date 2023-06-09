@@ -1,3 +1,8 @@
+/*
+* author: Sam Ford
+* desc: Utilities for menu creation and loops
+* date started: approx 5/5/2023
+*/
 namespace DecisionMaker
 {
     public static class MenuUtils
