@@ -3,6 +3,8 @@
 * desc: struct to represent the personality of the user's decision maker.
 */
 
+using DPS = DecisionMaker.ProfileSection;
+
 public struct Personality
 {
     private const string DEFAULT_GREETING = "We will ask you what you want a decision for shortly...";
@@ -14,15 +16,12 @@ public struct Personality
     private string? _displayName;
 
     public string? mainGreeting { get => _mainGreetingMsg;}
-    public string? mainExit { get => _mainExitMsg; }
-    public string? displayName { get => _displayName; }
+    public string? mainExit { get => _mainExitMsg;}
+    public string? displayName { get => _displayName;}
 
     public Personality()
     {
-        this._mainGreetingMsg = DEFAULT_GREETING;
-        this._mainExitMsg = DEFAULT_EXITING;
-        this._displayName = DEFAULT_DISPLAY_NAME;
-        fillInBlankFields();
+        applyFileChangesToPersonality();
     }
 
     public Personality(string greeting, string exit, string displayName)
@@ -31,6 +30,18 @@ public struct Personality
         this._mainExitMsg = exit;
         this._displayName = displayName;
     }
+
+    public void applyFileChangesToPersonality()
+    {
+        if(File.Exists(DPS.PROFILE_GREETING_PATH))
+            _mainGreetingMsg = File.ReadAllText(DPS.PROFILE_GREETING_PATH);             
+        if(File.Exists(DPS.PROFILE_EXITING_PATH))
+            _mainExitMsg = File.ReadAllText(DPS.PROFILE_EXITING_PATH);
+        if(File.Exists(DPS.PROFILE_DISPLAY_NAME_PATH))
+            _displayName = File.ReadAllText(DPS.PROFILE_DISPLAY_NAME_PATH);
+
+        fillInBlankFields();
+    }    
 
     private void fillInBlankFields()
     {
@@ -66,5 +77,4 @@ public struct Personality
     {
         return $"Personality: greeting = \"{_mainGreetingMsg}\", exiting = \"{_mainExitMsg}\", displayName = \"{_displayName}\"";
     }
-
 }

@@ -1,3 +1,8 @@
+/*
+* author: Sam Ford
+* desc: Utilities for menu creation and loops
+* date started: approx 5/5/2023
+*/
 namespace DecisionMaker
 {
     public static class MenuUtils
@@ -67,9 +72,14 @@ namespace DecisionMaker
             Console.WriteLine($"{EXIT_CODE}. Exit");
         }
 
-        public static bool isBinaryChoiceExit(int opt)
+        public static bool isBinaryChoice(int opt)
         {
-            return MenuUtils.isChoiceYes(opt) || MenuUtils.isChoiceMenuExit(opt);
+            return isBinaryInputExit(opt) || isChoiceNo(opt);
+        }
+
+        public static bool isBinaryInputExit(int opt)
+        {
+            return isChoiceYes(opt) || isChoiceMenuExit(opt);
         }
 
         public static void writeBinaryMenu()

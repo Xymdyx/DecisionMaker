@@ -1,26 +1,27 @@
+/*
+* author: Sam Ford
+* desc: Section for customizing certain messages said by the program
+* date started: approx 5/15/2023
+*/
 namespace DecisionMaker
 {
     public class ProfileSection:IDecisionMakerSection
     {
-         private const string PROFILE_DEFAULT_DIR = ".\\ProfileStorage\\";
-        private const string PROFILE_DEFAULT_PATH = PROFILE_DEFAULT_DIR + "profile.txt";
-        private const string PROFILE_GREETING_PATH = PROFILE_DEFAULT_DIR + "greeting.txt";
-        private const string PROFILE_EXITING_PATH = PROFILE_DEFAULT_DIR + "exiting.txt";
-        private const string PROFILE_DISPLAY_NAME_PATH = PROFILE_DEFAULT_DIR + "displayname.txt";
+        public const string PROFILE_DEFAULT_DIR = ".\\ProfileStorage\\";
+        public const string PROFILE_GREETING_PATH = PROFILE_DEFAULT_DIR + "greeting.txt";
+        public const string PROFILE_EXITING_PATH = PROFILE_DEFAULT_DIR + "exiting.txt";
+        public const string PROFILE_DISPLAY_NAME_PATH = PROFILE_DEFAULT_DIR + "displayname.txt";
         private const string PROFILE_NO_SAVE_MSG = "Exited without saving any data";
 
-        private const string DEFAULT_GREETING = "Hello there!";
         private const string PROFILE_MENU_GREETING = "Welcome to the Profile Menu. This is where you can customize this program's configurable messages!";
         private const string CHANGE_GREETING_MSG = "Please type a custom greeting message:";
         private const string CHANGE_EXITING_MSG = "Please type a custom exit message:";
         private const string CHANGE_DISPLAY_NAME_MSG = "Please type what you would like us to call you:";
-        private const string DEFAULT_EXIT_MSG = "Goodbye, friend. We hope you found what you were looking for!";
+        private const string PS_ERR_INTRO = "ProfileSect.cs: ";
 
         private const int CHANGE_GREETING_CODE = 1;
         private const int CHANGE_EXITING_CODE = 2;
         private const int CHANGE_DISPLAY_NAME_CODE = 3;
-
-        private const string PS_ERR_INTRO = "ProfileSect.cs: ";
 
         private readonly string[] profileOptions = { "Change app greeting message", "Change app exit message", "Change display name" };
         public Personality appPersonality { get; private set; }
@@ -28,23 +29,7 @@ namespace DecisionMaker
         public ProfileSection()
         {
             checkAndInitProfileDir();
-            this.appPersonality = scanForConfigurations();
-        }
-
-        private Personality scanForConfigurations()
-        {
-            string greeting = "";
-            string exiting = ""; 
-            string displayName = "";
-
-            if(File.Exists(PROFILE_GREETING_PATH))
-                greeting = File.ReadAllText(PROFILE_GREETING_PATH);             
-            if(File.Exists(PROFILE_EXITING_PATH))
-                exiting = File.ReadAllText(PROFILE_EXITING_PATH);
-            if(File.Exists(PROFILE_DISPLAY_NAME_PATH))
-                displayName = File.ReadAllText(PROFILE_DISPLAY_NAME_PATH);
-
-            return new Personality(greeting, exiting, displayName);
+            this.appPersonality = new();
         }
 
         private void checkAndInitProfileDir()
@@ -63,6 +48,7 @@ namespace DecisionMaker
                 opt = MenuUtils.promptUser();
                 processMenuInput(opt);
             } while(!MenuUtils.isChoiceMenuExit(opt));
+            scanForProfileUpdates();
             return 0;
         }
 
@@ -94,10 +80,6 @@ namespace DecisionMaker
             }
         }
 
-        private void readExistingLists(){}
-        private void addItemToList(){}
-        private void decideForUser(List<string> choices){}
-        private int runRNG(){return 0;}
         private void changeGreeting()
         {
             trySaveAnswerToProfile(PROFILE_GREETING_PATH, CHANGE_GREETING_MSG);
@@ -121,7 +103,7 @@ namespace DecisionMaker
             {
                 ans = promptAndGetInput(prompt);
                 opt = promptUserConfirmation(ans);
-            } while(!MenuUtils.isBinaryChoiceExit(opt));
+            } while(!MenuUtils.isBinaryInputExit(opt));
 
             bool saved = MenuUtils.isChoiceYes(opt) ? trySaveProfilePart(path, ans) : false;
             writeProfilePartExitMsg(path, ans, saved);
@@ -165,5 +147,12 @@ namespace DecisionMaker
             Console.WriteLine(exitConfirmMsg);
         }
 
+        public void scanForProfileUpdates()
+        {
+            appPersonality.applyFileChangesToPersonality();
+        }
+
+        private void decideForUser(List<string> choices){}
+        private int runRNG(){return 0;}
     }
 }
