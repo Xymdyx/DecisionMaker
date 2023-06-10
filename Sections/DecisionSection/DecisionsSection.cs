@@ -489,7 +489,7 @@ namespace DecisionMaker
                     removeChoicesFromDC(category);
                     break;
                 case 6:
-                    deleteDC(category);
+                    confirmDeleteDC(category);
                     break;
                 default:
                     Console.WriteLine(DS_ERR_INTRO + "Invalid Category Action in process action. Something's up");
@@ -558,6 +558,37 @@ namespace DecisionMaker
 
             List<string> remainingChoices = removeChoicesFromDCLoop(category);
             saveDCFile(category, getDescDC(category), remainingChoices);
+        }
+
+        private void confirmDeleteDC(string category)
+        {
+            int opt = MenuUtils.INVALID_OPT;
+            do
+            {
+                Console.WriteLine($"Please confirm you want to delete the {category} decision category:");
+                MenuUtils.writeBinaryMenu();
+                opt = MenuUtils.promptUser();
+                processDeleteDCOpt(opt, category);
+            } while (!MenuUtils.isBinaryChoice(opt));
+        }
+
+        private void processDeleteDCOpt(int opt, string category)
+        {
+            
+            switch(opt)
+            {
+                case MenuUtils.YES_CODE:
+                    deleteDC(category);
+                    break;
+                case MenuUtils.NO_CODE:
+                    Console.WriteLine(MenuUtils.MENU_EXIT_MSG);
+                    break;
+                case MenuUtils.EXIT_CODE:
+                    break;
+                default:
+                    MenuUtils.writeInvalidMsg();
+                    break;
+            }
         }
 
         private void deleteDC(string category)

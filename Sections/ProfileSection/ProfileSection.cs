@@ -103,7 +103,7 @@ namespace DecisionMaker
             {
                 ans = promptAndGetInput(prompt);
                 opt = promptUserConfirmation(ans);
-            } while(!MenuUtils.isBinaryChoiceExit(opt));
+            } while(!MenuUtils.isBinaryInputExit(opt));
 
             bool saved = MenuUtils.isChoiceYes(opt) ? trySaveProfilePart(path, ans) : false;
             writeProfilePartExitMsg(path, ans, saved);
