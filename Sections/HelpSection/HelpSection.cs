@@ -1,6 +1,7 @@
 /*
 * description: Section for the help menu, which tells the user more about the app
-* auth: Sam Ford
+* author: Sam Ford
+* date: 6/13/23
 */
 using MU = DecisionMaker.MenuUtils;
 using TU = DecisionMaker.TextUtils;

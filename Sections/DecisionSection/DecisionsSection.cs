@@ -3,13 +3,15 @@
 * desc: Section for decision categories and making decisions from them
 * date started: approx 4/23/2023
 */
+// NOTES: DC == "Decision Category"
+
 using System;
-using System.Text.RegularExpressions;
 using System.Collections.Specialized;
 
+using MU = DecisionMaker.MenuUtils;
+using TU = DecisionMaker.TextUtils;
 namespace DecisionMaker
 {
-    // NOTES: DC == "Decision Category"
     public class DecisionsSection:IDecisionMakerSection
     {
         // STRING CONSTANTS
@@ -54,6 +56,16 @@ namespace DecisionMaker
             {"Delete entire category", true}
         };
 
+        private enum DcActionCodes
+        {
+            Decide = 1,
+            ReadChoices,
+            ReadDesc,
+            AddChoices,
+            RemoveChoices,
+            DeleteDc
+        }
+
         public Dictionary<string, string> CategoryMap { get => categoryMap; }
 
         // CONSTRUCTOR
@@ -93,7 +105,7 @@ namespace DecisionMaker
 
         public string formatDCPath(string category)
         {
-            return DEFAULT_DC_DIRECTORY + category + TextUtils.TXT;
+            return DEFAULT_DC_DIRECTORY + category + TU.TXT;
         }
 
         // used by FileSection.cs to print the exisiting categories.
@@ -101,11 +113,11 @@ namespace DecisionMaker
         {
             try
             {
-                List<string> files = Directory.GetFiles(DEFAULT_DC_DIRECTORY, $"*{TextUtils.TXT}").ToList();
+                List<string> files = Directory.GetFiles(DEFAULT_DC_DIRECTORY, $"*{TU.TXT}").ToList();
                 int i = 0;
                 foreach (string path in files.ToList())
                 {
-                    int catLen = path.Length - DEFAULT_DC_DIRECTORY.Length - TextUtils.TXT.Length;
+                    int catLen = path.Length - DEFAULT_DC_DIRECTORY.Length - TU.TXT.Length;
                     files[i] = path.Substring(DEFAULT_DC_DIRECTORY.Length, catLen);
                     ++i;
                 }
@@ -137,11 +149,11 @@ namespace DecisionMaker
         public int doMenuLoop()
         {
             Console.WriteLine(DECISIONS_WELCOME_MSG);
-            int opt = MenuUtils.INVALID_OPT;
+            int opt = MU.INVALID_OPT;
             do
             {
                 writeStartMenu();
-                opt = MenuUtils.promptUser();
+                opt = MU.promptUser();
                 processStartMenuInput(opt);
                 fullyUpdateStoredDCs();
             }while(!wantsToExit(opt));
@@ -150,7 +162,7 @@ namespace DecisionMaker
 
         private bool wantsToExit(int opt)
         {
-            return MenuUtils.isChoiceMenuExit(opt) || (MenuUtils.isChoiceNo(opt) && !hasDCs());
+            return MU.isChoiceMenuExit(opt) || (MU.isChoiceNo(opt) && !hasDCs());
         }
 
         private void writeStartMenu()
@@ -171,7 +183,7 @@ namespace DecisionMaker
             Console.WriteLine(HAS_DCS_MSG);
             printSavedDCs();
             printAddDC();
-            MenuUtils.printExitChoice();
+            MU.printExitChoice();
         }
 
         public void printSavedDCs()
@@ -193,7 +205,7 @@ namespace DecisionMaker
         {
             Console.WriteLine(NO_DCS_MSG);
             Console.WriteLine(ADD_1ST_DC_CONFIRM_MSG);
-            MenuUtils.writeBinaryMenu();
+            MU.writeBinaryMenu();
         }
 
         // this is for processing the entry point menu
@@ -213,12 +225,12 @@ namespace DecisionMaker
                 Console.WriteLine($"Going to {getDCNameFromMenuChoice(opt)} menu...");
                 enterDCActionsMenu(opt);
             }
-            else if(MenuUtils.isChoiceMenuExit(opt))
-                Console.WriteLine(MenuUtils.MENU_EXIT_MSG);
+            else if(MU.isChoiceMenuExit(opt))
+                Console.WriteLine(MU.MENU_EXIT_MSG);
             else if(isChoiceAddNewDC(opt))
                 createDC();
             else
-                MenuUtils.writeInvalidMsg();
+                MU.writeInvalidMsg();
         }
 
 
@@ -236,16 +248,16 @@ namespace DecisionMaker
         {
             switch(opt)
             {
-                case MenuUtils.YES_CODE:
+                case MU.YES_CODE:
                     createDC();
                     break;
-                case MenuUtils.NO_CODE:
-                    Console.WriteLine(MenuUtils.MENU_EXIT_MSG);
+                case MU.NO_CODE:
+                    Console.WriteLine(MU.MENU_EXIT_MSG);
                     break;
-                case MenuUtils.EXIT_CODE:
+                case MU.EXIT_CODE:
                     break;
                 default:
-                    MenuUtils.writeInvalidMsg();
+                    MU.writeInvalidMsg();
                     break;
             }
         }
@@ -253,7 +265,7 @@ namespace DecisionMaker
         // determine if the input is for an existing category
         public bool isChoiceInChoiceRange(int opt)
         {
-            return(hasDCs()) && ((opt >= MenuUtils.MENU_START) && (opt <= categoryMap.Count));
+            return(hasDCs()) && ((opt >= MU.MENU_START) && (opt <= categoryMap.Count));
         }
 
         private bool isChoiceAddNewDC(int opt)
@@ -265,22 +277,22 @@ namespace DecisionMaker
         private void enterDCActionsMenu(int dcChoice)
         {
             string selected = getDCNameFromMenuChoice(dcChoice);
-            int categoryOpt = MenuUtils.INVALID_OPT;
+            int categoryOpt = MU.INVALID_OPT;
             bool doesTerminate = false;
             do
             {
                 writeDCActionsMenu(selected);
-                categoryOpt = MenuUtils.promptUser();
+                categoryOpt = MU.promptUser();
                 doesTerminate = processDCActionsMenuInput(categoryOpt, selected);
-            }while(!MenuUtils.isChoiceMenuExit(categoryOpt) && !doesTerminate);
+            }while(!MU.isChoiceMenuExit(categoryOpt) && !doesTerminate);
         }
 
         private void writeDCActionsMenu(string category)
         {
             Console.WriteLine($"Here are the choices for the {category} decision category: ");
             List<string> actionNames = getDCActionKeys().ToList();
-            TextUtils.writeListAsNumberMenu(actionNames);
-            MenuUtils.printExitChoice();
+            TU.writeListAsNumberMenu(actionNames);
+            MU.printExitChoice();
         }
 
         /// <summary>
@@ -294,13 +306,13 @@ namespace DecisionMaker
             bool doesTerminate = false;
             if(isChoiceDCAction(opt))
                 doesTerminate = processDCAction(opt, category);
-            else if (MenuUtils.isChoiceMenuExit(opt))
+            else if (MU.isChoiceMenuExit(opt))
             {
-                Console.WriteLine(MenuUtils.MENU_EXIT_MSG);
+                Console.WriteLine(MU.MENU_EXIT_MSG);
                 doesTerminate = true;
             }
             else
-                MenuUtils.writeInvalidMsg();
+                MU.writeInvalidMsg();
 
             Console.WriteLine();
             return doesTerminate;
@@ -387,7 +399,7 @@ namespace DecisionMaker
             {
                 Console.WriteLine(DESCRIBE_DC_MSG);
                 categoryDesc = Console.ReadLine()!;
-            }while(!TextUtils.isInputAcceptable(categoryDesc));
+            }while(!TU.isInputAcceptable(categoryDesc));
             return categoryDesc;
         }
 
@@ -400,15 +412,15 @@ namespace DecisionMaker
             {
                 printAddChoiceLoopInstructions(acceptedChoices);
                 choiceInput = Console.ReadLine()!;
-                stopWanted = TextUtils.isInputStopCommand(choiceInput);
+                stopWanted = TU.isInputStopCommand(choiceInput);
                 bool accepted = false;
                 if(!stopWanted)
                     accepted = tryAcceptNewDCChoice(choiceInput, acceptedChoices); // choose to accept or reject into choiceInputs
 
                 printAddChoiceLoopMsg(accepted, choiceInput, acceptedChoices);
-            }while(TextUtils.isStringListEmpty(acceptedChoices) || !stopWanted);
+            }while(TU.isStringListEmpty(acceptedChoices) || !stopWanted);
 
-            Console.WriteLine($"Choices for {category}: {TextUtils.prettyStringifyList(acceptedChoices)}\n");
+            Console.WriteLine($"Choices for {category}: {TU.prettyStringifyList(acceptedChoices)}\n");
             return acceptedChoices;
         }
 
@@ -419,13 +431,13 @@ namespace DecisionMaker
 
         private void printAddChoiceLoopInstructions(List<string> acceptedChoices)
         {
-            string introEnd = (TextUtils.isStringListEmpty(acceptedChoices)) ? ":" : $" {getAddChoicesStopMsg()}:";
+            string introEnd = (TU.isStringListEmpty(acceptedChoices)) ? ":" : $" {getAddChoicesStopMsg()}:";
             Console.WriteLine(ADD_CHOICE_INTRO_MSG + introEnd);
         }
 
         private string getAddChoicesStopMsg()
         {
-            string stops = TextUtils.prettyStringifyList(TextUtils.stopWords.ToList());
+            string stops = TU.prettyStringifyList(TU.stopWords.ToList());
             return $"({STOP_INFO_MSG}, type any positive number or any of the following in lowercase: {stops})";
         }
 
@@ -436,7 +448,7 @@ namespace DecisionMaker
                 outputMsg = $"{candidate} accepted!";
             else if (isItemAlreadyAccepted(candidate, acceptedChoices))
                 outputMsg = $"{candidate} was already accepted";
-            else if (!TextUtils.isInputAcceptable(candidate))
+            else if (!TU.isInputAcceptable(candidate))
                 outputMsg = ADD_CHOICE_REJECT_MSG;
 
             if(outputMsg != "")
@@ -445,7 +457,7 @@ namespace DecisionMaker
 
         bool tryAcceptNewDCChoice(string candidate, List<string> acceptedChoices)
         {
-            if(TextUtils.isInputAcceptable(candidate) && !isItemAlreadyAccepted(candidate, acceptedChoices))
+            if(TU.isInputAcceptable(candidate) && !isItemAlreadyAccepted(candidate, acceptedChoices))
             {
                 acceptedChoices.Add(candidate);
                 return true;
@@ -460,7 +472,7 @@ namespace DecisionMaker
 
         private bool isChoiceDCAction(int opt)
         {
-            return (opt >= MenuUtils.MENU_START) && (opt <= categoryActions.Count);
+            return (opt >= MU.MENU_START) && (opt <= categoryActions.Count);
         }
  
         /// <summary>
@@ -473,22 +485,22 @@ namespace DecisionMaker
         {
             switch(actionNum)
             {
-                case 1:
+                case (int) DcActionCodes.Decide:
                     decideForUser(category);
                     break;
-                case 2:
+                case (int) DcActionCodes.ReadChoices:
                     readExistingDC(category);
                     break;
-                case 3:
+                case (int) DcActionCodes.ReadDesc:
                     readDescDC(category);
                     break;
-                case 4:
+                case (int) DcActionCodes.AddChoices:
                     addChoicesToExistingDC(category);
                     break;
-                case 5:
+                case (int) DcActionCodes.RemoveChoices:
                     removeChoicesFromDC(category);
                     break;
-                case 6:
+                case (int) DcActionCodes.DeleteDc:
                     confirmDeleteDC(category);
                     break;
                 default:
@@ -562,14 +574,14 @@ namespace DecisionMaker
 
         private void confirmDeleteDC(string category)
         {
-            int opt = MenuUtils.INVALID_OPT;
+            int opt = MU.INVALID_OPT;
             do
             {
                 Console.WriteLine($"Please confirm you want to delete the {category} decision category:");
-                MenuUtils.writeBinaryMenu();
-                opt = MenuUtils.promptUser();
+                MU.writeBinaryMenu();
+                opt = MU.promptUser();
                 processDeleteDCOpt(opt, category);
-            } while (!MenuUtils.isBinaryChoice(opt));
+            } while (!MU.isBinaryChoice(opt));
         }
 
         private void processDeleteDCOpt(int opt, string category)
@@ -577,16 +589,16 @@ namespace DecisionMaker
             
             switch(opt)
             {
-                case MenuUtils.YES_CODE:
+                case MU.YES_CODE:
                     deleteDC(category);
                     break;
-                case MenuUtils.NO_CODE:
-                    Console.WriteLine(MenuUtils.MENU_EXIT_MSG);
+                case MU.NO_CODE:
+                    Console.WriteLine(MU.MENU_EXIT_MSG);
                     break;
-                case MenuUtils.EXIT_CODE:
+                case MU.EXIT_CODE:
                     break;
                 default:
-                    MenuUtils.writeInvalidMsg();
+                    MU.writeInvalidMsg();
                     break;
             }
         }
@@ -612,7 +624,7 @@ namespace DecisionMaker
 
         private bool doesDCHaveChoices(string category)
         {
-            return checkDCExists(category) && !TextUtils.isStringListEmpty(getChoicesDC(category));
+            return checkDCExists(category) && !TU.isStringListEmpty(getChoicesDC(category));
         }
 
         /// <summary>
@@ -623,13 +635,13 @@ namespace DecisionMaker
         private List<string> removeChoicesFromDCLoop(string category)
         {
             List<string> remainingChoices = getChoicesDC(category);
-            int opt = MenuUtils.INVALID_OPT;
+            int opt = MU.INVALID_OPT;
             bool isExit = false;
-            while(!TextUtils.isStringListEmpty(remainingChoices) && !isExit)
+            while(!TU.isStringListEmpty(remainingChoices) && !isExit)
             {
                 writeRemoveChoicesMenu(remainingChoices);
-                opt = MenuUtils.promptUser();
-                isExit = MenuUtils.isChoiceMenuExit(opt);
+                opt = MU.promptUser();
+                isExit = MU.isChoiceMenuExit(opt);
                 string removed = processRemoveDecisionChoice(opt, remainingChoices);
                 if(!isExit) printRemoveChoicesLoopMsg(removed, remainingChoices, category);
                 Console.WriteLine();
@@ -640,8 +652,8 @@ namespace DecisionMaker
          private void writeRemoveChoicesMenu(List<string> remaining)
          {
             Console.WriteLine(REMOVE_CHOICES_MENU_MSG);
-            TextUtils.writeListAsNumberMenu(remaining);
-            MenuUtils.printExitChoice();
+            TU.writeListAsNumberMenu(remaining);
+            MU.printExitChoice();
             printDeleteAllChoices();
         }
 
@@ -664,7 +676,7 @@ namespace DecisionMaker
         private string tryRemoveChoice(int choiceOpt, List<string> remainingChoices)
         {
             string removed = "";
-            if((MenuUtils.MENU_START <= choiceOpt) && (choiceOpt <= remainingChoices.Count))
+            if((MU.MENU_START <= choiceOpt) && (choiceOpt <= remainingChoices.Count))
             {
                 try
                 {
@@ -683,7 +695,7 @@ namespace DecisionMaker
 
         private void printRemoveChoicesLoopMsg(string removed, List<string> remainingChoices, string category)
         {
-            if (TextUtils.isStringListEmpty(remainingChoices))
+            if (TU.isStringListEmpty(remainingChoices))
             {
                 Console.WriteLine($"All choices removed from {category} category");
                 return;
@@ -693,7 +705,7 @@ namespace DecisionMaker
             else
                 Console.WriteLine($"Successfully removed {removed} option!");
 
-            Console.WriteLine($"{category} choices remaining: {TextUtils.prettyStringifyList(remainingChoices)}");
+            Console.WriteLine($"{category} choices remaining: {TU.prettyStringifyList(remainingChoices)}");
         }
 
         private int runRNG(List<string> choices)
