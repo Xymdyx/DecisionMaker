@@ -5,7 +5,7 @@
 */
 namespace DecisionMaker
 {
-    using ps = DecisionMaker.ProfileSection;
+    using PS = DecisionMaker.ProfileSection;
     public class FilesSection:IDecisionMakerSection
     {
         private enum FileTypeCodes
@@ -172,16 +172,16 @@ namespace DecisionMaker
             switch(opt)
             {
                 case (int) ProfileActionCodes.GREETING:
-                    doFileMenuLoop(ps.PROFILE_GREETING_PATH);
+                    doFileMenuLoop(PS.PROFILE_GREETING_PATH);
                     break;
                 case (int) ProfileActionCodes.DEPARTING:
-                    doFileMenuLoop(ps.PROFILE_EXITING_PATH);
+                    doFileMenuLoop(PS.PROFILE_EXITING_PATH);
                     break;
                 case (int) ProfileActionCodes.DISPLAYNAME:
-                    doFileMenuLoop(ps.PROFILE_DISPLAY_NAME_PATH);
+                    doFileMenuLoop(PS.PROFILE_DISPLAY_NAME_PATH);
                     break;
                 case (int)FileActionCodes.DeleteAll:
-                    deleteDirAndContents(ps.PROFILE_DEFAULT_DIR);
+                    deleteDirAndContents(PS.PROFILE_DEFAULT_DIR);
                     break;
                 case MenuUtils.EXIT_CODE:
                     MenuUtils.printToPreviousMenu();

@@ -19,10 +19,12 @@ namespace DecisionMaker
         private const string CHANGE_DISPLAY_NAME_MSG = "Please type what you would like us to call you:";
         private const string PS_ERR_INTRO = "ProfileSect.cs: ";
 
-        private const int CHANGE_GREETING_CODE = 1;
-        private const int CHANGE_EXITING_CODE = 2;
-        private const int CHANGE_DISPLAY_NAME_CODE = 3;
-
+        private enum ProfileParts
+        {
+            Greeting = 1,
+            Exiting,
+            DisplayName
+        }
         private readonly string[] profileOptions = { "Change app greeting message", "Change app exit message", "Change display name" };
         public Personality appPersonality { get; private set; }
 
@@ -62,14 +64,14 @@ namespace DecisionMaker
         {
             switch(opt)
             {
-                case CHANGE_GREETING_CODE:
+                case (int) ProfileParts.Greeting:
                     changeGreeting();
                     break;
-                case CHANGE_EXITING_CODE:
+                case (int) ProfileParts.Exiting:
                     changeExitMsg();
                     break;
-                case CHANGE_DISPLAY_NAME_CODE:
-                    changeUsername();
+                case (int) ProfileParts.DisplayName:
+                    changeDisplayName();
                     break;
                 case MenuUtils.EXIT_CODE:
                     MenuUtils.printToPreviousMenu();
@@ -82,31 +84,63 @@ namespace DecisionMaker
 
         private void changeGreeting()
         {
-            trySaveAnswerToProfile(PROFILE_GREETING_PATH, CHANGE_GREETING_MSG);
+            trySaveAnswerToProfile(PROFILE_GREETING_PATH, CHANGE_GREETING_MSG, ProfileParts.Greeting);
         }
 
         private void changeExitMsg()
         {
-            trySaveAnswerToProfile(PROFILE_EXITING_PATH, CHANGE_EXITING_MSG);
+            trySaveAnswerToProfile(PROFILE_EXITING_PATH, CHANGE_EXITING_MSG, ProfileParts.Exiting);
         }
 
-        private void changeUsername()
+        private void changeDisplayName()
         {
-            trySaveAnswerToProfile(PROFILE_DISPLAY_NAME_PATH, CHANGE_DISPLAY_NAME_MSG);
+            trySaveAnswerToProfile(PROFILE_DISPLAY_NAME_PATH, CHANGE_DISPLAY_NAME_MSG, ProfileParts.DisplayName);
         }
 
-        private void trySaveAnswerToProfile(string path, string prompt)
+        private void trySaveAnswerToProfile(string path, string prompt, ProfileParts part)
         {
             string ans = "";
             int opt = MenuUtils.INVALID_OPT;
             do
             {
+                displayProfilePart(part);
                 ans = promptAndGetInput(prompt);
                 opt = promptUserConfirmation(ans);
             } while(!MenuUtils.isBinaryInputExit(opt));
 
             bool saved = MenuUtils.isChoiceYes(opt) ? trySaveProfilePart(path, ans) : false;
             writeProfilePartExitMsg(path, ans, saved);
+            scanForProfileUpdates();
+        }
+
+        private void displayProfilePart(ProfileParts part)
+        {
+            string partName = "unknown partname";
+            string partVal = "invalid val";
+            switch(part)
+            {
+                case ProfileParts.Greeting:
+                    partName = "greeting";
+                    partVal = appPersonality.mainGreeting!;
+                    break;
+                case ProfileParts.Exiting:
+                    partName = "exiting";
+                    partVal = appPersonality.mainExit!;
+                    break;
+                case ProfileParts.DisplayName:
+                    partName = "display name";
+                    partVal = appPersonality.displayName!;
+                    break;
+                default:
+                    break;
+            }
+            Console.WriteLine($"Current {partName} is {partVal}");
+        }        
+
+        private string promptAndGetInput(string prompt)
+        {
+            Console.WriteLine(prompt);
+            return Console.ReadLine()!;
         }
 
         private int promptUserConfirmation(string ans)
@@ -119,12 +153,6 @@ namespace DecisionMaker
                 opt = MenuUtils.promptUser();
             }
             return opt;
-        }
-
-        private string promptAndGetInput(string prompt)
-        {
-            Console.WriteLine(prompt);
-            return Console.ReadLine()!;
         }
 
         private bool trySaveProfilePart(string path, string ans)
