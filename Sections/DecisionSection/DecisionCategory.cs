@@ -34,12 +34,7 @@ namespace DecisionMaker
             _catDesc = desc;
             _catChoices = choices;
             _catPath = DS.formatDCPath(name);
-        }
-
-        public override string ToString()
-        {
-            return "DC " + _catName + ": " + _catDesc +
-                    "\n" + TU.prettyStringifyList(_catChoices);
+            saveFile();
         }
 
         public bool saveFile()
@@ -82,6 +77,16 @@ namespace DecisionMaker
         public bool hasChoices()
         {
             return checkFileExists() && _catChoices.Count > 0;
+        }
+
+        public void printAllInfo()
+        {
+            Console.WriteLine("DC " + _catName + ": " + _catDesc +
+                    "\n" + TU.prettyStringifyList(_catChoices) + "\n");
+        }
+        public override string ToString()
+        {
+            return _catName + ": " + _catDesc;
         }
     }
 }
