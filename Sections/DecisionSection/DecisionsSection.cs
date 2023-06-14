@@ -100,7 +100,6 @@ namespace DecisionMaker
             }
         }
 
-
         // initialize the category map by reading files in Categories directory
         private void addNewCategoriesToMap()
         {
@@ -113,8 +112,6 @@ namespace DecisionMaker
                 List<string> catChoices = getChoicesFromDcFile(cat);
 
                 DC dc = new(cat, catDesc, catChoices); // TODO: replace as map value 6/14/23
-                Console.WriteLine(dc);
-
                 categoryMap.Add(cat, catLines[DESC_LINE_IDX]);
                 _dcMap.Add(cat, dc);
             }
@@ -133,7 +130,6 @@ namespace DecisionMaker
             return DEFAULT_DC_DIRECTORY + category + TU.TXT;
         }
 
-        // used by FileSection.cs to print the exisiting categories.
         private List<string> scanForDCs()
         {
             try
@@ -154,6 +150,11 @@ namespace DecisionMaker
             }
             return new();
         }
+
+        private List<string> getChoicesFromDcFile(string category)
+        {
+            return File.ReadAllLines(formatDCPath(category)).Skip(INFO_LEN).ToList();
+        }        
 
         /// <summary>
         /// the entry loop for the Decision Section
@@ -199,13 +200,14 @@ namespace DecisionMaker
             MU.printExitChoice();
         }
 
+        //TODO change to use just dc map
         public void printSavedDCs()
         {
             int totalCategories = categoryMap.Count;            
             for(int i = 0; i < totalCategories; i++)
             {
                 KeyValuePair<string,string> category = categoryMap.ElementAt(i);
-                Console.WriteLine($"{i+1}. {category.Key}: {category.Value}"); //TODO change to use to string
+                Console.WriteLine($"{i+1}. {category.Key}: {category.Value}"); 
             }
         }
 
@@ -368,7 +370,7 @@ namespace DecisionMaker
                 categoryChoices = addChoicesToDC(categoryName);
                 saveDCFile(categoryName, categoryDesc, categoryChoices);
 
-                DC dc = new(categoryName, categoryDesc, categoryChoices); // TODO: 6/14/23
+                DC dc = new(categoryName, categoryDesc, categoryChoices); // TODO: confirm new dc 6/14/23
                 Console.WriteLine(dc);
             }
             catch(Exception e)
@@ -441,11 +443,17 @@ namespace DecisionMaker
             return acceptedChoices;
         }
 
-        // TODO: to use dc objs
+        // TODO: to use just dc objs
         private bool checkDCExists(string category)
         {
-            //return  categoryMap.TryGetValue(category, out string dc);
-            return File.Exists(formatDCPath(category));
+            bool objFileCheck = false;
+            if(getDcObj(category, out DC dc))
+            {
+                objFileCheck = dc.checkFileExists();
+                Console.WriteLine($"Dc obj file exists: {objFileCheck}");
+            }
+
+            return File.Exists(formatDCPath(category)) || objFileCheck;
         }
 
         private void printAddChoiceLoopInstructions(List<string> acceptedChoices)
@@ -502,6 +510,7 @@ namespace DecisionMaker
         /// <returns>- whether the chosen action should terminate the category menu loop</returns>
         private bool processDCAction(int actionNum, string category)
         {
+            bool confirmHalt = true;
             switch(actionNum)
             {
                 case (int) DcActionCodes.Decide:
@@ -521,12 +530,13 @@ namespace DecisionMaker
                     break;
                 case (int) DcActionCodes.DeleteDc:
                     confirmDeleteDC(category);
+                    confirmHalt = !checkDCExists(category);
                     break;
                 default:
                     Console.WriteLine(DS_ERR_INTRO + "Invalid Category Action in process action. Something's up");
                     break;
             }
-            return getDCActionTerminateVals()[actionNum-1];
+            return getDCActionTerminateVals()[actionNum-1] && confirmHalt;
         }
 
         // TODO: convert to use DC obj
@@ -558,7 +568,7 @@ namespace DecisionMaker
             }
             
             Console.WriteLine(READ_DC_MSG);
-            List<string> choices = getChoicesFromDcFile(category);
+            List<string> choices = getChoicesFromDcObj(category);
             foreach(string c in choices)
                 Console.WriteLine(c);
         }
@@ -570,11 +580,10 @@ namespace DecisionMaker
                 Console.WriteLine($"Description for {category}: {getDescDC(category)}");
         }
 
-        // TODO: convert to use DC obj
         private string getDescDC(string category)
         {
-            string catDesc = categoryMap[category];
-            return (catDesc != null) ? catDesc : DNE_DC_MSG;
+            getDcObj(category, out DC dc);
+            return (dc != null) ? dc.CatDesc : DNE_DC_MSG;
         }
 
         // TODO: convert to use DC obj
@@ -584,7 +593,6 @@ namespace DecisionMaker
             saveDCFile(category, getDescDC(category), addedChoices);
         }
 
-        // TODO: convert to use DC obj
         private void removeChoicesFromDC(string category)
         {
             if (!doesDCHaveChoices(category))
@@ -593,65 +601,15 @@ namespace DecisionMaker
                 return;
             }
 
-            List<string> remainingChoices = removeChoicesFromDCLoop(category);
-            saveDCFile(category, getDescDC(category), remainingChoices);
+            List<string> remaining = removeChoicesFromDCLoop(category);
+            tryUpdateChoicesOnDcObj(category, remaining);
+            doDcSaveFile(category);
         }
 
-        private void confirmDeleteDC(string category)
-        {
-            int opt = MU.INVALID_OPT;
-            do
-            {
-                Console.WriteLine($"Please confirm you want to delete the {category} decision category:");
-                MU.writeBinaryMenu();
-                opt = MU.promptUser();
-                processDeleteDCOpt(opt, category);
-            } while (!MU.isBinaryChoice(opt));
-        }
-
-        private void processDeleteDCOpt(int opt, string category)
-        {
-            
-            switch(opt)
-            {
-                case MU.YES_CODE:
-                    deleteDC(category);
-                    break;
-                case MU.NO_CODE:
-                    Console.WriteLine(MU.MENU_EXIT_MSG);
-                    break;
-                case MU.EXIT_CODE:
-                    break;
-                default:
-                    MU.writeInvalidMsg();
-                    break;
-            }
-        }
-
-        // TODO: convert to use DC obj
-        private void deleteDC(string category)
-        {
-            if(checkDCExists(category))
-            {
-                try
-                {
-                    string catPath = formatDCPath(category);
-                    File.Delete(catPath);
-                    Console.WriteLine($"Successfully deleted {category} and its file");
-                }
-                catch
-                {
-                    Console.WriteLine($"Failed to delete {category} file...");
-                }
-            }
-            else
-                Console.WriteLine($"{category} does not exist and therefore can't be deleted...");
-        }        
-
-        // TODO: convert to use DC obj
+        // TODO: ensure this works after modifying checkDcExists
         private bool doesDCHaveChoices(string category)
         {
-            return checkDCExists(category) && !TU.isStringListEmpty(getChoicesFromDcFile(category));
+            return checkDCExists(category) && !TU.isStringListEmpty(getChoicesFromDcObj(category));
         }
 
         /// <summary>
@@ -661,7 +619,7 @@ namespace DecisionMaker
         /// <returns></returns>
         private List<string> removeChoicesFromDCLoop(string category)
         {
-            List<string> remainingChoices = getChoicesFromDcFile(category);
+            List<string> remainingChoices = getChoicesFromDcObj(category);
             int opt = MU.INVALID_OPT;
             bool isExit = false;
             while(!TU.isStringListEmpty(remainingChoices) && !isExit)
@@ -735,6 +693,46 @@ namespace DecisionMaker
             Console.WriteLine($"{category} choices remaining: {TU.prettyStringifyList(remainingChoices)}");
         }
 
+
+        private void confirmDeleteDC(string category)
+        {
+            int opt = MU.INVALID_OPT;
+            do
+            {
+                Console.WriteLine($"Please confirm you want to delete the {category} decision category:");
+                MU.writeBinaryMenu();
+                opt = MU.promptUser();
+                processDeleteDCOpt(opt, category);
+            } while (!MU.isBinaryChoice(opt));
+        }
+
+        private void processDeleteDCOpt(int opt, string category)
+        {
+            
+            switch(opt)
+            {
+                case MU.YES_CODE:
+                    deleteDC(category);
+                    break;
+                case MU.NO_CODE:
+                    Console.WriteLine(MU.MENU_EXIT_MSG);
+                    break;
+                case MU.EXIT_CODE:
+                    break;
+                default:
+                    MU.writeInvalidMsg();
+                    break;
+            }
+        }
+
+        private void deleteDC(string category)
+        {
+            if(doDcDeleteFile(category))
+                _dcMap.Remove(category);
+            else
+                Console.WriteLine($"{category} does not exist and therefore can't be deleted...");
+        }
+
         private int runRNG(List<string> choices)
         {
             int endIdx = choices.Count - 1;
@@ -755,18 +753,37 @@ namespace DecisionMaker
             return terminateVals;
         }
 
-        private List<string> getChoicesFromDcFile(string category)
-        {
-            return File.ReadAllLines(formatDCPath(category)).Skip(INFO_LEN).ToList();
-        }
-
-        // TODO: convert to initialize DC obj
         private List<string> getChoicesFromDcObj(string category)
         {
            if(getDcObj(category,  out DC catObj))
                 return catObj.CatChoices;
             return new();
         }
+
+        private bool tryUpdateChoicesOnDcObj(string category, List<string> choices)
+        {
+            if (getDcObj(category, out DC dc))
+            {
+                dc.CatChoices = choices;
+                Console.WriteLine($"{category} obj choices updated!");
+                return true;
+            }
+            return false;
+        }
+
+        private bool doDcSaveFile(string category)
+        {
+            if(getDcObj(category, out DC dc))
+                return dc.saveFile();
+            return false;
+        }
+
+        private bool doDcDeleteFile(string category)
+        {
+            if(getDcObj(category, out DC dc))
+                return dc.deleteFile();
+            return false;            
+        }  
 
         private bool getDcObj(string category, out DC dc)
         {

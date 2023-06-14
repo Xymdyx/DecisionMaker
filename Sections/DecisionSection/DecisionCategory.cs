@@ -10,6 +10,7 @@ namespace DecisionMaker
 {
     public class DecisionCategory
     {
+        private const string DC_INFO_HEADER = "DecisionCategory.cs:";
         private string _catName;
         private string _catDesc;
         private List<string> _catChoices;
@@ -41,19 +42,39 @@ namespace DecisionMaker
                     "\n" + TU.prettyStringifyList(_catChoices);
         }
 
-        public void saveFile()
+        public bool saveFile()
         {
-            File.WriteAllText(_catPath, _catName + DS.DECISION_DELIMITER);
-            File.AppendAllText(_catPath, _catDesc + DS.DECISION_DELIMITER);
-            File.AppendAllLines(_catPath, _catChoices);
+            try
+            {
+                File.WriteAllText(_catPath, _catName + DS.DECISION_DELIMITER);
+                File.AppendAllText(_catPath, _catDesc + DS.DECISION_DELIMITER);
+                File.AppendAllLines(_catPath, _catChoices);
+                Console.WriteLine($"Saved file {_catPath}!");
+                return true;
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine($"{DC_INFO_HEADER} failed to save file {_catPath}...\n {e}");
+                return false;
+            }
         }
 
-        public void deleteFile()
+        public bool deleteFile()
         {
-            File.Delete(_catPath);
+            try
+            {
+                File.Delete(_catPath);
+                Console.WriteLine($"Deleted file {_catPath}!");
+                return true;
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine($"{DC_INFO_HEADER} failed to delete file ${_catPath}...\n {e}");
+                return false;
+            }        
         }
 
-        private bool checkFileExists()
+        public bool checkFileExists()
         {
             return File.Exists(_catPath);
         }
