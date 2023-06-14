@@ -10,13 +10,14 @@ using System.Collections.Specialized;
 
 using MU = DecisionMaker.MenuUtils;
 using TU = DecisionMaker.TextUtils;
+using DC = DecisionMaker.DecisionCategory;
 namespace DecisionMaker
 {
     public class DecisionsSection:IDecisionMakerSection
     {
         // STRING CONSTANTS
         public const string DEFAULT_DC_DIRECTORY = @".\Decisions\Categories\";
-        private const string DECISION_DELIMITER = "\n";
+        public const string DECISION_DELIMITER = "\n";
         private const string NO_DC_DIR_MSG = "No decisions directory detected in the desired location...Creating";
         private const string HAS_DCS_MSG = "What would you like us to choose today?";
         private const string NO_DCS_MSG = "Hmm. There appear to be no decision categories for us to choose from.";
@@ -68,11 +69,14 @@ namespace DecisionMaker
 
         public Dictionary<string, string> CategoryMap { get => categoryMap; }
 
+        private Dictionary<string, DC> _dcMap; // TODO: 6/14/23
+
         // CONSTRUCTOR
         public DecisionsSection()
         {
             this.rng = new();
             this.categoryMap = new();
+            this._dcMap = new();
             checkAndInitDCDir();
             addNewCategoriesToMap();
         }
@@ -83,6 +87,19 @@ namespace DecisionMaker
             addNewCategoriesToMap();
             removeOldCategoriesFromMap();
         }
+        
+        /// <summary>
+        /// initialize categories directory on startup if it doesn't exist already
+        /// </summary>
+        private void checkAndInitDCDir()
+        {
+            if(!Directory.Exists(DEFAULT_DC_DIRECTORY))
+            {
+                Console.WriteLine(NO_DC_DIR_MSG);
+                Directory.CreateDirectory(DEFAULT_DC_DIRECTORY);
+            }
+        }
+
 
         // initialize the category map by reading files in Categories directory
         private void addNewCategoriesToMap()
@@ -90,8 +107,16 @@ namespace DecisionMaker
             List<string> existing = scanForDCs();
             foreach(string cat in existing.Where(c => !categoryMap.ContainsKey(c)))
             {
-                string[] catLines = File.ReadAllLines(formatDCPath(cat));
+                string catPath = formatDCPath(cat);
+                string[] catLines = File.ReadAllLines(catPath);
+                string catDesc = catLines[DESC_LINE_IDX];
+                List<string> catChoices = getChoicesFromDcFile(cat);
+
+                DC dc = new(cat, catDesc, catChoices); // TODO: replace as map value 6/14/23
+                Console.WriteLine(dc);
+
                 categoryMap.Add(cat, catLines[DESC_LINE_IDX]);
+                _dcMap.Add(cat, dc);
             }
         }
 
@@ -103,7 +128,7 @@ namespace DecisionMaker
                 categoryMap.Remove(cat);
         }
 
-        public string formatDCPath(string category)
+        public static string formatDCPath(string category)
         {
             return DEFAULT_DC_DIRECTORY + category + TU.TXT;
         }
@@ -128,18 +153,6 @@ namespace DecisionMaker
                 Console.WriteLine(DS_ERR_INTRO + $"Error scanning for categories... {e}");
             }
             return new();
-        }
-
-        /// <summary>
-        /// initialize categories directory on startup if it doesn't exist already
-        /// </summary>
-        private void checkAndInitDCDir()
-        {
-            if(!Directory.Exists(DEFAULT_DC_DIRECTORY))
-            {
-                Console.WriteLine(NO_DC_DIR_MSG);
-                Directory.CreateDirectory(DEFAULT_DC_DIRECTORY);
-            }
         }
 
         /// <summary>
@@ -192,7 +205,7 @@ namespace DecisionMaker
             for(int i = 0; i < totalCategories; i++)
             {
                 KeyValuePair<string,string> category = categoryMap.ElementAt(i);
-                Console.WriteLine($"{i+1}. {category.Key}: {category.Value}");
+                Console.WriteLine($"{i+1}. {category.Key}: {category.Value}"); //TODO change to use to string
             }
         }
 
@@ -354,6 +367,9 @@ namespace DecisionMaker
                 categoryDesc = describeDC();
                 categoryChoices = addChoicesToDC(categoryName);
                 saveDCFile(categoryName, categoryDesc, categoryChoices);
+
+                DC dc = new(categoryName, categoryDesc, categoryChoices); // TODO: 6/14/23
+                Console.WriteLine(dc);
             }
             catch(Exception e)
             {
@@ -403,9 +419,10 @@ namespace DecisionMaker
             return categoryDesc;
         }
 
+        // TODO: convert to use DC obj
         private List<string> addChoicesToDC(string category)
         {
-            List<string> acceptedChoices = checkDCExists(category) ? getChoicesDC(category) : new();
+            List<string> acceptedChoices = checkDCExists(category) ? getChoicesFromDcFile(category) : new();
             string choiceInput = "";
             bool stopWanted = false;
             do
@@ -424,8 +441,10 @@ namespace DecisionMaker
             return acceptedChoices;
         }
 
+        // TODO: to use dc objs
         private bool checkDCExists(string category)
         {
+            //return  categoryMap.TryGetValue(category, out string dc);
             return File.Exists(formatDCPath(category));
         }
 
@@ -510,6 +529,7 @@ namespace DecisionMaker
             return getDCActionTerminateVals()[actionNum-1];
         }
 
+        // TODO: convert to use DC obj
         /// <summary>
         /// given a decision category, choose a random item from that decision category for the user to commit to
         /// </summary>
@@ -522,11 +542,12 @@ namespace DecisionMaker
                 return;
             }
 
-            List<string> choices = getChoicesDC(category);
+            List<string> choices = getChoicesFromDcFile(category);
             int chosen = runRNG(choices);
             Console.WriteLine($"For {category}, we've decided upon: {choices[chosen]}");
         }
 
+        // TODO: convert to use DC obj
         // print all options in a categories file line-by-line
         private void readExistingDC(string category)
         {
@@ -537,29 +558,33 @@ namespace DecisionMaker
             }
             
             Console.WriteLine(READ_DC_MSG);
-            List<string> choices = getChoicesDC(category);
+            List<string> choices = getChoicesFromDcFile(category);
             foreach(string c in choices)
                 Console.WriteLine(c);
         }
 
+        // TODO: convert to use DC obj
         private void readDescDC(string category)
         {
             if(checkDCExists(category))
                 Console.WriteLine($"Description for {category}: {getDescDC(category)}");
         }
 
+        // TODO: convert to use DC obj
         private string getDescDC(string category)
         {
             string catDesc = categoryMap[category];
             return (catDesc != null) ? catDesc : DNE_DC_MSG;
         }
 
+        // TODO: convert to use DC obj
         private void addChoicesToExistingDC(string category)
         {
             List<string> addedChoices = addChoicesToDC(category);
             saveDCFile(category, getDescDC(category), addedChoices);
         }
 
+        // TODO: convert to use DC obj
         private void removeChoicesFromDC(string category)
         {
             if (!doesDCHaveChoices(category))
@@ -603,6 +628,7 @@ namespace DecisionMaker
             }
         }
 
+        // TODO: convert to use DC obj
         private void deleteDC(string category)
         {
             if(checkDCExists(category))
@@ -622,9 +648,10 @@ namespace DecisionMaker
                 Console.WriteLine($"{category} does not exist and therefore can't be deleted...");
         }        
 
+        // TODO: convert to use DC obj
         private bool doesDCHaveChoices(string category)
         {
-            return checkDCExists(category) && !TU.isStringListEmpty(getChoicesDC(category));
+            return checkDCExists(category) && !TU.isStringListEmpty(getChoicesFromDcFile(category));
         }
 
         /// <summary>
@@ -634,7 +661,7 @@ namespace DecisionMaker
         /// <returns></returns>
         private List<string> removeChoicesFromDCLoop(string category)
         {
-            List<string> remainingChoices = getChoicesDC(category);
+            List<string> remainingChoices = getChoicesFromDcFile(category);
             int opt = MU.INVALID_OPT;
             bool isExit = false;
             while(!TU.isStringListEmpty(remainingChoices) && !isExit)
@@ -728,9 +755,22 @@ namespace DecisionMaker
             return terminateVals;
         }
 
-        private List<string> getChoicesDC(string category)
+        private List<string> getChoicesFromDcFile(string category)
         {
             return File.ReadAllLines(formatDCPath(category)).Skip(INFO_LEN).ToList();
+        }
+
+        // TODO: convert to initialize DC obj
+        private List<string> getChoicesFromDcObj(string category)
+        {
+           if(getDcObj(category,  out DC catObj))
+                return catObj.CatChoices;
+            return new();
+        }
+
+        private bool getDcObj(string category, out DC dc)
+        {
+            return _dcMap.TryGetValue(category, out dc!);
         }
     }
 }

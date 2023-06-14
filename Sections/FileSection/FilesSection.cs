@@ -6,6 +6,7 @@
 namespace DecisionMaker
 {
     using PS = DecisionMaker.ProfileSection;
+    using DS = DecisionMaker.DecisionsSection;
     public class FilesSection:IDecisionMakerSection
     {
         private enum FileTypeCodes
@@ -117,7 +118,7 @@ namespace DecisionMaker
         private void manageChosenDC(int opt)
         {
             string dcName = decSect.getDCNameFromMenuChoice(opt);
-            string dcPath = decSect.formatDCPath(dcName);
+            string dcPath = DS.formatDCPath(dcName);
             int dcOpt = doFileMenuLoop(dcPath);
 
             if(dcOpt == (int) FileActionCodes.DeleteFile)

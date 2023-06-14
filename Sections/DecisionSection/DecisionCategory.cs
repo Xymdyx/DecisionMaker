@@ -3,20 +3,64 @@
 * author: Sam Ford
 * date: 6/13/23
 */
-public class DecisionCategory
+
+using DS = DecisionMaker.DecisionsSection;
+using TU = DecisionMaker.TextUtils;
+namespace DecisionMaker
 {
-    private string _catName;
-    private string _catDesc;
-    private List<string> _catChoices;
-
-    public string CatName {get => _catName; set => _catName = value;}
-    public string CatDesc { get => _catDesc; set => _catDesc = value; }
-    public string CatChoices { get => _catDesc; }
-
-    DecisionCategory(string name, string desc, List<string> choices)
+    public class DecisionCategory
     {
-        _catName = name;
-        _catDesc = desc;
-        _catChoices = choices;
+        private string _catName;
+        private string _catDesc;
+        private List<string> _catChoices;
+        private string _catPath;
+
+        public string CatName
+        {
+            get {return _catName; }
+            set
+            {
+                _catName = value;
+                _catPath = DS.formatDCPath(value);
+            }
+        }
+        public string CatDesc { get => _catDesc; set => _catDesc = value; }
+        public List<string> CatChoices { get => _catChoices; set => _catChoices = value; }
+
+        public DecisionCategory(string name, string desc, List<string> choices)
+        {
+            _catName = name;
+            _catDesc = desc;
+            _catChoices = choices;
+            _catPath = DS.formatDCPath(name);
+        }
+
+        public override string ToString()
+        {
+            return "DC " + _catName + ": " + _catDesc +
+                    "\n" + TU.prettyStringifyList(_catChoices);
+        }
+
+        public void saveFile()
+        {
+            File.WriteAllText(_catPath, _catName + DS.DECISION_DELIMITER);
+            File.AppendAllText(_catPath, _catDesc + DS.DECISION_DELIMITER);
+            File.AppendAllLines(_catPath, _catChoices);
+        }
+
+        public void deleteFile()
+        {
+            File.Delete(_catPath);
+        }
+
+        private bool checkFileExists()
+        {
+            return File.Exists(_catPath);
+        }
+
+        public bool hasChoices()
+        {
+            return checkFileExists() && _catChoices.Count > 0;
+        }
     }
 }
