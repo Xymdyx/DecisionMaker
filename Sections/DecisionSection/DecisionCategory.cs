@@ -16,6 +16,8 @@ namespace DecisionMaker
         private List<string> _catChoices;
         private string _catPath;
 
+        public static readonly DecisionCategory EmptyDc = new("", "");
+
         public string CatName
         {
             get {return _catName; }
@@ -27,6 +29,14 @@ namespace DecisionMaker
         }
         public string CatDesc { get => _catDesc; set => _catDesc = value; }
         public List<string> CatChoices { get => _catChoices; set => _catChoices = value; }
+
+        public DecisionCategory(string name, string desc)
+        {
+            _catName = name;
+            _catDesc = desc;
+            _catChoices = new();
+            _catPath = DS.formatDCPath(name);
+        }
 
         public DecisionCategory(string name, string desc, List<string> choices)
         {
@@ -71,7 +81,10 @@ namespace DecisionMaker
 
         public bool checkFileExists()
         {
-            return File.Exists(_catPath);
+            bool exists = File.Exists(_catPath);            
+            if(!exists)
+                Console.WriteLine($"{_catName} category lacks matching file at {_catPath}...");
+            return exists;
         }
 
         public bool hasChoices()
@@ -84,6 +97,17 @@ namespace DecisionMaker
             Console.WriteLine("DC " + _catName + ": " + _catDesc +
                     "\n" + TU.prettyStringifyList(_catChoices) + "\n");
         }
+
+        public string stringifyChoices()
+        {
+            return String.Join(DS.DECISION_DELIMITER, _catChoices);
+        }
+
+        public bool IsValidDc()
+        {
+            return !this.Equals(EmptyDc);
+        }
+
         public override string ToString()
         {
             return _catName + ": " + _catDesc;
