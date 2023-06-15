@@ -29,7 +29,7 @@ namespace DecisionMaker
         }
         public string CatDesc { get => _catDesc; set => _catDesc = value; }
         public List<string> CatChoices { get => _catChoices; set => _catChoices = value; }
-
+        public string CatPath { get => _catPath; }
         public DecisionCategory(string name, string desc)
         {
             _catName = name;
@@ -44,24 +44,25 @@ namespace DecisionMaker
             _catDesc = desc;
             _catChoices = choices;
             _catPath = DS.formatDCPath(name);
-            saveFile();
+            
+            if(!checkFileExists()) saveFile();
         }
 
         public bool saveFile()
         {
             try
             {
+                DS.checkAndInitDCDir();
                 File.WriteAllText(_catPath, _catName + DS.DECISION_DELIMITER);
                 File.AppendAllText(_catPath, _catDesc + DS.DECISION_DELIMITER);
                 File.AppendAllLines(_catPath, _catChoices);
                 Console.WriteLine($"Saved file {_catPath}!");
-                return true;
             }
             catch(Exception e)
             {
                 Console.WriteLine($"{DC_INFO_HEADER} failed to save file {_catPath}...\n {e}");
-                return false;
             }
+            return checkFileExists();
         }
 
         public bool deleteFile()
@@ -70,13 +71,12 @@ namespace DecisionMaker
             {
                 File.Delete(_catPath);
                 Console.WriteLine($"Deleted file {_catPath}!");
-                return true;
             }
             catch(Exception e)
             {
                 Console.WriteLine($"{DC_INFO_HEADER} failed to delete file ${_catPath}...\n {e}");
-                return false;
-            }        
+            }
+            return !checkFileExists();            
         }
 
         public bool checkFileExists()

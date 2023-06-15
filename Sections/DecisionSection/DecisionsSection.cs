@@ -1,9 +1,9 @@
 /*
 * author: Sam Ford
 * desc: Section for decision categories and making decisions from them
+* note that DC == "Decision Category"
 * date started: approx 4/23/2023
 */
-// NOTES: DC == "Decision Category"
 
 using System.Collections.Specialized;
 
@@ -41,11 +41,6 @@ namespace DecisionMaker
         private const int DESC_LINE_IDX = 1;
         private const int INFO_LEN = 2;
 
-        // FIELDS
-        private readonly Random rng;
-        // private map of categories with matching objs
-        private Dictionary<string, DC> _dcMap;
-
         // private map for category actions of form <Action Name, terminateLoop>
         private readonly OrderedDictionary dcActions = new()
         {
@@ -65,7 +60,14 @@ namespace DecisionMaker
             AddChoices,
             RemoveChoices,
             DeleteDc
-        }
+        }        
+
+        // FIELDS
+        private readonly Random rng;
+        // private map of categories with matching objs
+        private Dictionary<string, DC> _dcMap;
+
+        public Dictionary<string, DC> DcMap{ get => _dcMap; }
 
         // CONSTRUCTOR
         public DecisionsSection()
@@ -77,23 +79,36 @@ namespace DecisionMaker
             addNewCategoriesToMap();
         }
 
-        public void fullyUpdateStoredDCs()
+        private void fullyUpdateStoredDCs()
         {
-            checkAndInitDCDir();
+            syncDcMapToDcDir();
             addNewCategoriesToMap();
-            removeOldCategoriesFromMap();
+        }
+
+        public void syncDcMapToDcDir()
+        {
+            if(checkAndInitDCDir())
+                removeOldCategoriesFromMap();
         }
 
         /// <summary>
         /// initialize categories directory on startup if it doesn't exist already
         /// </summary>
-        private void checkAndInitDCDir()
+        public static bool checkAndInitDCDir()
         {
-            if(!Directory.Exists(DEFAULT_DC_DIRECTORY))
+            if (!Directory.Exists(DEFAULT_DC_DIRECTORY))
             {
-                Console.WriteLine(NO_DC_DIR_MSG);
-                Directory.CreateDirectory(DEFAULT_DC_DIRECTORY);
+                try
+                {
+                    Console.WriteLine(NO_DC_DIR_MSG);
+                    Directory.CreateDirectory(DEFAULT_DC_DIRECTORY);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"{DS_ERR_INTRO} failed to initialize {DEFAULT_DC_DIRECTORY} directory...\n{e}");
+                }
             }
+            return Directory.Exists(DEFAULT_DC_DIRECTORY);
         }
 
         // initialize the category map by reading files in Categories directory
@@ -161,15 +176,14 @@ namespace DecisionMaker
         /// <returns></returns>
         public int doMenuLoop()
         {
-            checkAndInitDCDir();
             Console.WriteLine(DECISIONS_WELCOME_MSG);
             int opt = MU.INVALID_OPT;
             do
             {
+                fullyUpdateStoredDCs();
                 writeStartMenu();
                 opt = MU.promptUser();
                 processStartMenuInput(opt);
-                fullyUpdateStoredDCs();
             }while(!wantsToExit(opt));
             return opt;
         }
@@ -249,7 +263,7 @@ namespace DecisionMaker
             return this._dcMap.ElementAt(opt - 1).Key;
         }
 
-        private DC getDCFromMenuChoice(int opt)
+        public DC getDCFromMenuChoice(int opt)
         {
             return _dcMap.ElementAt(opt - 1).Value;
         }
@@ -670,7 +684,6 @@ namespace DecisionMaker
 
         private bool processDeleteDCOpt(int opt, DC dc)
         {
-
             switch(opt)
             {
                 case MU.YES_CODE:

@@ -117,12 +117,10 @@ namespace DecisionMaker
 
         private void manageChosenDC(int opt)
         {
-            string dcName = decSect.getDCNameFromMenuChoice(opt);
-            string dcPath = DS.formatDCPath(dcName);
-            int dcOpt = doFileMenuLoop(dcPath);
-
-            if(dcOpt == (int) FileActionCodes.DeleteFile)
-                this.decSect.fullyUpdateStoredDCs();
+            DecisionCategory dc = decSect.getDCFromMenuChoice(opt);
+            int dcOpt = doFileMenuLoop(dc.CatPath);
+            if (dcOpt == (int)FileActionCodes.DeleteFile && !dc.checkFileExists())
+                this.decSect.DcMap.Remove(dc.CatName);
         }
 
         private bool isOptDeleteAll(int opt)
@@ -133,7 +131,7 @@ namespace DecisionMaker
         private void deleteAllDCs()
         {
             deleteDirAndContents(DecisionsSection.DEFAULT_DC_DIRECTORY);
-            this.decSect.fullyUpdateStoredDCs();
+            this.decSect.syncDcMapToDcDir();
         }
 
         private void deleteDirAndContents(string dir)

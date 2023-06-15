@@ -34,10 +34,10 @@ namespace DecisionMaker
             this.appPersonality = new();
         }
 
-        private void checkAndInitProfileDir()
+        private bool checkAndInitProfileDir()
         {
-            if(!Directory.Exists(PROFILE_DEFAULT_DIR))
-                Directory.CreateDirectory(PROFILE_DEFAULT_DIR);
+            Directory.CreateDirectory(PROFILE_DEFAULT_DIR);
+            return Directory.Exists(PROFILE_DEFAULT_DIR);
         }
 
         public int doMenuLoop()
@@ -46,6 +46,7 @@ namespace DecisionMaker
             int opt = MenuUtils.INVALID_OPT;
             do
             {
+                checkAndInitProfileDir();
                 writeMenu();
                 opt = MenuUtils.promptUser();
                 processMenuInput(opt);
@@ -135,7 +136,7 @@ namespace DecisionMaker
                     break;
             }
             Console.WriteLine($"Current {partName} is {partVal}");
-        }        
+        }
 
         private string promptAndGetInput(string prompt)
         {
