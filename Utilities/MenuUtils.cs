@@ -29,6 +29,7 @@ namespace DecisionMaker
         {
             Console.WriteLine(CHOOSE_NUM_MSG);
             string input = Console.ReadLine()!;
+            Console.WriteLine();
             int opt = convertInputToInt(input);
             return opt;        
         }

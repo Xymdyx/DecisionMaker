@@ -4,6 +4,7 @@
 * date started: 4/4/2023
 */
 using System;
+using DSE = DecisionMaker.DecisionMakerSects;
 namespace DecisionMaker
 {
     public class DecisionMakerMain : IDecisionMakerSection
@@ -12,6 +13,7 @@ namespace DecisionMaker
         private DecisionsSection decisionsSect;
         private Personality personality;
         private FilesSection fileSect;
+        private HelpSection helpSect;
 
         private readonly string[] navigationMenu = { "Decisions menu", "Profile menu", "File management menu", "Help"};
         
@@ -21,7 +23,10 @@ namespace DecisionMaker
             this.decisionsSect = new();
             this.personality = profileSect.appPersonality;
             this.fileSect = new(this.decisionsSect, this.profileSect);
+            this.helpSect = new();
         }
+
+        public static bool checkAndInitDir() { return false; }
 
         public int main(string[] argv)
         {
@@ -38,7 +43,7 @@ namespace DecisionMaker
                 Console.WriteLine($"Welcome back, {this.personality.displayName}!");
         }
         
-        private int doMenuLoop()
+        public int doMenuLoop()
         {
             int opt = -1;
             do
@@ -67,25 +72,22 @@ namespace DecisionMaker
         {
             switch(opt)
             {
-                case 1:
-                    Console.WriteLine("Entering decision menu...");
+                case (int) DecisionMakerSects.DCs:
                     this.decisionsSect.doMenuLoop();
                     break;
-                case 2:
+                case (int) DecisionMakerSects.Profile:
                     profileSect.doMenuLoop();
                     break;
-                case 3:
+                case (int) DecisionMakerSects.FileManagement:
                     fileSect.doMenuLoop();
                     break;
-                case 4:
-                    Console.WriteLine("Coming last...");
-                    // print help message
+                case (int) DecisionMakerSects.Help:
+                    helpSect.doMenuLoop();
                     break;
                 case MenuUtils.EXIT_CODE:
-                    Console.WriteLine("Exiting app!");
                     break;
                 default:
-                    Console.WriteLine("Unrecognized command, please try again");
+                    MenuUtils.writeInvalidMsg();
                     break;
             }
         }

@@ -13,6 +13,7 @@ namespace DecisionMaker
         public const string TXT = ".txt";
         public const int MAX_STRING_LEN = 360;
         public static string[] stopWords = { "stop", "exit", "done", "good", "quit", "finished" };
+        public const string PAUSE_PROMPT = "\nPress any key to continue...\n";
 
         public static bool isInputAcceptable(string input)
         {
@@ -58,6 +59,13 @@ namespace DecisionMaker
          public static bool isStringListEmpty(List<string> strings)
          {
             return strings.Count == 0;
+        }
+
+        public static void writeInfoAndPause(string info)
+        {
+            Console.WriteLine(info);
+            Console.WriteLine(PAUSE_PROMPT);
+            Console.ReadKey();
         }
     }
 }
