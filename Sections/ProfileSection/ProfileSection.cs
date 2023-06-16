@@ -7,10 +7,10 @@ namespace DecisionMaker
 {
     public class ProfileSection:IDecisionMakerSection
     {
-        public const string PROFILE_DEFAULT_DIR = ".\\ProfileStorage\\";
-        public const string PROFILE_GREETING_PATH = PROFILE_DEFAULT_DIR + "greeting.txt";
-        public const string PROFILE_EXITING_PATH = PROFILE_DEFAULT_DIR + "exiting.txt";
-        public const string PROFILE_DISPLAY_NAME_PATH = PROFILE_DEFAULT_DIR + "displayname.txt";
+        public const string DEFAULT_PROFILE_DIR = ".\\ProfileStorage\\";
+        public const string PROFILE_GREETING_PATH = DEFAULT_PROFILE_DIR + "greeting.txt";
+        public const string PROFILE_EXITING_PATH = DEFAULT_PROFILE_DIR + "exiting.txt";
+        public const string PROFILE_DISPLAY_NAME_PATH = DEFAULT_PROFILE_DIR + "displayname.txt";
         private const string PROFILE_NO_SAVE_MSG = "Exited without saving any data";
 
         private const string PROFILE_MENU_GREETING = "Welcome to the Profile Menu. This is where you can customize this program's configurable messages!";
@@ -30,14 +30,21 @@ namespace DecisionMaker
 
         public ProfileSection()
         {
-            checkAndInitProfileDir();
+            checkAndInitDir();
             this.appPersonality = new();
         }
 
-        private bool checkAndInitProfileDir()
+        public static bool checkAndInitDir()
         {
-            Directory.CreateDirectory(PROFILE_DEFAULT_DIR);
-            return Directory.Exists(PROFILE_DEFAULT_DIR);
+            try
+            {
+                Directory.CreateDirectory(DEFAULT_PROFILE_DIR);
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine($"{PS_ERR_INTRO} failed to initialize {DEFAULT_PROFILE_DIR} directory...\n{e}");
+            }
+            return Directory.Exists(DEFAULT_PROFILE_DIR);
         }
 
         public int doMenuLoop()
@@ -46,7 +53,7 @@ namespace DecisionMaker
             int opt = MenuUtils.INVALID_OPT;
             do
             {
-                checkAndInitProfileDir();
+                checkAndInitDir();
                 writeMenu();
                 opt = MenuUtils.promptUser();
                 processMenuInput(opt);
@@ -180,8 +187,5 @@ namespace DecisionMaker
         {
             appPersonality.applyFileChangesToPersonality();
         }
-
-        private void decideForUser(List<string> choices){}
-        private int runRNG(){return 0;}
     }
 }

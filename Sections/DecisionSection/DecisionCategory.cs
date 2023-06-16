@@ -52,7 +52,7 @@ namespace DecisionMaker
         {
             try
             {
-                DS.checkAndInitDCDir();
+                DS.checkAndInitDir();
                 File.WriteAllText(_catPath, _catName + DS.DECISION_DELIMITER);
                 File.AppendAllText(_catPath, _catDesc + DS.DECISION_DELIMITER);
                 File.AppendAllLines(_catPath, _catChoices);

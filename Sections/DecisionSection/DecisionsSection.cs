@@ -10,6 +10,7 @@ using System.Collections.Specialized;
 using MU = DecisionMaker.MenuUtils;
 using TU = DecisionMaker.TextUtils;
 using DC = DecisionMaker.DecisionCategory;
+using FS = DecisionMaker.FilesSection;
 namespace DecisionMaker
 {
     public class DecisionsSection:IDecisionMakerSection
@@ -22,7 +23,6 @@ namespace DecisionMaker
         private const string NO_DCS_MSG = "Hmm. There appear to be no decision categories for us to choose from.";
         private const string ADD_1ST_DC_CONFIRM_MSG = "Let's add a decision category shall we? Please confirm that you would like to do so.";
         private const string STOP_INFO_MSG = "to stop adding";
-        private const string DNE_DC_MSG = "This decision category doesn't exist";
         private const string NO_CHOICES_MSG = "No choices to choose from! Please add some...";
         private const string DECISIONS_WELCOME_MSG = "Welcome to the Decisions menu. This is where the magic happens!";
         private const string ADD_CHOICE_INTRO_MSG = "Please provide an alphanumeric string for a choice that hasn't already been added";
@@ -75,7 +75,7 @@ namespace DecisionMaker
             this.rng = new();
             this._dcMap = new();
             this._dcMap = new();
-            checkAndInitDCDir();
+            checkAndInitDir();
             addNewCategoriesToMap();
         }
 
@@ -87,14 +87,14 @@ namespace DecisionMaker
 
         public void syncDcMapToDcDir()
         {
-            if(checkAndInitDCDir())
+            if(checkAndInitDir())
                 removeOldCategoriesFromMap();
         }
 
         /// <summary>
         /// initialize categories directory on startup if it doesn't exist already
         /// </summary>
-        public static bool checkAndInitDCDir()
+        public static bool checkAndInitDir()
         {
             if (!Directory.Exists(DEFAULT_DC_DIRECTORY))
             {
@@ -397,10 +397,10 @@ namespace DecisionMaker
 
         private void saveUnfinishedDC(string name, string desc, List<string> choices)
         {
-            string dcPath = formatDCPath(FilesSection.DEFAULT_WIP_FILE);
-            File.WriteAllText(dcPath, name + DECISION_DELIMITER);
-            File.AppendAllText(dcPath, desc + DECISION_DELIMITER);
-            File.AppendAllLines(dcPath, choices);
+            FS.checkAndInitDir();
+            File.WriteAllText(FS.DEFAULT_WIP_FILE, name + DECISION_DELIMITER);
+            File.AppendAllText(FS.DEFAULT_WIP_FILE, desc + DECISION_DELIMITER);
+            File.AppendAllLines(FS.DEFAULT_WIP_FILE, choices);
         }
 
         private string nameDC()

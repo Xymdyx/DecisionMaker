@@ -43,12 +43,27 @@ namespace DecisionMaker
         {
             this.decSect = ds;
             this.profSect = ps;
+            checkAndInitDir();
         }
+
+        public static bool checkAndInitDir()
+        {
+            try
+            {
+                Directory.CreateDirectory(DEFAULT_FILES_DIR);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"{FS_ERR_HEADER} failed to initialize {DEFAULT_FILES_DIR} directory...\n{e}");
+            }
+            return Directory.Exists(DEFAULT_FILES_DIR);
+        }        
 
         public int doMenuLoop()
         {
             int opt = MenuUtils.INVALID_OPT;
             Console.WriteLine(FM_GREETING);
+            checkAndInitDir();
             do
             {
                 writeMenu();
@@ -180,7 +195,7 @@ namespace DecisionMaker
                     doFileMenuLoop(PS.PROFILE_DISPLAY_NAME_PATH);
                     break;
                 case (int)FileActionCodes.DeleteAll:
-                    deleteDirAndContents(PS.PROFILE_DEFAULT_DIR);
+                    deleteDirAndContents(PS.DEFAULT_PROFILE_DIR);
                     break;
                 case MenuUtils.EXIT_CODE:
                     MenuUtils.printToPreviousMenu();
@@ -270,8 +285,5 @@ namespace DecisionMaker
                 Console.WriteLine($"{FS_ERR_HEADER} failed to delete {fName}... {e}");
             }
         }
-
-        private void decideForUser(List<string> choices){}
-        private int runRNG(){return 0;}
     }
 }

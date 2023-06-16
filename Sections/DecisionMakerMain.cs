@@ -26,6 +26,8 @@ namespace DecisionMaker
             this.helpSect = new();
         }
 
+        public static bool checkAndInitDir() { return false; }
+
         public int main(string[] argv)
         {
             greet();
@@ -41,7 +43,7 @@ namespace DecisionMaker
                 Console.WriteLine($"Welcome back, {this.personality.displayName}!");
         }
         
-        private int doMenuLoop()
+        public int doMenuLoop()
         {
             int opt = -1;
             do
