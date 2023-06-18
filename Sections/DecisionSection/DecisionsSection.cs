@@ -21,7 +21,6 @@ namespace DecisionMaker
         private const string NO_DC_DIR_MSG = "No decisions directory detected in the desired location...Creating";
         private const string HAS_DCS_MSG = "What would you like us to choose today?";
         private const string NO_DCS_MSG = "Hmm. There appear to be no decision categories for us to choose from.";
-        private const string ADD_1ST_DC_CONFIRM_MSG = "Let's add a decision category shall we? Please confirm that you would like to do so.";
         private const string STOP_INFO_MSG = "to stop adding";
         private const string NO_CHOICES_MSG = "No choices to choose from! Please add some...";
         private const string DECISIONS_WELCOME_MSG = "Welcome to the Decisions menu. This is where the magic happens!";
@@ -35,6 +34,7 @@ namespace DecisionMaker
         private const string ADD_CHOICE_REJECT_MSG = "What you inputted was simply unaceeptable";
         private const string REMOVE_CHOICE_REJECT_MSG = "What you inputted was invalid. Therefore, nothing was removed...";
         private const string DS_ERR_INTRO = "DecisionSect.cs: ";
+        private const string ONE_OFF_DECIDE_MSG = "Deciding now for this one time decision....!";
 
         // INT CONSTANTS
         private const int DELETE_ALL_CHOICES_CODE = -1;
@@ -60,7 +60,7 @@ namespace DecisionMaker
             AddChoices,
             RemoveChoices,
             DeleteDc
-        }        
+        }
 
         // FIELDS
         private readonly Random rng;
@@ -68,6 +68,13 @@ namespace DecisionMaker
         private Dictionary<string, DC> _dcMap;
 
         public Dictionary<string, DC> DcMap{ get => _dcMap; }
+
+        private enum NonDcActions
+        {
+            PickRandomInt = -3,
+            DoOneOff,
+            AddNewDc
+        }
 
         // CONSTRUCTOR
         public DecisionsSection()
@@ -181,9 +188,9 @@ namespace DecisionMaker
             do
             {
                 fullyUpdateStoredDCs();
-                writeStartMenu();
+                writeDCsMenu();
                 opt = MU.promptUser();
-                processStartMenuInput(opt);
+                processMenuInput(opt);
             }while(!wantsToExit(opt));
             return opt;
         }
@@ -193,14 +200,6 @@ namespace DecisionMaker
             return MU.isChoiceMenuExit(opt) || (MU.isChoiceNo(opt) && !hasDCs());
         }
 
-        private void writeStartMenu()
-        {
-            if(hasDCs())
-                writeDCsMenu();
-            else
-                add1stDC();
-        }
-
         private bool hasDCs()
         {
             return _dcMap.Count > 0;
@@ -208,10 +207,10 @@ namespace DecisionMaker
 
         private void writeDCsMenu()
         {
-            Console.WriteLine(HAS_DCS_MSG);
+            string status = (hasDCs()) ? HAS_DCS_MSG : NO_DCS_MSG;
+            Console.WriteLine(status);
             printSavedDCs();
-            printAddDC();
-            MU.printExitChoice();
+            printNonDcActions();
         }
 
         public void printSavedDCs()
@@ -224,38 +223,63 @@ namespace DecisionMaker
             }
         }
 
-        private void printAddDC()
+        private void printNonDcActions()
         {
-            Console.WriteLine($"{_dcMap.Count + 1}. Add a whole new Decision Category");
+            MU.printExitChoice();            
+            Console.WriteLine($"{(int) NonDcActions.AddNewDc}. Add a whole new Decision Category");
+            Console.WriteLine($"{(int) NonDcActions.DoOneOff}. Make a quick one-time decision");
+            Console.WriteLine($"{(int) NonDcActions.PickRandomInt}. Have us pick a random number in a range");
         }
 
-        private void add1stDC()
-        {
-            Console.WriteLine(NO_DCS_MSG);
-            Console.WriteLine(ADD_1ST_DC_CONFIRM_MSG);
-            MU.writeBinaryMenu();
-        }
-
-        // this is for processing the entry point menu
-        private void processStartMenuInput(int opt)
-        {
-            if(hasDCs())
-                processDCsMenuInput(opt);
-            else
-                process1stDCConfirmation(opt);
-        }
-
-        // processes existing categories menu input
-        private void processDCsMenuInput(int opt)
+        // processes entry point menu
+        private void processMenuInput(int opt)
         {
             if(isChoiceInChoiceRange(opt))
                 enterDCActionsMenu(opt);
-            else if(MU.isChoiceMenuExit(opt))
-                Console.WriteLine(MU.MENU_EXIT_MSG);
-            else if(isChoiceAddNewDC(opt))
-                createPermanentDC();
             else
-                MU.writeInvalidMsg();
+                processNonDcActions(opt);
+        }
+
+        private void processNonDcActions(int opt)
+        {
+        /*TODO: 1. Add oneoff option
+        *       2. Add random number option, which prints a random number given a range
+        *       3. Remove add1stDc menu as DCs are no loner the only option.
+        *       4. After the first if, use a switch with an enum...
+        * - SF 6/16/23
+        */            
+            switch(opt)
+            {
+                case (int) NonDcActions.AddNewDc:
+                    createPermanentDC();
+                    break;
+                case (int) NonDcActions.DoOneOff:
+                    doOneOffDecision();
+                    break;
+                case (int) NonDcActions.PickRandomInt:
+                    break;
+                case MU.EXIT_CODE:
+                    Console.WriteLine(MU.MENU_EXIT_MSG);                
+                    break;
+                default:
+                    MU.writeInvalidMsg();
+                    break;
+            }
+        }
+
+        private bool doOneOffDecision()
+        {
+            try
+            {
+                DC oneTimeDecision = inputDC();
+                Console.WriteLine(ONE_OFF_DECIDE_MSG);
+                return decideForUser(oneTimeDecision);
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine($"{DS_ERR_INTRO} Failed to do one-off decision...\n {e}");
+                return false;
+            }
         }
 
         public string getDCNameFromMenuChoice(int opt)
@@ -268,38 +292,10 @@ namespace DecisionMaker
             return _dcMap.ElementAt(opt - 1).Value;
         }
 
-        /// <summary>
-        /// processes no categories menu input,
-        /// aka adding the first category to the categories directory
-        /// </summary>
-        /// <param name="opt">- the processed option from processStartMenuInput </param>
-        private void process1stDCConfirmation(int opt)
-        {
-            switch(opt)
-            {
-                case MU.YES_CODE:
-                    createPermanentDC();
-                    break;
-                case MU.NO_CODE:
-                    Console.WriteLine(MU.MENU_EXIT_MSG);
-                    break;
-                case MU.EXIT_CODE:
-                    break;
-                default:
-                    MU.writeInvalidMsg();
-                    break;
-            }
-        }
-
         // determine if the input is for an existing category
         public bool isChoiceInChoiceRange(int opt)
         {
             return(hasDCs()) && ((opt >= MU.MENU_START) && (opt <= _dcMap.Count));
-        }
-
-        private bool isChoiceAddNewDC(int opt)
-        {
-            return opt == (_dcMap.Count + 1);
         }
 
         // loop for choosing what to do with a selected decision category
@@ -389,7 +385,7 @@ namespace DecisionMaker
             }
             catch(Exception e)
             {
-                Console.WriteLine($"{e} Failed to add new decision category. Saving any made progress");
+                Console.WriteLine($"{DS_ERR_INTRO} Failed to add new decision category. Saving any made progress\n {e}");
                 saveUnfinishedDC(dcName, dcDesc, dcChoices);
             }
             return DC.EmptyDc;

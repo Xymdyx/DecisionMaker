@@ -86,10 +86,10 @@ namespace DecisionMaker
                 Console.WriteLine($"{_catName} category lacks matching file at {_catPath}...");
             return exists;
         }
-
+   
         public bool hasChoices()
         {
-            return checkFileExists() && _catChoices.Count > 0;
+            return _catChoices.Count > 0;
         }
 
         public void printAllInfo()
