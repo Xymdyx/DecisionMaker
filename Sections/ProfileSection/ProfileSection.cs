@@ -25,7 +25,7 @@ namespace DecisionMaker
             }
             catch(Exception e)
             {
-                Console.WriteLine($"{PSC.PS_INFO_INTRO} failed to initialize {PSC.DEFAULT_PROFILE_DIR} directory...\n{e}");
+                Console.WriteLine($"{PSC.PS_INFO_INTRO} failed to initialize {PSC.DEFAULT_PROFILE_DIR} directory...\n{e.Message}\n");
             }
             return Directory.Exists(PSC.DEFAULT_PROFILE_DIR);
         }

@@ -15,7 +15,7 @@ namespace DecisionMaker
             GeneratedFiles
         }
 
-        public static readonly string[] mainTopics = { "Overview", "Sections", "GeneratedFiles" };
+        public static readonly string[] mainTopics = { "Overview", "Navigation", "GeneratedFiles" };
 
         public const string HELP_SECTION_GREETING = "Welcome to the Help Menu. This is where you can learn more about the app if the README wasn't enough.";
 

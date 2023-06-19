@@ -53,7 +53,7 @@ namespace DecisionMaker
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine($"{DSC.DS_INFO_INTRO} failed to initialize {DSC.DEFAULT_DC_DIRECTORY} directory...\n{e}");
+                    Console.WriteLine($"{DSC.DS_INFO_INTRO} failed to initialize {DSC.DEFAULT_DC_DIRECTORY} directory...\n{e.Message}\n");
                 }
             }
             return Directory.Exists(DSC.DEFAULT_DC_DIRECTORY);

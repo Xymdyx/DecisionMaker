@@ -132,7 +132,7 @@ namespace DecisionMaker
             }
             catch(Exception e)
             {
-                Console.WriteLine($"{FSC.FS_ERR_HEADER}: Failed to delete entire {dir} directory...\n{e}");
+                Console.WriteLine($"{FSC.FS_ERR_HEADER}: Failed to delete entire {dir} directory...\n{e.Message}\n");
             }
         }
 

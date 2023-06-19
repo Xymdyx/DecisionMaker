@@ -69,6 +69,7 @@ namespace DecisionMaker
                 Console.WriteLine(info);
                 Console.WriteLine(PAUSE_PROMPT);
                 Console.ReadKey();
+                Console.WriteLine();
             }
             catch(Exception e)
             {

@@ -46,7 +46,7 @@ public class Personality
         }
         catch(Exception e)
         {
-            Console.WriteLine($"{PERSONALITY_ERR_HEADER} failed to update personality parts...\n{e}");
+            Console.WriteLine($"{PERSONALITY_ERR_HEADER} failed to update personality parts...\n{e.Message}\n");
         }
     }
 
