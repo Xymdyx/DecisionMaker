@@ -3,18 +3,12 @@
 * desc: Section for customizing certain messages said by the program
 * date started: approx 5/15/2023
 */
+
 using PSC = DecisionMaker.ProfileSectConstants;
 namespace DecisionMaker
 {
     public class ProfileSection:IDecisionMakerSection
     {
-        private enum ProfileParts
-        {
-            Greeting = 1,
-            Exiting,
-            DisplayName
-        }
-        private static readonly string[] profileOptions = { "Change app greeting message", "Change app exit message", "Change display name" };
         public Personality appPersonality { get; private set; }
 
         public ProfileSection()
@@ -31,7 +25,7 @@ namespace DecisionMaker
             }
             catch(Exception e)
             {
-                Console.WriteLine($"{PSC.PS_ERR_INTRO} failed to initialize {PSC.DEFAULT_PROFILE_DIR} directory...\n{e}");
+                Console.WriteLine($"{PSC.PS_INFO_INTRO} failed to initialize {PSC.DEFAULT_PROFILE_DIR} directory...\n{e}");
             }
             return Directory.Exists(PSC.DEFAULT_PROFILE_DIR);
         }
@@ -44,11 +38,11 @@ namespace DecisionMaker
             {
                 checkAndInitDir();
                 writeMenu();
-                opt = MenuUtils.promptUser();
+                opt = MenuUtils.promptUserAndReturnOpt();
                 processMenuInput(opt);
             } while(!MenuUtils.isChoiceMenuExit(opt));
             scanForProfileUpdates();
-            return 0;
+            return opt;
         }
 
         private void writeMenu()
@@ -61,13 +55,13 @@ namespace DecisionMaker
         {
             switch(opt)
             {
-                case (int) ProfileParts.Greeting:
+                case (int) PSC.ProfileParts.Greeting:
                     changeGreeting();
                     break;
-                case (int) ProfileParts.Exiting:
+                case (int) PSC.ProfileParts.Exiting:
                     changeExitMsg();
                     break;
-                case (int) ProfileParts.DisplayName:
+                case (int) PSC.ProfileParts.DisplayName:
                     changeDisplayName();
                     break;
                 case MenuUtils.EXIT_CODE:
@@ -81,20 +75,20 @@ namespace DecisionMaker
 
         private void changeGreeting()
         {
-            trySaveAnswerToProfile(PSC.PROFILE_GREETING_PATH, PSC.CHANGE_GREETING_MSG, ProfileParts.Greeting);
+            trySaveAnswerToProfile(PSC.PROFILE_GREETING_PATH, PSC.CHANGE_GREETING_MSG, PSC.ProfileParts.Greeting);
         }
 
         private void changeExitMsg()
         {
-            trySaveAnswerToProfile(PSC.PROFILE_EXITING_PATH, PSC.CHANGE_EXITING_MSG, ProfileParts.Exiting);
+            trySaveAnswerToProfile(PSC.PROFILE_EXITING_PATH, PSC.CHANGE_EXITING_MSG, PSC.ProfileParts.Exiting);
         }
 
         private void changeDisplayName()
         {
-            trySaveAnswerToProfile(PSC.PROFILE_DISPLAY_NAME_PATH, PSC.CHANGE_DISPLAY_NAME_MSG, ProfileParts.DisplayName);
+            trySaveAnswerToProfile(PSC.PROFILE_DISPLAY_NAME_PATH, PSC.CHANGE_DISPLAY_NAME_MSG, PSC.ProfileParts.DisplayName);
         }
 
-        private void trySaveAnswerToProfile(string path, string prompt, ProfileParts part)
+        private void trySaveAnswerToProfile(string path, string prompt, PSC.ProfileParts part)
         {
             string ans = "";
             int opt = MenuUtils.INVALID_OPT;
@@ -110,21 +104,21 @@ namespace DecisionMaker
             scanForProfileUpdates();
         }
 
-        private void displayProfilePart(ProfileParts part)
+        private void displayProfilePart(PSC.ProfileParts part)
         {
             string partName = "unknown partname";
             string partVal = "invalid val";
             switch(part)
             {
-                case ProfileParts.Greeting:
+                case PSC.ProfileParts.Greeting:
                     partName = "greeting";
                     partVal = appPersonality.mainGreeting!;
                     break;
-                case ProfileParts.Exiting:
+                case PSC.ProfileParts.Exiting:
                     partName = "exiting";
                     partVal = appPersonality.mainExit!;
                     break;
-                case ProfileParts.DisplayName:
+                case PSC.ProfileParts.DisplayName:
                     partName = "display name";
                     partVal = appPersonality.displayName!;
                     break;
@@ -147,7 +141,7 @@ namespace DecisionMaker
             {
                 Console.WriteLine($"Please confirm you want: {ans}");
                 MenuUtils.writeBinaryMenu();
-                opt = MenuUtils.promptUser();
+                opt = MenuUtils.promptUserAndReturnOpt();
             }
             return opt;
         }
@@ -157,13 +151,12 @@ namespace DecisionMaker
             try
             {
                 File.WriteAllText(path, ans);
-                return true;
             }
             catch(Exception e)
             {
-                Console.WriteLine($"{PSC.PS_ERR_INTRO}: Failed to save \"{ans}\" to {path}...\n{e.Message}\n");
-                return false;
+                Console.WriteLine($"{PSC.PS_INFO_INTRO}: Failed to save \"{ans}\" to {path}...\n{e.Message}\n");
             }
+            return File.Exists(path);
         }
 
         private void writeProfilePartExitMsg(string path, string ans, bool saved)

@@ -64,9 +64,16 @@ namespace DecisionMaker
 
         public static void writeInfoAndPause(string info)
         {
-            Console.WriteLine(info);
-            Console.WriteLine(PAUSE_PROMPT);
-            Console.ReadKey();
+            try
+            {
+                Console.WriteLine(info);
+                Console.WriteLine(PAUSE_PROMPT);
+                Console.ReadKey();
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine($"{TU_INFO_HEADER} Error in writeInfoAndPause...\n{e.Message}\n");
+            }
         }
 
         public static int convertMenuInputToInt(string input)

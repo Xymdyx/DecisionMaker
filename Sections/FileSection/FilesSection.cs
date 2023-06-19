@@ -3,6 +3,7 @@
 * desc: Section for deleting files made by the program
 * date started: approx 5/30/2023
 */
+
 using FSC = DecisionMaker.FileSectConstants;
 namespace DecisionMaker
 {
@@ -41,7 +42,7 @@ namespace DecisionMaker
             do
             {
                 writeMenu();
-                opt = MenuUtils.promptUser();
+                opt = MenuUtils.promptUserAndReturnOpt();
                 processMenuInput(opt);
             } while (!MenuUtils.isChoiceMenuExit(opt));
             return opt;
@@ -81,7 +82,7 @@ namespace DecisionMaker
             do
             {
                 writeManageDCsMenu();
-                opt = MenuUtils.promptUser();
+                opt = MenuUtils.promptUserAndReturnOpt();
                 processDCsMenuInput(opt);
             } while (!MenuUtils.isChoiceMenuExit(opt));
             return opt;
@@ -141,7 +142,7 @@ namespace DecisionMaker
             do
             {
                 writeManageProfileMenu();
-                opt = MenuUtils.promptUser();
+                opt = MenuUtils.promptUserAndReturnOpt();
                 processProfileMenuInput(opt);
                 profSect.scanForProfileUpdates();
             } while (!MenuUtils.isChoiceMenuExit(opt));
@@ -186,7 +187,7 @@ namespace DecisionMaker
             do
             {
                 writeFileMenu();
-                opt = MenuUtils.promptUser();
+                opt = MenuUtils.promptUserAndReturnOpt();
                 processFileActions(opt, fName);
             } while (continueFileMenuLoop(opt));
             return opt;

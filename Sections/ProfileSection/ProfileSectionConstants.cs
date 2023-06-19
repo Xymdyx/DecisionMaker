@@ -3,6 +3,7 @@
 * desc: Static class purely for storing Profile Section constants
 * date started: approx 6/18/2023
 */
+
 namespace DecisionMaker
 {
     public static class ProfileSectConstants
@@ -17,7 +18,7 @@ namespace DecisionMaker
         public const string CHANGE_GREETING_MSG = "Please type a custom greeting message:";
         public const string CHANGE_EXITING_MSG = "Please type a custom exit message:";
         public const string CHANGE_DISPLAY_NAME_MSG = "Please type what you would like us to call you:";
-        public const string PS_ERR_INTRO = "ProfileSect.cs: ";
+        public const string PS_INFO_INTRO = "ProfileSect.cs: ";
 
         public enum ProfileParts
         {

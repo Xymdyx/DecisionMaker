@@ -25,7 +25,7 @@ namespace DecisionMaker
         public const string READ_DC_MSG = "Feel free to decide on your own if this list inspires you:";
         public const string ADD_CHOICE_REJECT_MSG = "What you inputted was simply unaceeptable";
         public const string REMOVE_CHOICE_REJECT_MSG = "What you inputted was invalid. Therefore, nothing was removed...";
-        public const string DS_ERR_INTRO = "DecisionSect.cs: ";
+        public const string DS_INFO_INTRO = "DecisionSect.cs: ";
         public const string ONE_OFF_DECIDE_MSG = "Deciding now for this one time decision....!";
         public static readonly string RAND_BOUNDS_INFO = $"Please pick two numbers between {Int32.MinValue} and {Int32.MaxValue} (default is {DEFAULT_LOWER_BOUND}--{DEFAULT_UPPER_BOUND} inclusive):";
         public const string SAME_BOUNDS_COMMENT = "Same bounds, huh? Not very random but we'll allow it...";

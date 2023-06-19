@@ -3,6 +3,7 @@
 * author: Sam Ford
 * date: 6/13/23
 */
+
 using MU = DecisionMaker.MenuUtils;
 using TU = DecisionMaker.TextUtils;
 using HSC = DecisionMaker.HelpSectConstants;
@@ -19,7 +20,7 @@ namespace DecisionMaker
             do
             {
                 writeMenu();
-                opt = MU.promptUser();
+                opt = MU.promptUserAndReturnOpt();
                 processMenuInput(opt);
             } while (!MU.isChoiceMenuExit(opt));
             return opt;
@@ -45,6 +46,7 @@ namespace DecisionMaker
                     TU.writeInfoAndPause(HSC.GENERATED_FILES_INFO);
                     break;
                 case MU.EXIT_CODE:
+                    Console.WriteLine(MU.MENU_EXIT_MSG);
                     break;
                 default:
                     MU.writeInvalidMsg();

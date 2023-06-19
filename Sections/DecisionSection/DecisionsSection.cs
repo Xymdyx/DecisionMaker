@@ -53,7 +53,7 @@ namespace DecisionMaker
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine($"{DSC.DS_ERR_INTRO} failed to initialize {DSC.DEFAULT_DC_DIRECTORY} directory...\n{e}");
+                    Console.WriteLine($"{DSC.DS_INFO_INTRO} failed to initialize {DSC.DEFAULT_DC_DIRECTORY} directory...\n{e}");
                 }
             }
             return Directory.Exists(DSC.DEFAULT_DC_DIRECTORY);
@@ -108,7 +108,7 @@ namespace DecisionMaker
             }
             catch(Exception e)
             {
-                Console.WriteLine(DSC.DS_ERR_INTRO + $"Error scanning for categories...\n{e.Message}\n");
+                Console.WriteLine(DSC.DS_INFO_INTRO + $"Error scanning for categories...\n{e.Message}\n");
             }
             return new();
         }
@@ -130,7 +130,7 @@ namespace DecisionMaker
             {
                 fullyUpdateStoredDCs();
                 writeDCsMenu();
-                opt = MU.promptUser();
+                opt = MU.promptUserAndReturnOpt();
                 processMenuInput(opt);
             }while(!wantsToExit(opt));
             return opt;
@@ -222,7 +222,7 @@ namespace DecisionMaker
             }
             catch(Exception e)
             {
-                Console.WriteLine($"{DSC.DS_ERR_INTRO} Failed to do one-off decision...\n{e.Message}\n");
+                Console.WriteLine($"{DSC.DS_INFO_INTRO} Failed to do one-off decision...\n{e.Message}\n");
                 return false;
             }
         }
@@ -280,7 +280,7 @@ namespace DecisionMaker
             do
             {
                 writeDCActionsMenu(selectedDc.CatName);
-                dcOpt = MU.promptUser();
+                dcOpt = MU.promptUserAndReturnOpt();
                 doesTerminate = processDCActionsMenuInput(dcOpt, selected, selectedDc);
             }while(!MU.isChoiceMenuExit(dcOpt) && !doesTerminate);
         }
@@ -357,7 +357,7 @@ namespace DecisionMaker
             }
             catch(Exception e)
             {
-                Console.WriteLine($"{DSC.DS_ERR_INTRO} Failed to add new decision category. Saving any made progress...\n{e.Message}\n");
+                Console.WriteLine($"{DSC.DS_INFO_INTRO} Failed to add new decision category. Saving any made progress...\n{e.Message}\n");
                 saveUnfinishedDC(dcName, dcDesc, dcChoices);
             }
             return DC.EmptyDc;
@@ -494,7 +494,7 @@ namespace DecisionMaker
                     confirmHalt = confirmDeleteDC(selectedDc);
                     break;
                 default:
-                    Console.WriteLine(DSC.DS_ERR_INTRO + "Invalid Category Action in process action. Something's up");
+                    Console.WriteLine(DSC.DS_INFO_INTRO + "Invalid Category Action in process action. Something's up");
                     break;
             }
             return getDCActionTerminateVals()[actionNum-1] && confirmHalt;
@@ -586,7 +586,7 @@ namespace DecisionMaker
             while(!TU.isStringListEmpty(remainingChoices) && !isExit)
             {
                 writeRemoveChoicesMenu(remainingChoices);
-                opt = MU.promptUser();
+                opt = MU.promptUserAndReturnOpt();
                 isExit = MU.isChoiceMenuExit(opt);
                 string removed = processRemoveDecisionChoice(opt, remainingChoices);
                 if(!isExit) printRemoveChoicesLoopMsg(removed, remainingChoices, selectedDc.CatName);
@@ -661,7 +661,7 @@ namespace DecisionMaker
             {
                 Console.WriteLine($"Please confirm you want to delete the {dc} decision category:");
                 MU.writeBinaryMenu();
-                opt = MU.promptUser();
+                opt = MU.promptUserAndReturnOpt();
                 terminateConfirm = processDeleteDCOpt(opt, dc);
             } while (!MU.isBinaryChoice(opt));
             return terminateConfirm;

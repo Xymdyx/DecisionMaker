@@ -3,8 +3,10 @@
 * author: Sam Ford
 * date started: 4/4/2023
 */
+
 using System;
 using DSE = DecisionMaker.DecisionMakerSects;
+using MU = DecisionMaker.MenuUtils;
 namespace DecisionMaker
 {
     public class DecisionMakerMain : IDecisionMakerSection
@@ -45,13 +47,13 @@ namespace DecisionMaker
         
         public int doMenuLoop()
         {
-            int opt = -1;
+            int opt = MU.INVALID_OPT;
             do
             {
                 writeMenu();
-                opt = MenuUtils.promptUser();
+                opt = MenuUtils.promptUserAndReturnOpt();
                 processMenuInput(opt);
-            }while(opt != MenuUtils.EXIT_CODE);
+            }while(!MU.isChoiceMenuExit(opt));
             return 0;
         }
 
@@ -72,16 +74,16 @@ namespace DecisionMaker
         {
             switch(opt)
             {
-                case (int) DecisionMakerSects.DCs:
+                case (int) DSE.DCs:
                     this.decisionsSect.doMenuLoop();
                     break;
-                case (int) DecisionMakerSects.Profile:
+                case (int) DSE.Profile:
                     profileSect.doMenuLoop();
                     break;
-                case (int) DecisionMakerSects.FileManagement:
+                case (int) DSE.FileManagement:
                     fileSect.doMenuLoop();
                     break;
-                case (int) DecisionMakerSects.Help:
+                case (int) DSE.Help:
                     helpSect.doMenuLoop();
                     break;
                 case MenuUtils.EXIT_CODE:
