@@ -1,3 +1,8 @@
+/*
+* author: Sam Ford
+* desc: Static class purely for storing Help Section constants
+* date started: approx 6/18/2023
+*/
 namespace DecisionMaker
 {
     public static class HelpSectConstants

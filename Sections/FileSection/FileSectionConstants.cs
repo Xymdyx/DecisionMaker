@@ -1,9 +1,8 @@
 /*
 * author: Sam Ford
-* desc: Static class purely for storing Decision Section constants
+* desc: Static class purely for storing File Section constants
 * date started: approx 6/18/2023
 */
-
 namespace DecisionMaker
 {
     public static class FileSectConstants

@@ -6,7 +6,7 @@
 using FSC = DecisionMaker.FileSectConstants;
 namespace DecisionMaker
 {
-    using PS = DecisionMaker.ProfileSection;
+    using PSC = DecisionMaker.ProfileSectConstants;
     using DSC = DecisionMaker.DecisionSectConstants;
     public class FilesSection:IDecisionMakerSection
     {
@@ -160,16 +160,16 @@ namespace DecisionMaker
             switch(opt)
             {
                 case (int) FSC.ProfileActionCodes.GREETING:
-                    doFileMenuLoop(PS.PROFILE_GREETING_PATH);
+                    doFileMenuLoop(PSC.PROFILE_GREETING_PATH);
                     break;
                 case (int) FSC.ProfileActionCodes.DEPARTING:
-                    doFileMenuLoop(PS.PROFILE_EXITING_PATH);
+                    doFileMenuLoop(PSC.PROFILE_EXITING_PATH);
                     break;
                 case (int) FSC.ProfileActionCodes.DISPLAYNAME:
-                    doFileMenuLoop(PS.PROFILE_DISPLAY_NAME_PATH);
+                    doFileMenuLoop(PSC.PROFILE_DISPLAY_NAME_PATH);
                     break;
                 case (int)FSC.FileActionCodes.DeleteAll:
-                    deleteDirAndContents(PS.DEFAULT_PROFILE_DIR);
+                    deleteDirAndContents(PSC.DEFAULT_PROFILE_DIR);
                     break;
                 case MenuUtils.EXIT_CODE:
                     MenuUtils.printToPreviousMenu();

@@ -3,29 +3,18 @@
 * desc: Section for customizing certain messages said by the program
 * date started: approx 5/15/2023
 */
+using PSC = DecisionMaker.ProfileSectConstants;
 namespace DecisionMaker
 {
     public class ProfileSection:IDecisionMakerSection
     {
-        public const string DEFAULT_PROFILE_DIR = ".\\ProfileStorage\\";
-        public const string PROFILE_GREETING_PATH = DEFAULT_PROFILE_DIR + "greeting.txt";
-        public const string PROFILE_EXITING_PATH = DEFAULT_PROFILE_DIR + "exiting.txt";
-        public const string PROFILE_DISPLAY_NAME_PATH = DEFAULT_PROFILE_DIR + "displayname.txt";
-        private const string PROFILE_NO_SAVE_MSG = "Exited without saving any data";
-
-        private const string PROFILE_MENU_GREETING = "Welcome to the Profile Menu. This is where you can customize this program's configurable messages!";
-        private const string CHANGE_GREETING_MSG = "Please type a custom greeting message:";
-        private const string CHANGE_EXITING_MSG = "Please type a custom exit message:";
-        private const string CHANGE_DISPLAY_NAME_MSG = "Please type what you would like us to call you:";
-        private const string PS_ERR_INTRO = "ProfileSect.cs: ";
-
         private enum ProfileParts
         {
             Greeting = 1,
             Exiting,
             DisplayName
         }
-        private readonly string[] profileOptions = { "Change app greeting message", "Change app exit message", "Change display name" };
+        private static readonly string[] profileOptions = { "Change app greeting message", "Change app exit message", "Change display name" };
         public Personality appPersonality { get; private set; }
 
         public ProfileSection()
@@ -38,18 +27,18 @@ namespace DecisionMaker
         {
             try
             {
-                Directory.CreateDirectory(DEFAULT_PROFILE_DIR);
+                Directory.CreateDirectory(PSC.DEFAULT_PROFILE_DIR);
             }
             catch(Exception e)
             {
-                Console.WriteLine($"{PS_ERR_INTRO} failed to initialize {DEFAULT_PROFILE_DIR} directory...\n{e}");
+                Console.WriteLine($"{PSC.PS_ERR_INTRO} failed to initialize {PSC.DEFAULT_PROFILE_DIR} directory...\n{e}");
             }
-            return Directory.Exists(DEFAULT_PROFILE_DIR);
+            return Directory.Exists(PSC.DEFAULT_PROFILE_DIR);
         }
 
         public int doMenuLoop()
         {
-            Console.WriteLine(PROFILE_MENU_GREETING);
+            Console.WriteLine(PSC.PROFILE_MENU_GREETING);
             int opt = MenuUtils.INVALID_OPT;
             do
             {
@@ -64,7 +53,7 @@ namespace DecisionMaker
 
         private void writeMenu()
         {
-            TextUtils.writeListAsNumberMenu(this.profileOptions.ToList());
+            TextUtils.writeListAsNumberMenu(PSC.profileOptions.ToList());
             MenuUtils.printExitChoice();
         }
 
@@ -92,17 +81,17 @@ namespace DecisionMaker
 
         private void changeGreeting()
         {
-            trySaveAnswerToProfile(PROFILE_GREETING_PATH, CHANGE_GREETING_MSG, ProfileParts.Greeting);
+            trySaveAnswerToProfile(PSC.PROFILE_GREETING_PATH, PSC.CHANGE_GREETING_MSG, ProfileParts.Greeting);
         }
 
         private void changeExitMsg()
         {
-            trySaveAnswerToProfile(PROFILE_EXITING_PATH, CHANGE_EXITING_MSG, ProfileParts.Exiting);
+            trySaveAnswerToProfile(PSC.PROFILE_EXITING_PATH, PSC.CHANGE_EXITING_MSG, ProfileParts.Exiting);
         }
 
         private void changeDisplayName()
         {
-            trySaveAnswerToProfile(PROFILE_DISPLAY_NAME_PATH, CHANGE_DISPLAY_NAME_MSG, ProfileParts.DisplayName);
+            trySaveAnswerToProfile(PSC.PROFILE_DISPLAY_NAME_PATH, PSC.CHANGE_DISPLAY_NAME_MSG, ProfileParts.DisplayName);
         }
 
         private void trySaveAnswerToProfile(string path, string prompt, ProfileParts part)
@@ -172,14 +161,14 @@ namespace DecisionMaker
             }
             catch(Exception e)
             {
-                Console.WriteLine($"{PS_ERR_INTRO}: Failed to save \"{ans}\" to {path}...\n{e.Message}\n");
+                Console.WriteLine($"{PSC.PS_ERR_INTRO}: Failed to save \"{ans}\" to {path}...\n{e.Message}\n");
                 return false;
             }
         }
 
         private void writeProfilePartExitMsg(string path, string ans, bool saved)
         {
-            string exitConfirmMsg = saved ? $"Saving \"{ans}\" to {path}" : PROFILE_NO_SAVE_MSG;
+            string exitConfirmMsg = saved ? $"Saving \"{ans}\" to {path}" : PSC.PROFILE_NO_SAVE_MSG;
             Console.WriteLine(exitConfirmMsg);
         }
 

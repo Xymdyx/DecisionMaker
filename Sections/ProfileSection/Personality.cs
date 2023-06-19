@@ -3,8 +3,7 @@
 * desc: struct to represent the personality of the user's decision maker.
 */
 
-using DPS = DecisionMaker.ProfileSection;
-
+using PSC = DecisionMaker.ProfileSectConstants;
 public class Personality
 {
     private const string DEFAULT_GREETING = "We will ask you what you want a decision for shortly...";
@@ -37,12 +36,12 @@ public class Personality
     {
         try
         {
-            if (File.Exists(DPS.PROFILE_GREETING_PATH))
-                _mainGreetingMsg = File.ReadAllText(DPS.PROFILE_GREETING_PATH);
-            if (File.Exists(DPS.PROFILE_EXITING_PATH))
-                _mainExitMsg = File.ReadAllText(DPS.PROFILE_EXITING_PATH);
-            if (File.Exists(DPS.PROFILE_DISPLAY_NAME_PATH))
-                _displayName = File.ReadAllText(DPS.PROFILE_DISPLAY_NAME_PATH);
+            if (File.Exists(PSC.PROFILE_GREETING_PATH))
+                _mainGreetingMsg = File.ReadAllText(PSC.PROFILE_GREETING_PATH);
+            if (File.Exists(PSC.PROFILE_EXITING_PATH))
+                _mainExitMsg = File.ReadAllText(PSC.PROFILE_EXITING_PATH);
+            if (File.Exists(PSC.PROFILE_DISPLAY_NAME_PATH))
+                _displayName = File.ReadAllText(PSC.PROFILE_DISPLAY_NAME_PATH);
 
             fillInBlankFields();
         }
