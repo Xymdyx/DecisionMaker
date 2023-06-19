@@ -60,7 +60,7 @@ namespace DecisionMaker
             }
             catch(Exception e)
             {
-                Console.WriteLine($"{DC_INFO_HEADER} failed to save file {_catPath}...\n {e}");
+                Console.WriteLine($"{DC_INFO_HEADER} failed to save file {_catPath}...\n{e.Message}\n");
             }
             return checkFileExists();
         }
@@ -74,7 +74,7 @@ namespace DecisionMaker
             }
             catch(Exception e)
             {
-                Console.WriteLine($"{DC_INFO_HEADER} failed to delete file ${_catPath}...\n {e}");
+                Console.WriteLine($"{DC_INFO_HEADER} failed to delete file ${_catPath}...\n{e.Message}\n");
             }
             return !checkFileExists();            
         }

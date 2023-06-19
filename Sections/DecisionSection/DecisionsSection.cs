@@ -35,11 +35,16 @@ namespace DecisionMaker
         private const string REMOVE_CHOICE_REJECT_MSG = "What you inputted was invalid. Therefore, nothing was removed...";
         private const string DS_ERR_INTRO = "DecisionSect.cs: ";
         private const string ONE_OFF_DECIDE_MSG = "Deciding now for this one time decision....!";
+        public readonly string RAND_BOUNDS_INFO = $"Please pick two numbers between {Int32.MinValue} and {Int32.MaxValue} (default is {DEFAULT_LOWER_BOUND}--{DEFAULT_UPPER_BOUND} inclusive):";
+        public const string SAME_BOUNDS_COMMENT = "Same bounds, huh? Not very random but we'll allow it...";
 
         // INT CONSTANTS
+        private const int ORIGIN_IDX = 0;
         private const int DELETE_ALL_CHOICES_CODE = -1;
         private const int DESC_LINE_IDX = 1;
         private const int INFO_LEN = 2;
+        public const int DEFAULT_LOWER_BOUND = 1;
+        public const int DEFAULT_UPPER_BOUND = 100;
 
         // private map for category actions of form <Action Name, terminateLoop>
         private readonly OrderedDictionary dcActions = new()
@@ -47,6 +52,7 @@ namespace DecisionMaker
             {"Make a decision", true},
             {"View decisions", false},
             {"Read category description", false},
+            {"Change category description", false},
             {"Add choices", false},
             {"Remove choices", false},
             {"Delete entire category", true}
@@ -57,6 +63,7 @@ namespace DecisionMaker
             Decide = 1,
             ReadChoices,
             ReadDesc,
+            ChangeDesc,
             AddChoices,
             RemoveChoices,
             DeleteDc
@@ -167,7 +174,7 @@ namespace DecisionMaker
             }
             catch(Exception e)
             {
-                Console.WriteLine(DS_ERR_INTRO + $"Error scanning for categories... {e}");
+                Console.WriteLine(DS_ERR_INTRO + $"Error scanning for categories...\n{e.Message}\n");
             }
             return new();
         }
@@ -225,9 +232,9 @@ namespace DecisionMaker
 
         private void printNonDcActions()
         {
-            MU.printExitChoice();            
+            MU.printExitChoice();
             Console.WriteLine($"{(int) NonDcActions.AddNewDc}. Add a whole new Decision Category");
-            Console.WriteLine($"{(int) NonDcActions.DoOneOff}. Make a quick one-time decision");
+            Console.WriteLine($"{(int) NonDcActions.DoOneOff}. Make a quick one-off decision");
             Console.WriteLine($"{(int) NonDcActions.PickRandomInt}. Have us pick a random number in a range");
         }
 
@@ -237,7 +244,10 @@ namespace DecisionMaker
             if(isChoiceInChoiceRange(opt))
                 enterDCActionsMenu(opt);
             else
+            {
                 processNonDcActions(opt);
+                Console.WriteLine();
+            }
         }
 
         private void processNonDcActions(int opt)
@@ -247,7 +257,7 @@ namespace DecisionMaker
         *       3. Remove add1stDc menu as DCs are no loner the only option.
         *       4. After the first if, use a switch with an enum...
         * - SF 6/16/23
-        */            
+        */
             switch(opt)
             {
                 case (int) NonDcActions.AddNewDc:
@@ -257,9 +267,10 @@ namespace DecisionMaker
                     doOneOffDecision();
                     break;
                 case (int) NonDcActions.PickRandomInt:
+                    doRandomInt();
                     break;
                 case MU.EXIT_CODE:
-                    Console.WriteLine(MU.MENU_EXIT_MSG);                
+                    Console.WriteLine(MU.MENU_EXIT_MSG);
                     break;
                 default:
                     MU.writeInvalidMsg();
@@ -277,9 +288,36 @@ namespace DecisionMaker
             }
             catch(Exception e)
             {
-                Console.WriteLine($"{DS_ERR_INTRO} Failed to do one-off decision...\n {e}");
+                Console.WriteLine($"{DS_ERR_INTRO} Failed to do one-off decision...\n{e.Message}\n");
                 return false;
             }
+        }
+
+        /// <summary>
+        /// prompts user for two numbers and prints a random integer in their inclusive range
+        /// </summary>
+        /// <returns>whether this operation was successful </returns>
+        private bool doRandomInt()
+        {
+            Console.WriteLine(RAND_BOUNDS_INFO);
+            bool succ1 = TU.convertTextToInt32(Console.ReadLine()!, out int num1);
+            bool succ2 = TU.convertTextToInt32(Console.ReadLine()!, out int num2);
+
+            if(!succ1) num1 = DEFAULT_LOWER_BOUND;
+            if(!succ2) num2 = DEFAULT_UPPER_BOUND;
+
+            int rand = runRNG(num1, num2);
+            commentIfBoundsSame(num1, num2);
+            (int,int) bounds = returnBoundsTuple(num1, num2);
+
+            Console.WriteLine($"Given the range of [{bounds.Item1}, {bounds.Item2}], we've decided upon {rand}...");
+            return true;
+        }
+
+        private void commentIfBoundsSame(int num1, int num2)
+        {
+            if(num1 == num2)
+                Console.WriteLine(SAME_BOUNDS_COMMENT);
         }
 
         public string getDCNameFromMenuChoice(int opt)
@@ -385,7 +423,7 @@ namespace DecisionMaker
             }
             catch(Exception e)
             {
-                Console.WriteLine($"{DS_ERR_INTRO} Failed to add new decision category. Saving any made progress\n {e}");
+                Console.WriteLine($"{DS_ERR_INTRO} Failed to add new decision category. Saving any made progress...\n{e.Message}\n");
                 saveUnfinishedDC(dcName, dcDesc, dcChoices);
             }
             return DC.EmptyDc;
@@ -509,6 +547,9 @@ namespace DecisionMaker
                 case (int) DcActionCodes.ReadDesc:
                     confirmHalt = readDescDC(selectedDc);
                     break;
+                case (int) DcActionCodes.ChangeDesc:
+                    confirmHalt = changeDescDC(selectedDc);
+                    break;
                 case (int) DcActionCodes.AddChoices:
                     confirmHalt = addChoicesToExistingDC(selectedDc);
                     break;
@@ -537,7 +578,7 @@ namespace DecisionMaker
                 return false;
             }
 
-            int chosen = runRNG(dc.CatChoices);
+            int chosen = runRNG(ORIGIN_IDX, dc.CatChoices.Count - 1);
             Console.WriteLine($"For {dc.CatName}, we've decided upon: {dc.CatChoices[chosen]}");
             return true;
         }
@@ -563,6 +604,20 @@ namespace DecisionMaker
                 Console.WriteLine($"Description for {dc.CatName}: {dc.CatDesc}");
             return !exists;
         }
+
+        private bool changeDescDC(DC dc)
+        {
+            bool exists = dc.checkFileExists();
+            if (exists)
+            {
+                readDescDC(dc);
+                string newDesc = describeDC();
+                dc.CatDesc = newDesc;
+                Console.WriteLine($"Changed {dc.CatName} description to \"{dc.CatDesc}\"!");
+                dc.saveFile();
+            }
+            return !exists;            
+        }        
 
         private bool addChoicesToExistingDC(DC dc)
         {
@@ -695,23 +750,33 @@ namespace DecisionMaker
             }
         }
 
-        private int runRNG(List<string> choices)
+        private int runRNG(int num1, int num2)
         {
-            int endIdx = choices.Count - 1;
-            return rng.Next(0, endIdx);
+            (int, int) bounds = returnBoundsTuple(num1, num2);
+            return rng.Next(bounds.Item1, bounds.Item2);
+        }
+
+        /// <summary>
+        /// returns an integer tuple of the form (lowerbound, upperbound)
+        /// </summary>
+        private (int, int) returnBoundsTuple(int num1, int num2)
+        {
+            int lb = Math.Min(num1, num2);
+            int ub = Math.Max(num1, num2);
+            return (lb,ub);
         }
 
         private string[] getDCActionKeys()
         {
             string[] actionKeys = new string[this.dcActions.Count];
-            this.dcActions.Keys.CopyTo(actionKeys, 0);
+            this.dcActions.Keys.CopyTo(actionKeys, ORIGIN_IDX);
             return actionKeys;
         }
 
         private bool[] getDCActionTerminateVals()
         {
             bool[] terminateVals = new bool[this.dcActions.Count];
-            this.dcActions.Values.CopyTo(terminateVals, 0);
+            this.dcActions.Values.CopyTo(terminateVals, ORIGIN_IDX);
             return terminateVals;
         }
     }

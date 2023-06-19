@@ -3,6 +3,7 @@
 * desc: Utilities for menu creation and loops
 * date started: approx 5/5/2023
 */
+using TU = DecisionMaker.TextUtils;
 namespace DecisionMaker
 {
     public static class MenuUtils
@@ -12,7 +13,6 @@ namespace DecisionMaker
         public const string INVALID_CHOICE_MSG = "What you inputted was not a valid choice, please try again."; 
         public const string MENU_EXIT_MSG = "Exiting to previous menu";
         private const string MU_ERR_INTRO = "MenuUtils.cs: ";
-
         public const int INVALID_OPT = Int32.MinValue; 
         public const int EXIT_CODE = 0; 
         public const int YES_CODE = 1; 
@@ -30,22 +30,8 @@ namespace DecisionMaker
             Console.WriteLine(CHOOSE_NUM_MSG);
             string input = Console.ReadLine()!;
             Console.WriteLine();
-            int opt = convertInputToInt(input);
+            int opt = TU.convertMenuInputToInt(input);
             return opt;        
-        }
-
-        public static int convertInputToInt(string input)
-        {
-            int opt = MenuUtils.INVALID_OPT;
-            try
-            {
-                opt = System.Int32.Parse(input);
-            }
-            catch(Exception e) 
-            {
-                Console.Error.WriteLine(MU_ERR_INTRO + $"Cannot convert input to integer: {e}");
-            }
-            return opt;
         }
 
         public static bool isChoiceMenuExit(int opt)

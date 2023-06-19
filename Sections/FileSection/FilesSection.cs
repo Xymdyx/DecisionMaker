@@ -263,7 +263,7 @@ namespace DecisionMaker
             }
             catch(Exception e)
             {
-                Console.WriteLine($"{FS_ERR_HEADER} failed to read contents of {fName}... {e}") ;
+                Console.WriteLine($"{FS_ERR_HEADER} failed to read contents of {fName}...\n{e.Message}\n") ;
             }
         }
 
@@ -282,7 +282,7 @@ namespace DecisionMaker
             }
             catch(Exception e)
             {
-                Console.WriteLine($"{FS_ERR_HEADER} failed to delete {fName}... {e}");
+                Console.WriteLine($"{FS_ERR_HEADER} failed to delete {fName}...\n{e.Message}\n");
             }
         }
     }

@@ -172,7 +172,7 @@ namespace DecisionMaker
             }
             catch(Exception e)
             {
-                Console.WriteLine($"{PS_ERR_INTRO}: Failed to save \"{ans}\" to {path}... {e}");
+                Console.WriteLine($"{PS_ERR_INTRO}: Failed to save \"{ans}\" to {path}...\n{e.Message}\n");
                 return false;
             }
         }
