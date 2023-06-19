@@ -6,7 +6,7 @@
 namespace DecisionMaker
 {
     using PS = DecisionMaker.ProfileSection;
-    using DS = DecisionMaker.DecisionsSection;
+    using DSC = DecisionMaker.DecisionSectConstants;
     public class FilesSection:IDecisionMakerSection
     {
         private enum FileTypeCodes
@@ -145,7 +145,7 @@ namespace DecisionMaker
 
         private void deleteAllDCs()
         {
-            deleteDirAndContents(DecisionsSection.DEFAULT_DC_DIRECTORY);
+            deleteDirAndContents(DSC.DEFAULT_DC_DIRECTORY);
             this.decSect.syncDcMapToDcDir();
         }
 

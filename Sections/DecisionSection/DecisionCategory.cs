@@ -5,6 +5,7 @@
 */
 
 using DS = DecisionMaker.DecisionsSection;
+using DSC = DecisionMaker.DecisionSectConstants;
 using TU = DecisionMaker.TextUtils;
 namespace DecisionMaker
 {
@@ -53,8 +54,8 @@ namespace DecisionMaker
             try
             {
                 DS.checkAndInitDir();
-                File.WriteAllText(_catPath, _catName + DS.DECISION_DELIMITER);
-                File.AppendAllText(_catPath, _catDesc + DS.DECISION_DELIMITER);
+                File.WriteAllText(_catPath, _catName + DSC.DECISION_DELIMITER);
+                File.AppendAllText(_catPath, _catDesc + DSC.DECISION_DELIMITER);
                 File.AppendAllLines(_catPath, _catChoices);
                 Console.WriteLine($"Saved file {_catPath}!");
             }
@@ -100,7 +101,7 @@ namespace DecisionMaker
 
         public string stringifyChoices()
         {
-            return String.Join(DS.DECISION_DELIMITER, _catChoices);
+            return String.Join(DSC.DECISION_DELIMITER, _catChoices);
         }
 
         public bool IsValidDc()
