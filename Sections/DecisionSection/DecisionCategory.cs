@@ -5,6 +5,7 @@
 */
 
 using DS = DecisionMaker.DecisionsSection;
+using DSC = DecisionMaker.DecisionSectConstants;
 using TU = DecisionMaker.TextUtils;
 namespace DecisionMaker
 {
@@ -53,14 +54,14 @@ namespace DecisionMaker
             try
             {
                 DS.checkAndInitDir();
-                File.WriteAllText(_catPath, _catName + DS.DECISION_DELIMITER);
-                File.AppendAllText(_catPath, _catDesc + DS.DECISION_DELIMITER);
+                File.WriteAllText(_catPath, _catName + DSC.DECISION_DELIMITER);
+                File.AppendAllText(_catPath, _catDesc + DSC.DECISION_DELIMITER);
                 File.AppendAllLines(_catPath, _catChoices);
                 Console.WriteLine($"Saved file {_catPath}!");
             }
             catch(Exception e)
             {
-                Console.WriteLine($"{DC_INFO_HEADER} failed to save file {_catPath}...\n {e}");
+                Console.WriteLine($"{DC_INFO_HEADER} failed to save file {_catPath}...\n{e.Message}\n");
             }
             return checkFileExists();
         }
@@ -74,7 +75,7 @@ namespace DecisionMaker
             }
             catch(Exception e)
             {
-                Console.WriteLine($"{DC_INFO_HEADER} failed to delete file ${_catPath}...\n {e}");
+                Console.WriteLine($"{DC_INFO_HEADER} failed to delete file ${_catPath}...\n{e.Message}\n");
             }
             return !checkFileExists();            
         }
@@ -86,10 +87,10 @@ namespace DecisionMaker
                 Console.WriteLine($"{_catName} category lacks matching file at {_catPath}...");
             return exists;
         }
-
+   
         public bool hasChoices()
         {
-            return checkFileExists() && _catChoices.Count > 0;
+            return _catChoices.Count > 0;
         }
 
         public void printAllInfo()
@@ -100,7 +101,7 @@ namespace DecisionMaker
 
         public string stringifyChoices()
         {
-            return String.Join(DS.DECISION_DELIMITER, _catChoices);
+            return String.Join(DSC.DECISION_DELIMITER, _catChoices);
         }
 
         public bool IsValidDc()

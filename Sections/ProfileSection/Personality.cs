@@ -3,14 +3,12 @@
 * desc: struct to represent the personality of the user's decision maker.
 */
 
-using DPS = DecisionMaker.ProfileSection;
-
+using PSC = DecisionMaker.ProfileSectConstants;
 public class Personality
 {
     private const string DEFAULT_GREETING = "We will ask you what you want a decision for shortly...";
     private const string DEFAULT_EXITING = "Thanks for consulting us!";
     private const string DEFAULT_DISPLAY_NAME = "friend";
-
     private const string PERSONALITY_ERR_HEADER = "Personality.cs:";
 
     private string? _mainGreetingMsg;
@@ -37,28 +35,28 @@ public class Personality
     {
         try
         {
-            if (File.Exists(DPS.PROFILE_GREETING_PATH))
-                _mainGreetingMsg = File.ReadAllText(DPS.PROFILE_GREETING_PATH);
-            if (File.Exists(DPS.PROFILE_EXITING_PATH))
-                _mainExitMsg = File.ReadAllText(DPS.PROFILE_EXITING_PATH);
-            if (File.Exists(DPS.PROFILE_DISPLAY_NAME_PATH))
-                _displayName = File.ReadAllText(DPS.PROFILE_DISPLAY_NAME_PATH);
+            if (File.Exists(PSC.PROFILE_GREETING_PATH))
+                _mainGreetingMsg = File.ReadAllText(PSC.PROFILE_GREETING_PATH);
+            if (File.Exists(PSC.PROFILE_EXITING_PATH))
+                _mainExitMsg = File.ReadAllText(PSC.PROFILE_EXITING_PATH);
+            if (File.Exists(PSC.PROFILE_DISPLAY_NAME_PATH))
+                _displayName = File.ReadAllText(PSC.PROFILE_DISPLAY_NAME_PATH);
 
             fillInBlankFields();
         }
         catch(Exception e)
         {
-            Console.WriteLine($"{PERSONALITY_ERR_HEADER} failed to update personality parts...\n{e}");
+            Console.WriteLine($"{PERSONALITY_ERR_HEADER} failed to update personality parts...\n{e.Message}\n");
         }
     }
 
     private void fillInBlankFields()
     {
-        if(!isGreetCustom())
+        if(!isGreetCustom() || !File.Exists(PSC.PROFILE_GREETING_PATH))
             this._mainGreetingMsg = DEFAULT_GREETING;
-        if(!isExitCustom())
+        if(!isExitCustom() || !File.Exists(PSC.PROFILE_EXITING_PATH))
             this._mainExitMsg = DEFAULT_EXITING;
-        if(!isDisplayNameCustom())
+        if(!isDisplayNameCustom() || !File.Exists(PSC.PROFILE_DISPLAY_NAME_PATH))
             this._displayName = DEFAULT_DISPLAY_NAME;
     }
 

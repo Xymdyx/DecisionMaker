@@ -3,6 +3,7 @@
 * desc: Utilities for menu creation and loops
 * date started: approx 5/5/2023
 */
+using TU = DecisionMaker.TextUtils;
 namespace DecisionMaker
 {
     public static class MenuUtils
@@ -11,8 +12,7 @@ namespace DecisionMaker
         public const string CHOOSE_NUM_MSG = "Please choose a valid number: "; 
         public const string INVALID_CHOICE_MSG = "What you inputted was not a valid choice, please try again."; 
         public const string MENU_EXIT_MSG = "Exiting to previous menu";
-        private const string MU_ERR_INTRO = "MenuUtils.cs: ";
-
+        private const string MU_INFO_INTRO = "MenuUtils.cs: ";
         public const int INVALID_OPT = Int32.MinValue; 
         public const int EXIT_CODE = 0; 
         public const int YES_CODE = 1; 
@@ -25,27 +25,21 @@ namespace DecisionMaker
         /// <returns>
         /// a processed integer... INVALID_OPT for invalid choice
         /// </returns>
-        public static int promptUser()
+        public static int promptUserAndReturnOpt()
         {
             Console.WriteLine(CHOOSE_NUM_MSG);
-            string input = Console.ReadLine()!;
-            Console.WriteLine();
-            int opt = convertInputToInt(input);
-            return opt;        
-        }
-
-        public static int convertInputToInt(string input)
-        {
-            int opt = MenuUtils.INVALID_OPT;
+            int opt = INVALID_OPT;
             try
             {
-                opt = System.Int32.Parse(input);
+                string input = Console.ReadLine()!;
+                Console.WriteLine();
+                opt = TU.convertMenuInputToInt(input);
             }
-            catch(Exception e) 
+            catch(Exception e)
             {
-                Console.Error.WriteLine(MU_ERR_INTRO + $"Cannot convert input to integer: {e}");
+                Console.WriteLine($"{MU_INFO_INTRO} failed in prompt user....\n{e.Message}\n");
             }
-            return opt;
+            return opt;        
         }
 
         public static bool isChoiceMenuExit(int opt)
