@@ -27,7 +27,7 @@ namespace DecisionMaker
         public const string REMOVE_CHOICE_REJECT_MSG = "What you inputted was invalid. Therefore, nothing was removed...";
         public const string DS_ERR_INTRO = "DecisionSect.cs: ";
         public const string ONE_OFF_DECIDE_MSG = "Deciding now for this one time decision....!";
-        public static string RAND_BOUNDS_INFO = $"Please pick two numbers between {Int32.MinValue} and {Int32.MaxValue} (default is {DEFAULT_LOWER_BOUND}--{DEFAULT_UPPER_BOUND} inclusive):";
+        public static readonly string RAND_BOUNDS_INFO = $"Please pick two numbers between {Int32.MinValue} and {Int32.MaxValue} (default is {DEFAULT_LOWER_BOUND}--{DEFAULT_UPPER_BOUND} inclusive):";
         public const string SAME_BOUNDS_COMMENT = "Same bounds, huh? Not very random but we'll allow it...";
 
         public const int ORIGIN_IDX = 0;
@@ -37,7 +37,7 @@ namespace DecisionMaker
         public const int DEFAULT_LOWER_BOUND = 1;
         public const int DEFAULT_UPPER_BOUND = 100;
 
-        public static OrderedDictionary dcActions = new()
+        public static readonly OrderedDictionary dcActions = new()
         {
             {"Make a decision", true},
             {"View decisions", false},

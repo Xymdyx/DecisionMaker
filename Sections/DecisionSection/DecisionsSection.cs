@@ -8,6 +8,7 @@ using MU = DecisionMaker.MenuUtils;
 using TU = DecisionMaker.TextUtils;
 using DC = DecisionMaker.DecisionCategory;
 using FS = DecisionMaker.FilesSection;
+using FSC = DecisionMaker.FileSectConstants;
 using DSC = DecisionMaker.DecisionSectConstants;
 namespace DecisionMaker
 {
@@ -365,9 +366,9 @@ namespace DecisionMaker
         private void saveUnfinishedDC(string name, string desc, List<string> choices)
         {
             FS.checkAndInitDir();
-            File.WriteAllText(FS.DEFAULT_WIP_FILE, name + DSC.DECISION_DELIMITER);
-            File.AppendAllText(FS.DEFAULT_WIP_FILE, desc + DSC.DECISION_DELIMITER);
-            File.AppendAllLines(FS.DEFAULT_WIP_FILE, choices);
+            File.WriteAllText(FSC.DEFAULT_WIP_FILE, name + DSC.DECISION_DELIMITER);
+            File.AppendAllText(FSC.DEFAULT_WIP_FILE, desc + DSC.DECISION_DELIMITER);
+            File.AppendAllLines(FSC.DEFAULT_WIP_FILE, choices);
         }
 
         private string nameDC()
