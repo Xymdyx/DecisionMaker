@@ -53,11 +53,11 @@ public class Personality
 
     private void fillInBlankFields()
     {
-        if(!isGreetCustom())
+        if(!isGreetCustom() || !File.Exists(PSC.PROFILE_GREETING_PATH))
             this._mainGreetingMsg = DEFAULT_GREETING;
-        if(!isExitCustom())
+        if(!isExitCustom() || !File.Exists(PSC.PROFILE_EXITING_PATH))
             this._mainExitMsg = DEFAULT_EXITING;
-        if(!isDisplayNameCustom())
+        if(!isDisplayNameCustom() || !File.Exists(PSC.PROFILE_DISPLAY_NAME_PATH))
             this._displayName = DEFAULT_DISPLAY_NAME;
     }
 
