@@ -12,13 +12,13 @@ using FSC = DecisionMaker.FileSectConstants;
 using DSC = DecisionMaker.DecisionSectConstants;
 namespace DecisionMaker
 {
-    public class DecisionsSection:IDecisionMakerSection
+    internal class DecisionsSection:IDecisionMakerSection
     {
         private readonly Random rng;
         private Dictionary<string, DC> _dcMap;
-        public Dictionary<string, DC> DcMap{ get => _dcMap; }
+        internal Dictionary<string, DC> DcMap{ get => _dcMap; }
 
-        public DecisionsSection()
+        internal DecisionsSection()
         {
             this.rng = new();
             this._dcMap = new();
@@ -33,7 +33,7 @@ namespace DecisionMaker
             addNewCategoriesToMap();
         }
 
-        public void syncDcMapToDcDir()
+        internal void syncDcMapToDcDir()
         {
             if(checkAndInitDir())
                 removeOldCategoriesFromMap();
@@ -42,7 +42,7 @@ namespace DecisionMaker
         /// <summary>
         /// initialize categories directory on startup if it doesn't exist already
         /// </summary>
-        public static bool checkAndInitDir()
+        internal static bool checkAndInitDir()
         {
             if (!Directory.Exists(DSC.DEFAULT_DC_DIRECTORY))
             {
@@ -83,7 +83,7 @@ namespace DecisionMaker
                 _dcMap.Remove(cat);
         }
 
-        public static string formatDCPath(string dc)
+        internal static string formatDCPath(string dc)
         {
             return DSC.DEFAULT_DC_DIRECTORY + dc + TU.TXT;
         }
@@ -122,7 +122,7 @@ namespace DecisionMaker
         /// the entry loop for the Decision Section
         /// </summary>
         /// <returns></returns>
-        public int doMenuLoop()
+        internal int doMenuLoop()
         {
             Console.WriteLine(DSC.DECISIONS_WELCOME_MSG);
             int opt = MU.INVALID_OPT;
@@ -154,7 +154,7 @@ namespace DecisionMaker
             printNonDcActions();
         }
 
-        public void printSavedDCs()
+        internal void printSavedDCs()
         {
             int totalCategories = _dcMap.Count;
             for(int i = 0; i < totalCategories; i++)
@@ -254,18 +254,18 @@ namespace DecisionMaker
                 Console.WriteLine(DSC.SAME_BOUNDS_COMMENT);
         }
 
-        public string getDCNameFromMenuChoice(int opt)
+        internal string getDCNameFromMenuChoice(int opt)
         {
             return this._dcMap.ElementAt(opt - 1).Key;
         }
 
-        public DC getDCFromMenuChoice(int opt)
+        internal DC getDCFromMenuChoice(int opt)
         {
             return _dcMap.ElementAt(opt - 1).Value;
         }
 
         // determine if the input is for an existing category
-        public bool isChoiceInChoiceRange(int opt)
+        internal bool isChoiceInChoiceRange(int opt)
         {
             return(hasDCs()) && ((opt >= MU.MENU_START) && (opt <= _dcMap.Count));
         }

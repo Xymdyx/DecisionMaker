@@ -4,7 +4,7 @@
 */
 
 using PSC = DecisionMaker.ProfileSectConstants;
-public class Personality
+internal class Personality
 {
     private const string DEFAULT_GREETING = "We will ask you what you want a decision for shortly...";
     private const string DEFAULT_EXITING = "Thanks for consulting us!";
@@ -15,23 +15,23 @@ public class Personality
     private string? _mainExitMsg;
     private string? _displayName;
 
-    public string? mainGreeting { get => _mainGreetingMsg;}
-    public string? mainExit { get => _mainExitMsg;}
-    public string? displayName { get => _displayName;}
+    internal string? mainGreeting { get => _mainGreetingMsg;}
+    internal string? mainExit { get => _mainExitMsg;}
+    internal string? displayName { get => _displayName;}
 
-    public Personality()
+    internal Personality()
     {
         applyFileChangesToPersonality();
     }
 
-    public Personality(string greeting, string exit, string displayName)
+    internal Personality(string greeting, string exit, string displayName)
     {
         this._mainGreetingMsg = greeting;
         this._mainExitMsg = exit;
         this._displayName = displayName;
     }
 
-    public void applyFileChangesToPersonality()
+    internal void applyFileChangesToPersonality()
     {
         try
         {
@@ -60,17 +60,17 @@ public class Personality
             this._displayName = DEFAULT_DISPLAY_NAME;
     }
 
-    public bool isGreetCustom()
+    internal bool isGreetCustom()
     {
         return isPartCustom(this._mainGreetingMsg!);
     }
 
-    public bool isExitCustom()
+    internal bool isExitCustom()
     {
         return isPartCustom(this._mainExitMsg!);
     }
 
-    public bool isDisplayNameCustom()
+    internal bool isDisplayNameCustom()
     {
         return isPartCustom(this._displayName!);
     }

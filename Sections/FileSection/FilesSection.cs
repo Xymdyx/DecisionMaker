@@ -9,19 +9,19 @@ namespace DecisionMaker
 {
     using PSC = DecisionMaker.ProfileSectConstants;
     using DSC = DecisionMaker.DecisionSectConstants;
-    public class FilesSection:IDecisionMakerSection
+    internal class FilesSection:IDecisionMakerSection
     {
         private DecisionsSection decSect;
         private ProfileSection profSect;
 
-        public FilesSection(DecisionsSection ds, ProfileSection ps)
+        internal FilesSection(DecisionsSection ds, ProfileSection ps)
         {
             this.decSect = ds;
             this.profSect = ps;
             checkAndInitDir();
         }
 
-        public static bool checkAndInitDir()
+        internal static bool checkAndInitDir()
         {
             try
             {
@@ -34,7 +34,7 @@ namespace DecisionMaker
             return Directory.Exists(FSC.DEFAULT_FILES_DIR);
         }        
 
-        public int doMenuLoop()
+        internal int doMenuLoop()
         {
             int opt = MenuUtils.INVALID_OPT;
             Console.WriteLine(FSC.FM_GREETING);

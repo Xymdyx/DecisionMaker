@@ -1,8 +1,8 @@
 namespace DecisionMaker
 {
-    public interface IDecisionMakerSection
+    internal interface IDecisionMakerSection
     {
-        public static bool checkAndInitDir() { return false; }
-        public int doMenuLoop(){return 0;}
+        internal static bool checkAndInitDir() { return false; }
+        internal int doMenuLoop(){return 0;}
     }
 }

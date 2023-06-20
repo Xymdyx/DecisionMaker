@@ -7,17 +7,17 @@
 using PSC = DecisionMaker.ProfileSectConstants;
 namespace DecisionMaker
 {
-    public class ProfileSection:IDecisionMakerSection
+    internal class ProfileSection:IDecisionMakerSection
     {
-        public Personality appPersonality { get; private set; }
+        internal Personality appPersonality { get; private set; }
 
-        public ProfileSection()
+        internal ProfileSection()
         {
             checkAndInitDir();
             this.appPersonality = new();
         }
 
-        public static bool checkAndInitDir()
+        internal static bool checkAndInitDir()
         {
             try
             {
@@ -30,7 +30,7 @@ namespace DecisionMaker
             return Directory.Exists(PSC.DEFAULT_PROFILE_DIR);
         }
 
-        public int doMenuLoop()
+        internal int doMenuLoop()
         {
             Console.WriteLine(PSC.PROFILE_MENU_GREETING);
             int opt = MenuUtils.INVALID_OPT;
@@ -165,7 +165,7 @@ namespace DecisionMaker
             Console.WriteLine(exitConfirmMsg);
         }
 
-        public void scanForProfileUpdates()
+        internal void scanForProfileUpdates()
         {
             appPersonality.applyFileChangesToPersonality();
         }

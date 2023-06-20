@@ -9,7 +9,7 @@ using DSE = DecisionMaker.DecisionMakerSects;
 using MU = DecisionMaker.MenuUtils;
 namespace DecisionMaker
 {
-    public class DecisionMakerMain : IDecisionMakerSection
+    internal class DecisionMakerMain : IDecisionMakerSection
     {
         private ProfileSection profileSect;
         private DecisionsSection decisionsSect;
@@ -19,7 +19,7 @@ namespace DecisionMaker
 
         private readonly string[] navigationMenu = { "Decisions menu", "Profile menu", "File management menu", "Help"};
         
-        public DecisionMakerMain()
+        internal DecisionMakerMain()
         {
             this.profileSect = new();
             this.decisionsSect = new();
@@ -28,9 +28,9 @@ namespace DecisionMaker
             this.helpSect = new();
         }
 
-        public static bool checkAndInitDir() { return false; }
+        internal static bool checkAndInitDir() { return false; }
 
-        public int main(string[] argv)
+        internal int main(string[] argv)
         {
             greet();
             doMenuLoop();
@@ -45,7 +45,7 @@ namespace DecisionMaker
                 Console.WriteLine($"Welcome back, {this.personality.displayName}!");
         }
         
-        public int doMenuLoop()
+        internal int doMenuLoop()
         {
             int opt = MU.INVALID_OPT;
             do

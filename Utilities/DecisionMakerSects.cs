@@ -1,6 +1,6 @@
 namespace DecisionMaker
 {
-    public enum DecisionMakerSects
+    internal enum DecisionMakerSects
     {
         DCs = 1,
         Profile,
