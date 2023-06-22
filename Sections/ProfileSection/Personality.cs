@@ -9,9 +9,9 @@ namespace DecisionMaker
 {
     internal class Personality
     {
-        private const string DEFAULT_GREETING = "We will ask you what you want a decision for shortly...";
-        private const string DEFAULT_EXITING = "Thanks for consulting us!";
-        private const string DEFAULT_DISPLAY_NAME = "friend";
+        internal const string DEFAULT_GREETING = "We will ask you what you want a decision for shortly...";
+        internal const string DEFAULT_EXITING = "Thanks for consulting us!";
+        internal const string DEFAULT_DISPLAY_NAME = "friend";
         private const string PERSONALITY_ERR_HEADER = "Personality.cs:";
 
         private string? _mainGreetingMsg;
