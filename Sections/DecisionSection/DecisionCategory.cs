@@ -10,17 +10,18 @@ using TU = DecisionMaker.TextUtils;
 
 using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleToAttribute("DMTest")]
+
 namespace DecisionMaker
 {
     internal class DecisionCategory
     {
+        internal static readonly DecisionCategory EmptyDc = new("", "");
+
         private const string DC_INFO_HEADER = "DecisionCategory.cs:";
         private string _catName;
         private string _catDesc;
         private List<string> _catChoices;
         private string _catPath;
-
-        internal static readonly DecisionCategory EmptyDc = new("", "");
 
         internal string CatName
         {
@@ -108,6 +109,11 @@ namespace DecisionMaker
         }
 
         internal bool IsValidDc()
+        {
+            return TU.isInputAcceptable(_catDesc) && TU.isInputAcceptable(_catName);
+        }
+
+        internal bool IsNotEmptyDc()
         {
             return !this.Equals(EmptyDc);
         }
