@@ -7,6 +7,9 @@
 using DS = DecisionMaker.DecisionsSection;
 using DSC = DecisionMaker.DecisionSectConstants;
 using TU = DecisionMaker.TextUtils;
+
+using System.Runtime.CompilerServices;
+[assembly: InternalsVisibleToAttribute("DMTest")]
 namespace DecisionMaker
 {
     internal class DecisionCategory
