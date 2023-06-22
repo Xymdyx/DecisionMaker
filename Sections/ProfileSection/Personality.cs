@@ -4,6 +4,7 @@
 */
 
 using PSC = DecisionMaker.ProfileSectConstants;
+using TU = DecisionMaker.TextUtils;
 namespace DecisionMaker
 {
     internal class Personality
@@ -64,22 +65,22 @@ namespace DecisionMaker
 
         internal bool isGreetCustom()
         {
-            return isPartCustom(this._mainGreetingMsg!);
+            return isPartCustom(_mainGreetingMsg!) && _mainGreetingMsg != DEFAULT_GREETING;
         }
 
         internal bool isExitCustom()
         {
-            return isPartCustom(this._mainExitMsg!);
+            return isPartCustom(_mainExitMsg!) && _mainExitMsg != DEFAULT_EXITING;
         }
 
         internal bool isDisplayNameCustom()
         {
-            return isPartCustom(this._displayName!);
+            return isPartCustom(_displayName!) && _displayName != DEFAULT_DISPLAY_NAME;
         }
 
         private bool isPartCustom(string field)
         {
-            return (field != "") && (field != null);
+            return TU.isInputAcceptable(field);
         }
 
         public override string ToString()
