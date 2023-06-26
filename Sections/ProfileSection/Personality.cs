@@ -49,7 +49,8 @@ namespace DecisionMaker
             }
             catch (Exception e)
             {
-                Console.WriteLine($"{PERSONALITY_ERR_HEADER} failed to update personality parts...\n{e.Message}\n");
+                Console.WriteLine($"{PERSONALITY_ERR_HEADER} failed to update personality parts...");
+                TU.logErrorMsg(e);
             }
         }
 

@@ -5,6 +5,7 @@
 */
 
 using PSC = DecisionMaker.ProfileSectConstants;
+using TU = DecisionMaker.TextUtils;
 namespace DecisionMaker
 {
     internal class ProfileSection:IDecisionMakerSection
@@ -25,7 +26,8 @@ namespace DecisionMaker
             }
             catch(Exception e)
             {
-                Console.WriteLine($"{PSC.PS_INFO_INTRO} failed to initialize {PSC.DEFAULT_PROFILE_DIR} directory...\n{e.Message}\n");
+                Console.WriteLine($"{PSC.PS_INFO_INTRO} failed to initialize {PSC.DEFAULT_PROFILE_DIR} directory...");
+                TU.logErrorMsg(e);
             }
             return Directory.Exists(PSC.DEFAULT_PROFILE_DIR);
         }
@@ -146,17 +148,26 @@ namespace DecisionMaker
             return opt;
         }
 
-        private bool trySaveProfilePart(string path, string ans)
+        internal bool trySaveProfilePart(string path, string ans)
         {
             try
             {
-                File.WriteAllText(path, ans);
+                if(isPathProfilePart(path))
+                    File.WriteAllText(path, ans);
+                else
+                    Console.WriteLine($"{PSC.PS_INFO_INTRO} {path} doesn't belong in {PSC.DEFAULT_PROFILE_DIR} directory!");
             }
             catch(Exception e)
             {
-                Console.WriteLine($"{PSC.PS_INFO_INTRO}: Failed to save \"{ans}\" to {path}...\n{e.Message}\n");
+                Console.WriteLine($"{PSC.PS_INFO_INTRO} Failed to save \"{ans}\" to {path}...");
+                TU.logErrorMsg(e);
             }
             return File.Exists(path);
+        }
+
+        private bool isPathProfilePart(string path)
+        {
+            return path == PSC.PROFILE_DISPLAY_NAME_PATH || path == PSC.PROFILE_EXITING_PATH || path == PSC.PROFILE_GREETING_PATH;
         }
 
         private void writeProfilePartExitMsg(string path, string ans, bool saved)

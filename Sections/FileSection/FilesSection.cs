@@ -5,6 +5,7 @@
 */
 
 using FSC = DecisionMaker.FileSectConstants;
+using TU = DecisionMaker.TextUtils;
 namespace DecisionMaker
 {
     using PSC = DecisionMaker.ProfileSectConstants;
@@ -132,7 +133,8 @@ namespace DecisionMaker
             }
             catch(Exception e)
             {
-                Console.WriteLine($"{FSC.FS_ERR_HEADER}: Failed to delete entire {dir} directory...\n{e.Message}\n");
+                Console.WriteLine($"{FSC.FS_ERR_HEADER}: Failed to delete entire {dir} directory...");
+                TU.logErrorMsg(e);
             }
         }
 
@@ -223,14 +225,15 @@ namespace DecisionMaker
             }
         }
 
-        private void viewFileContents(string fName)
+        internal static string viewFileContents(string fName)
         {
+            string fileLines = "";
             try
             {
                 if (File.Exists(fName))
                 {
                     string info = $"Contents of {fName}:\n";
-                    string fileLines = string.Join("\n", File.ReadAllLines(fName));
+                    fileLines = string.Join("\n", File.ReadAllLines(fName));
                     Console.WriteLine(info + fileLines);
                 }
                 else
@@ -240,9 +243,10 @@ namespace DecisionMaker
             {
                 Console.WriteLine($"{FSC.FS_ERR_HEADER} failed to read contents of {fName}...\n{e.Message}\n") ;
             }
+            return fileLines;
         }
 
-        private void deleteManageableFile(string fName)
+        internal static bool deleteManageableFile(string fName)
         {
             try
             {
@@ -250,15 +254,17 @@ namespace DecisionMaker
                 {
                     Console.WriteLine($"Trying to delete {fName}...");
                     File.Delete(fName);
-                    Console.WriteLine("Delete successful!");
+                    Console.WriteLine(FSC.DELETE_SUCCESS);
                 }
                 else
                     Console.WriteLine($"{fName} doesn't exist therefore cannot delete!");
             }
             catch(Exception e)
             {
-                Console.WriteLine($"{FSC.FS_ERR_HEADER} failed to delete {fName}...\n{e.Message}\n");
+                Console.WriteLine($"{FSC.FS_ERR_HEADER} failed to delete {fName}...");
+                TU.logErrorMsg(e);
             }
+            return !File.Exists(fName);
         }
     }
 }

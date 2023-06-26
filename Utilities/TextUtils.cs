@@ -73,7 +73,8 @@ namespace DecisionMaker
             }
             catch(Exception e)
             {
-                Console.WriteLine($"{TU_INFO_HEADER} Error in writeInfoAndPause...\n{e.Message}\n");
+                Console.WriteLine($"{TU_INFO_HEADER} Error in writeInfoAndPause...");
+                logErrorMsg(e);
             }
         }
 
@@ -86,7 +87,8 @@ namespace DecisionMaker
             }
             catch(Exception e)
             {
-                Console.Error.WriteLine(TU_INFO_HEADER + $"Cannot convert menu input {input} to integer...\n{e.Message}\n");
+                Console.Error.WriteLine(TU_INFO_HEADER + $"Cannot convert menu input {input} to integer...");
+                logErrorMsg(e);
             }
             return opt;
         }
@@ -102,9 +104,15 @@ namespace DecisionMaker
             catch(Exception e)
             {
                 opt = MU.INVALID_OPT;
-                Console.Error.WriteLine(TU_INFO_HEADER + $"Cannot convert input {text} to integer...\n{e.Message}\n");
+                Console.Error.WriteLine(TU_INFO_HEADER + $"Cannot convert input {text} to integer...");
+                logErrorMsg(e);
             }
             return success;
+        }
+
+        internal static void logErrorMsg(Exception e)
+        {
+            Console.WriteLine($"{e.Message}\n");
         }
     }
 }

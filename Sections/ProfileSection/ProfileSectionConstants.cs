@@ -19,7 +19,6 @@ namespace DecisionMaker
         internal const string CHANGE_EXITING_MSG = "Please type a custom exit message:";
         internal const string CHANGE_DISPLAY_NAME_MSG = "Please type what you would like us to call you:";
         internal const string PS_INFO_INTRO = "ProfileSect.cs: ";
-
         internal enum ProfileParts
         {
             Greeting = 1,

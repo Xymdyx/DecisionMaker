@@ -37,7 +37,8 @@ namespace DecisionMaker
             }
             catch(Exception e)
             {
-                Console.WriteLine($"{MU_INFO_INTRO} failed in prompt user....\n{e.Message}\n");
+                Console.WriteLine($"{MU_INFO_INTRO} failed in prompt user....");
+                TU.logErrorMsg(e);
             }
             return opt;        
         }
