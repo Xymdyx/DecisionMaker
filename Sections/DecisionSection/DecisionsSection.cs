@@ -24,16 +24,16 @@ namespace DecisionMaker
             this._dcMap = new();
             this._dcMap = new();
             checkAndInitDir();
-            addNewCategoriesToMap();
+            addNewCategoriesToMapFromDir();
         }
 
-        private void fullyUpdateStoredDCs()
+        private void synMapToDcDir()
         {
-            syncDcMapToDcDir();
-            addNewCategoriesToMap();
+            removeDcsFromMapNotInDir();
+            addNewCategoriesToMapFromDir();
         }
 
-        internal void syncDcMapToDcDir()
+        internal void removeDcsFromMapNotInDir()
         {
             if(checkAndInitDir())
                 removeOldCategoriesFromMap();
@@ -61,7 +61,7 @@ namespace DecisionMaker
         }
 
         // initialize the category map by reading files in Categories directory
-        private void addNewCategoriesToMap()
+        private void addNewCategoriesToMapFromDir()
         {
             List<string> existing = scanForDCs();
             foreach(string cat in existing.Where(c => !_dcMap.ContainsKey(c)))
@@ -89,6 +89,16 @@ namespace DecisionMaker
             if(TU.isInputAcceptable(fName))
                 return DSC.DEFAULT_DC_DIRECTORY + fName + TU.TXT;
             return fName;
+        }
+
+        internal bool saveAllDcsInMap()
+        {
+            foreach(KeyValuePair<string, DC> d in _dcMap)
+            {
+                if(!d.Value.saveFile())
+                    return false;
+            }
+            return true;
         }
 
         /// <summary>
@@ -132,7 +142,7 @@ namespace DecisionMaker
             int opt = MU.INVALID_OPT;
             do
             {
-                fullyUpdateStoredDCs();
+                synMapToDcDir();
                 writeDCsMenu();
                 opt = MU.promptUserAndReturnOpt();
                 processMenuInput(opt);
@@ -174,7 +184,7 @@ namespace DecisionMaker
         // processes entry point menu
         private void processMenuInput(int opt)
         {
-            if(isChoiceInChoiceRange(opt))
+            if(isChoiceExistingDc(opt))
                 enterDCActionsMenu(opt);
             else
             {
@@ -250,16 +260,36 @@ namespace DecisionMaker
 
         internal string getDCNameFromMenuChoice(int opt)
         {
-            return this._dcMap.ElementAt(opt - 1).Key;
+            string dcName = TU.BLANK;
+            try
+            {
+                dcName = this._dcMap.ElementAt(opt - 1).Key;
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine($"{DSC.DS_INFO_INTRO} Cannot get category name!");
+                TU.logErrorMsg(e);
+            }
+            return dcName;
         }
 
         internal DC getDCFromMenuChoice(int opt)
         {
-            return _dcMap.ElementAt(opt - 1).Value;
+            DC dcVal = DC.EmptyDc;
+            try
+            {
+                dcVal = _dcMap.ElementAt(opt - 1).Value;
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine($"{DSC.DS_INFO_INTRO} Cannot get category object!");
+                TU.logErrorMsg(e);
+            }
+            return dcVal;            
         }
 
         // determine if the input is for an existing category
-        internal bool isChoiceInChoiceRange(int opt)
+        internal bool isChoiceExistingDc(int opt)
         {
             return(hasDCs()) && ((opt >= MU.MENU_START) && (opt <= _dcMap.Count));
         }
@@ -338,8 +368,8 @@ namespace DecisionMaker
         // accept user input for a new decision category step-by-step
         private DC inputDC()
         {
-            string dcName = "";
-            string dcDesc = "";
+            string dcName = TU.BLANK;
+            string dcDesc = TU.BLANK;
             List<string> dcChoices = new();
             try
             {
@@ -369,7 +399,7 @@ namespace DecisionMaker
 
         private string nameDC()
         {
-            string dcName = "";
+            string dcName = TU.BLANK;
             do
             {
                 Console.WriteLine(DSC.NAME_DC_MSG);
@@ -381,7 +411,7 @@ namespace DecisionMaker
 
         private string describeDC()
         {
-            string dcDesc = "";
+            string dcDesc = TU.BLANK;
             do
             {
                 Console.WriteLine(DSC.DESCRIBE_DC_MSG);
@@ -393,7 +423,7 @@ namespace DecisionMaker
         private List<string> addChoicesToDC(DC selectedDc)
         {
             List<string> acceptedChoices = selectedDc.CatChoices;
-            string choiceInput = "";
+            string choiceInput = TU.BLANK;
             bool stopWanted = false;
             do
             {
@@ -425,7 +455,7 @@ namespace DecisionMaker
 
         private void printAddChoiceLoopMsg(bool wasAccepted, string candidate, List<string> acceptedChoices)
         {
-            string outputMsg = "";
+            string outputMsg = TU.BLANK;
             if(wasAccepted)
                 outputMsg = $"{candidate} accepted!";
             else if (isItemAlreadyAccepted(candidate, acceptedChoices))
@@ -600,7 +630,7 @@ namespace DecisionMaker
 
         private string processRemoveDecisionChoice(int opt, List<string> remainingChoices)
         {
-            string removedEl = "";
+            string removedEl = TU.BLANK;
             if (opt == DSC.DELETE_ALL_CHOICES_CODE)
                 remainingChoices.Clear();
             else
@@ -611,7 +641,7 @@ namespace DecisionMaker
 
         internal string tryRemoveChoice(int choiceOpt, List<string> remainingChoices)
         {
-            string removed = "";
+            string removed = TU.BLANK;
             if((MU.MENU_START <= choiceOpt) && (choiceOpt <= remainingChoices.Count))
             {
                 try
@@ -623,7 +653,7 @@ namespace DecisionMaker
                 catch(Exception e)
                 {
                     Console.WriteLine(e);
-                    Console.WriteLine($"DecisionSect: Failed to remove decision choice from {remainingChoices} given option {choiceOpt}");
+                    Console.WriteLine($"{DSC.DS_INFO_INTRO} Failed to remove decision choice from {remainingChoices} given option {choiceOpt}");
                 }
             }
             return removed;

@@ -92,7 +92,7 @@ namespace DecisionMaker
 
         private void trySaveAnswerToProfile(string path, string prompt, PSC.ProfileParts part)
         {
-            string ans = "";
+            string ans = TU.BLANK;
             int opt = MenuUtils.INVALID_OPT;
             do
             {

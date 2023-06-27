@@ -10,6 +10,7 @@ namespace DecisionMaker
 {
     internal static class TextUtils
     {
+        internal const string BLANK = "";
         internal const string TXT = ".txt";
         internal const int MAX_STRING_LEN = 360;
         internal static string[] stopWords = { "stop", "exit", "done", "good", "quit", "finished" };

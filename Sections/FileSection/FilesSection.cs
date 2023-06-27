@@ -98,7 +98,7 @@ namespace DecisionMaker
 
         private void processDCsMenuInput(int opt)
         {
-            if (decSect.isChoiceInChoiceRange(opt))
+            if (decSect.isChoiceExistingDc(opt))
                 manageChosenDC(opt);
             else if(isOptDeleteAll(opt))
                 deleteAllDCs();
@@ -122,7 +122,7 @@ namespace DecisionMaker
         private void deleteAllDCs()
         {
             deleteDirAndContents(DSC.DEFAULT_DC_DIRECTORY);
-            this.decSect.syncDcMapToDcDir();
+            this.decSect.removeDcsFromMapNotInDir();
         }
 
         private void deleteDirAndContents(string dir)
@@ -227,7 +227,7 @@ namespace DecisionMaker
 
         internal static string viewFileContents(string fName)
         {
-            string fileLines = "";
+            string fileLines = TU.BLANK;
             try
             {
                 if (File.Exists(fName))
