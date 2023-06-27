@@ -61,7 +61,7 @@ namespace DecisionMaker
         }
 
         // initialize the category map by reading files in Categories directory
-        private void addNewCategoriesToMapFromDir()
+        internal void addNewCategoriesToMapFromDir()
         {
             List<string> existing = scanForDCs();
             foreach(string cat in existing.Where(c => !_dcMap.ContainsKey(c)))
@@ -93,12 +93,13 @@ namespace DecisionMaker
 
         internal bool saveAllDcsInMap()
         {
+            bool success = true;
             foreach(KeyValuePair<string, DC> d in _dcMap)
-            {
-                if(!d.Value.saveFile())
-                    return false;
-            }
-            return true;
+                success &= d.Value.saveFile();
+
+            if(!success)
+                Console.WriteLine($"{DSC.DS_INFO_INTRO} Failed to save all Decision Category files!");
+            return success;
         }
 
         /// <summary>

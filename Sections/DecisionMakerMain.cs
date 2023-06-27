@@ -19,7 +19,7 @@ namespace DecisionMaker
 
         private readonly string[] navigationMenu = { "Decisions menu", "Profile menu", "File management menu", "Help"};
         
-        internal DecisionMakerMain()
+        public DecisionMakerMain()
         {
             this.profileSect = new();
             this.decisionsSect = new();
@@ -30,11 +30,12 @@ namespace DecisionMaker
 
         internal static bool checkAndInitDir() { return false; }
 
-        internal int main(string[] argv)
+        public int main(string[] argv)
         {
             greet();
             doMenuLoop();
             depart();
+            fileSect.saveFilesBeforeExit();
             return 0;
         }
 
@@ -62,7 +63,7 @@ namespace DecisionMaker
             Console.WriteLine(this.personality.mainExit);
             if(this.personality.isDisplayNameCustom())
                 Console.WriteLine($"Until next time, {this.personality.displayName}!");
-        }        
+        }    
 
         private void writeMenu()
         {

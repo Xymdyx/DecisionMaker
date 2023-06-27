@@ -266,5 +266,12 @@ namespace DecisionMaker
             }
             return !File.Exists(fName);
         }
+
+        internal bool saveFilesBeforeExit()
+        {
+            bool savedDcs = this.decSect.saveAllDcsInMap();
+            bool savedProfile = this.profSect.saveEntireProfile();
+            return savedDcs && savedProfile;
+        }  
     }
 }

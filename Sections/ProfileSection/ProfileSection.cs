@@ -152,8 +152,11 @@ namespace DecisionMaker
         {
             try
             {
-                if(isPathProfilePart(path))
+                if (isPathProfilePart(path))
+                {
+                    checkAndInitDir();
                     File.WriteAllText(path, ans);
+                }
                 else
                     Console.WriteLine($"{PSC.PS_INFO_INTRO} {path} doesn't belong in {PSC.DEFAULT_PROFILE_DIR} directory!");
             }
@@ -180,5 +183,17 @@ namespace DecisionMaker
         {
             appPersonality.applyFileChangesToPersonality();
         }
+
+        internal bool saveEntireProfile()
+        {
+            bool success = true;
+            success &= trySaveProfilePart(PSC.PROFILE_DISPLAY_NAME_PATH, appPersonality.displayName!);
+            success &= trySaveProfilePart(PSC.PROFILE_GREETING_PATH, appPersonality.mainGreeting!);
+            success &= trySaveProfilePart(PSC.PROFILE_EXITING_PATH, appPersonality.mainExit!);
+
+            if(!success)
+                Console.WriteLine($"{PSC.PS_INFO_INTRO} Failed to save all personality files!");
+            return success;
+        }        
     }
 }
