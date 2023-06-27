@@ -5,7 +5,6 @@
 
 using System;
 using System.Text.RegularExpressions;
-using MU = DecisionMaker.MenuUtils;
 namespace DecisionMaker
 {
     internal static class TextUtils

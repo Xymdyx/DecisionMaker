@@ -3,7 +3,6 @@
 * desc: Utilities for menu creation and loops
 * date started: approx 5/5/2023
 */
-using TU = DecisionMaker.TextUtils;
 namespace DecisionMaker
 {
     internal static class MenuUtils

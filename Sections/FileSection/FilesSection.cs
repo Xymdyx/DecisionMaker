@@ -4,12 +4,8 @@
 * date started: approx 5/30/2023
 */
 
-using FSC = DecisionMaker.FileSectConstants;
-using TU = DecisionMaker.TextUtils;
 namespace DecisionMaker
 {
-    using PSC = DecisionMaker.ProfileSectConstants;
-    using DSC = DecisionMaker.DecisionSectConstants;
     internal class FilesSection:IDecisionMakerSection
     {
         private DecisionsSection decSect;

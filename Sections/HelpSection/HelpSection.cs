@@ -3,10 +3,6 @@
 * author: Sam Ford
 * date: 6/13/23
 */
-
-using MU = DecisionMaker.MenuUtils;
-using TU = DecisionMaker.TextUtils;
-using HSC = DecisionMaker.HelpSectConstants;
 namespace DecisionMaker
 {
     internal class HelpSection:IDecisionMakerSection

@@ -3,8 +3,6 @@
 * desc: struct to represent the personality of the user's decision maker.
 */
 
-using PSC = DecisionMaker.ProfileSectConstants;
-using TU = DecisionMaker.TextUtils;
 namespace DecisionMaker
 {
     internal class Personality

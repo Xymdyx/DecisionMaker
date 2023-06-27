@@ -4,8 +4,6 @@
 * date started: approx 5/15/2023
 */
 
-using PSC = DecisionMaker.ProfileSectConstants;
-using TU = DecisionMaker.TextUtils;
 namespace DecisionMaker
 {
     internal class ProfileSection:IDecisionMakerSection

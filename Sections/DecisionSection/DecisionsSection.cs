@@ -4,12 +4,6 @@
 * note that DC == "Decision Category"
 * date started: approx 4/23/2023
 */
-using MU = DecisionMaker.MenuUtils;
-using TU = DecisionMaker.TextUtils;
-using DC = DecisionMaker.DecisionCategory;
-using FS = DecisionMaker.FilesSection;
-using FSC = DecisionMaker.FileSectConstants;
-using DSC = DecisionMaker.DecisionSectConstants;
 namespace DecisionMaker
 {
     internal class DecisionsSection:IDecisionMakerSection

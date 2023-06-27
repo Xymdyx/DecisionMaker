@@ -4,9 +4,6 @@
 * date started: 4/4/2023
 */
 
-using System;
-using DSE = DecisionMaker.DecisionMakerSects;
-using MU = DecisionMaker.MenuUtils;
 namespace DecisionMaker
 {
     internal class DecisionMakerMain : IDecisionMakerSection
