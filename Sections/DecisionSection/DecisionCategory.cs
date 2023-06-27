@@ -81,10 +81,7 @@ namespace DecisionMaker
 
         internal bool checkFileExists()
         {
-            bool exists = File.Exists(_catPath);            
-            if(!exists)
-                Console.WriteLine($"{_catName} category lacks matching file at {_catPath}...");
-            return exists;
+            return File.Exists(_catPath);
         }
    
         internal bool hasChoices()
