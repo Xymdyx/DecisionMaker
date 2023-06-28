@@ -23,9 +23,12 @@ namespace DecisionMaker
 This application's purpose is to help you make a decision that you are struggling with.
 If it's a recurring thing, e.g. deciding what takeout food to order,
 a 'Decision Category' can be created in which you name the category, describe it, and give options for it.
+
+All decision related stuff is done in the Decisions Menu.
 Making a decision is nothing more than randomly choosing a saved choice. Acting on this random choice is up to the user.
 All of this is stored as a text file that will be saved in a subdirectory so the app will remember the user's prior categories.
-Fear not, for one can later modify these categories to their liking.... 
+Fear not, for one can later modify these categories to their liking or not have them saved at all!
+One can also have a random number chosen between an upper integer and lower integer bound...
     
 Profile customization is available in which a user can create a custom display name, bootup greeting message, and an exiting goodbye message...
     
