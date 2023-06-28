@@ -135,5 +135,5 @@ _NCrunch*
 *.json
 
 # ignore personal Decision Categories
-Decisions/Categories/
-ProfileStorage
+/DecisionMaker/Decisions/Categories/
+/DecisionMaker/ProfileStorage
