@@ -4,22 +4,19 @@
 * date: 6/13/23
 */
 
-using DS = DecisionMaker.DecisionsSection;
-using DSC = DecisionMaker.DecisionSectConstants;
-using TU = DecisionMaker.TextUtils;
 namespace DecisionMaker
 {
-    public class DecisionCategory
+    internal class DecisionCategory
     {
+        internal static readonly DecisionCategory EmptyDc = new(TU.BLANK, TU.BLANK);
+
         private const string DC_INFO_HEADER = "DecisionCategory.cs:";
         private string _catName;
         private string _catDesc;
         private List<string> _catChoices;
         private string _catPath;
 
-        public static readonly DecisionCategory EmptyDc = new("", "");
-
-        public string CatName
+        internal string CatName
         {
             get {return _catName; }
             set
@@ -28,10 +25,10 @@ namespace DecisionMaker
                 _catPath = DS.formatDCPath(value);
             }
         }
-        public string CatDesc { get => _catDesc; set => _catDesc = value; }
-        public List<string> CatChoices { get => _catChoices; set => _catChoices = value; }
-        public string CatPath { get => _catPath; }
-        public DecisionCategory(string name, string desc)
+        internal string CatDesc { get => _catDesc; set => _catDesc = value; }
+        internal List<string> CatChoices { get => _catChoices; set => _catChoices = value; }
+        internal string CatPath { get => _catPath; }
+        internal DecisionCategory(string name, string desc)
         {
             _catName = name;
             _catDesc = desc;
@@ -39,7 +36,7 @@ namespace DecisionMaker
             _catPath = DS.formatDCPath(name);
         }
 
-        public DecisionCategory(string name, string desc, List<string> choices)
+        internal DecisionCategory(string name, string desc, List<string> choices)
         {
             _catName = name;
             _catDesc = desc;
@@ -49,7 +46,7 @@ namespace DecisionMaker
             if(!checkFileExists()) saveFile();
         }
 
-        public bool saveFile()
+        internal bool saveFile()
         {
             try
             {
@@ -61,12 +58,13 @@ namespace DecisionMaker
             }
             catch(Exception e)
             {
-                Console.WriteLine($"{DC_INFO_HEADER} failed to save file {_catPath}...\n{e.Message}\n");
+                Console.WriteLine($"{DC_INFO_HEADER} failed to save file {_catPath}...");
+                TU.logErrorMsg(e);
             }
             return checkFileExists();
         }
 
-        public bool deleteFile()
+        internal bool deleteFile()
         {
             try
             {
@@ -75,36 +73,39 @@ namespace DecisionMaker
             }
             catch(Exception e)
             {
-                Console.WriteLine($"{DC_INFO_HEADER} failed to delete file ${_catPath}...\n{e.Message}\n");
+                Console.WriteLine($"{DC_INFO_HEADER} failed to delete file ${_catPath}...");
+                TU.logErrorMsg(e);
             }
             return !checkFileExists();            
         }
 
-        public bool checkFileExists()
+        internal bool checkFileExists()
         {
-            bool exists = File.Exists(_catPath);            
-            if(!exists)
-                Console.WriteLine($"{_catName} category lacks matching file at {_catPath}...");
-            return exists;
+            return File.Exists(_catPath);
         }
    
-        public bool hasChoices()
+        internal bool hasChoices()
         {
             return _catChoices.Count > 0;
         }
 
-        public void printAllInfo()
+        internal void printAllInfo()
         {
             Console.WriteLine("DC " + _catName + ": " + _catDesc +
                     "\n" + TU.prettyStringifyList(_catChoices) + "\n");
         }
 
-        public string stringifyChoices()
+        internal string stringifyChoices()
         {
             return String.Join(DSC.DECISION_DELIMITER, _catChoices);
         }
 
-        public bool IsValidDc()
+        internal bool IsValidDc()
+        {
+            return TU.isInputAcceptable(_catDesc) && TU.isInputAcceptable(_catName);
+        }
+
+        internal bool IsNotEmptyDc()
         {
             return !this.Equals(EmptyDc);
         }

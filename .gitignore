@@ -135,5 +135,8 @@ _NCrunch*
 *.json
 
 # ignore personal Decision Categories
-Decisions/Categories/
-ProfileStorage
+/DecisionMaker/Decisions/Categories/
+/DecisionMaker/ProfileStorage
+DMTest/.vs/DMTest/DesignTimeBuild/
+DMTest/.vs/DMTest/FileContentIndex/
+DMTest/.vs/DMTest/v17/

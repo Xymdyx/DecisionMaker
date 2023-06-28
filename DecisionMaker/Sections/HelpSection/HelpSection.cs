@@ -3,17 +3,13 @@
 * author: Sam Ford
 * date: 6/13/23
 */
-
-using MU = DecisionMaker.MenuUtils;
-using TU = DecisionMaker.TextUtils;
-using HSC = DecisionMaker.HelpSectConstants;
 namespace DecisionMaker
 {
-    public class HelpSection:IDecisionMakerSection
+    internal class HelpSection:IDecisionMakerSection
     {
-        public static bool checkAndInitDir() { return false; }
+        internal static bool checkAndInitDir() { return false; }
 
-        public int doMenuLoop()
+        internal int doMenuLoop()
         {
             int opt = MU.INVALID_OPT;
             Console.WriteLine(HSC.HELP_SECTION_GREETING);

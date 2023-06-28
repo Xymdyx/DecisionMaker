@@ -4,12 +4,9 @@
 * date started: 4/4/2023
 */
 
-using System;
-using DSE = DecisionMaker.DecisionMakerSects;
-using MU = DecisionMaker.MenuUtils;
 namespace DecisionMaker
 {
-    public class DecisionMakerMain : IDecisionMakerSection
+    internal class DecisionMakerMain : IDecisionMakerSection
     {
         private ProfileSection profileSect;
         private DecisionsSection decisionsSect;
@@ -28,13 +25,14 @@ namespace DecisionMaker
             this.helpSect = new();
         }
 
-        public static bool checkAndInitDir() { return false; }
+        internal static bool checkAndInitDir() { return false; }
 
         public int main(string[] argv)
         {
             greet();
             doMenuLoop();
             depart();
+            fileSect.saveFilesBeforeExit();
             return 0;
         }
 
@@ -45,7 +43,7 @@ namespace DecisionMaker
                 Console.WriteLine($"Welcome back, {this.personality.displayName}!");
         }
         
-        public int doMenuLoop()
+        internal int doMenuLoop()
         {
             int opt = MU.INVALID_OPT;
             do
@@ -62,7 +60,7 @@ namespace DecisionMaker
             Console.WriteLine(this.personality.mainExit);
             if(this.personality.isDisplayNameCustom())
                 Console.WriteLine($"Until next time, {this.personality.displayName}!");
-        }        
+        }    
 
         private void writeMenu()
         {

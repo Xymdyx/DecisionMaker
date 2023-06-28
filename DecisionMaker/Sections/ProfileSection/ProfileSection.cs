@@ -4,20 +4,19 @@
 * date started: approx 5/15/2023
 */
 
-using PSC = DecisionMaker.ProfileSectConstants;
 namespace DecisionMaker
 {
-    public class ProfileSection:IDecisionMakerSection
+    internal class ProfileSection:IDecisionMakerSection
     {
-        public Personality appPersonality { get; private set; }
+        internal Personality appPersonality { get; private set; }
 
-        public ProfileSection()
+        internal ProfileSection()
         {
             checkAndInitDir();
             this.appPersonality = new();
         }
 
-        public static bool checkAndInitDir()
+        internal static bool checkAndInitDir()
         {
             try
             {
@@ -25,12 +24,13 @@ namespace DecisionMaker
             }
             catch(Exception e)
             {
-                Console.WriteLine($"{PSC.PS_INFO_INTRO} failed to initialize {PSC.DEFAULT_PROFILE_DIR} directory...\n{e.Message}\n");
+                Console.WriteLine($"{PSC.PS_INFO_INTRO} failed to initialize {PSC.DEFAULT_PROFILE_DIR} directory...");
+                TU.logErrorMsg(e);
             }
             return Directory.Exists(PSC.DEFAULT_PROFILE_DIR);
         }
 
-        public int doMenuLoop()
+        internal int doMenuLoop()
         {
             Console.WriteLine(PSC.PROFILE_MENU_GREETING);
             int opt = MenuUtils.INVALID_OPT;
@@ -90,7 +90,7 @@ namespace DecisionMaker
 
         private void trySaveAnswerToProfile(string path, string prompt, PSC.ProfileParts part)
         {
-            string ans = "";
+            string ans = TU.BLANK;
             int opt = MenuUtils.INVALID_OPT;
             do
             {
@@ -146,17 +146,29 @@ namespace DecisionMaker
             return opt;
         }
 
-        private bool trySaveProfilePart(string path, string ans)
+        internal bool trySaveProfilePart(string path, string ans)
         {
             try
             {
-                File.WriteAllText(path, ans);
+                if (isPathProfilePart(path))
+                {
+                    checkAndInitDir();
+                    File.WriteAllText(path, ans);
+                }
+                else
+                    Console.WriteLine($"{PSC.PS_INFO_INTRO} {path} doesn't belong in {PSC.DEFAULT_PROFILE_DIR} directory!");
             }
             catch(Exception e)
             {
-                Console.WriteLine($"{PSC.PS_INFO_INTRO}: Failed to save \"{ans}\" to {path}...\n{e.Message}\n");
+                Console.WriteLine($"{PSC.PS_INFO_INTRO} Failed to save \"{ans}\" to {path}...");
+                TU.logErrorMsg(e);
             }
             return File.Exists(path);
+        }
+
+        private bool isPathProfilePart(string path)
+        {
+            return path == PSC.PROFILE_DISPLAY_NAME_PATH || path == PSC.PROFILE_EXITING_PATH || path == PSC.PROFILE_GREETING_PATH;
         }
 
         private void writeProfilePartExitMsg(string path, string ans, bool saved)
@@ -165,9 +177,21 @@ namespace DecisionMaker
             Console.WriteLine(exitConfirmMsg);
         }
 
-        public void scanForProfileUpdates()
+        internal void scanForProfileUpdates()
         {
             appPersonality.applyFileChangesToPersonality();
         }
+
+        internal bool saveEntireProfile()
+        {
+            bool success = true;
+            success &= trySaveProfilePart(PSC.PROFILE_DISPLAY_NAME_PATH, appPersonality.displayName!);
+            success &= trySaveProfilePart(PSC.PROFILE_GREETING_PATH, appPersonality.mainGreeting!);
+            success &= trySaveProfilePart(PSC.PROFILE_EXITING_PATH, appPersonality.mainExit!);
+
+            if(!success)
+                Console.WriteLine($"{PSC.PS_INFO_INTRO} Failed to save all personality files!");
+            return success;
+        }        
     }
 }

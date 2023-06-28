@@ -4,24 +4,21 @@
 * date started: approx 5/30/2023
 */
 
-using FSC = DecisionMaker.FileSectConstants;
 namespace DecisionMaker
 {
-    using PSC = DecisionMaker.ProfileSectConstants;
-    using DSC = DecisionMaker.DecisionSectConstants;
-    public class FilesSection:IDecisionMakerSection
+    internal class FilesSection:IDecisionMakerSection
     {
         private DecisionsSection decSect;
         private ProfileSection profSect;
 
-        public FilesSection(DecisionsSection ds, ProfileSection ps)
+        internal FilesSection(DecisionsSection ds, ProfileSection ps)
         {
             this.decSect = ds;
             this.profSect = ps;
             checkAndInitDir();
         }
 
-        public static bool checkAndInitDir()
+        internal static bool checkAndInitDir()
         {
             try
             {
@@ -34,7 +31,7 @@ namespace DecisionMaker
             return Directory.Exists(FSC.DEFAULT_FILES_DIR);
         }        
 
-        public int doMenuLoop()
+        internal int doMenuLoop()
         {
             int opt = MenuUtils.INVALID_OPT;
             Console.WriteLine(FSC.FM_GREETING);
@@ -97,7 +94,7 @@ namespace DecisionMaker
 
         private void processDCsMenuInput(int opt)
         {
-            if (decSect.isChoiceInChoiceRange(opt))
+            if (decSect.isChoiceExistingDc(opt))
                 manageChosenDC(opt);
             else if(isOptDeleteAll(opt))
                 deleteAllDCs();
@@ -121,7 +118,7 @@ namespace DecisionMaker
         private void deleteAllDCs()
         {
             deleteDirAndContents(DSC.DEFAULT_DC_DIRECTORY);
-            this.decSect.syncDcMapToDcDir();
+            this.decSect.removeDcsFromMapNotInDir();
         }
 
         private void deleteDirAndContents(string dir)
@@ -132,7 +129,8 @@ namespace DecisionMaker
             }
             catch(Exception e)
             {
-                Console.WriteLine($"{FSC.FS_ERR_HEADER}: Failed to delete entire {dir} directory...\n{e.Message}\n");
+                Console.WriteLine($"{FSC.FS_ERR_HEADER}: Failed to delete entire {dir} directory...");
+                TU.logErrorMsg(e);
             }
         }
 
@@ -223,14 +221,15 @@ namespace DecisionMaker
             }
         }
 
-        private void viewFileContents(string fName)
+        internal static string viewFileContents(string fName)
         {
+            string fileLines = TU.BLANK;
             try
             {
                 if (File.Exists(fName))
                 {
                     string info = $"Contents of {fName}:\n";
-                    string fileLines = string.Join("\n", File.ReadAllLines(fName));
+                    fileLines = string.Join("\n", File.ReadAllLines(fName));
                     Console.WriteLine(info + fileLines);
                 }
                 else
@@ -240,9 +239,10 @@ namespace DecisionMaker
             {
                 Console.WriteLine($"{FSC.FS_ERR_HEADER} failed to read contents of {fName}...\n{e.Message}\n") ;
             }
+            return fileLines;
         }
 
-        private void deleteManageableFile(string fName)
+        internal static bool deleteManageableFile(string fName)
         {
             try
             {
@@ -250,15 +250,24 @@ namespace DecisionMaker
                 {
                     Console.WriteLine($"Trying to delete {fName}...");
                     File.Delete(fName);
-                    Console.WriteLine("Delete successful!");
+                    Console.WriteLine(FSC.DELETE_SUCCESS);
                 }
                 else
                     Console.WriteLine($"{fName} doesn't exist therefore cannot delete!");
             }
             catch(Exception e)
             {
-                Console.WriteLine($"{FSC.FS_ERR_HEADER} failed to delete {fName}...\n{e.Message}\n");
+                Console.WriteLine($"{FSC.FS_ERR_HEADER} failed to delete {fName}...");
+                TU.logErrorMsg(e);
             }
+            return !File.Exists(fName);
         }
+
+        internal bool saveFilesBeforeExit()
+        {
+            bool savedDcs = this.decSect.saveAllDcsInMap();
+            bool savedProfile = this.profSect.saveEntireProfile();
+            return savedDcs && savedProfile;
+        }  
     }
 }
