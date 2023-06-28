@@ -137,3 +137,6 @@ _NCrunch*
 # ignore personal Decision Categories
 /DecisionMaker/Decisions/Categories/
 /DecisionMaker/ProfileStorage
+DMTest/.vs/DMTest/DesignTimeBuild/
+DMTest/.vs/DMTest/FileContentIndex/
+DMTest/.vs/DMTest/v17/

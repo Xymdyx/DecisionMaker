@@ -43,6 +43,7 @@ namespace DecisionMaker
             {"View decisions", false},
             {"Read category description", false},
             {"Change category description", false},
+            {"Rename category", false},
             {"Add choices", false},
             {"Remove choices", false},
             {"Delete entire category", true}
@@ -54,6 +55,7 @@ namespace DecisionMaker
             ReadChoices,
             ReadDesc,
             ChangeDesc,
+            Rename,
             AddChoices,
             RemoveChoices,
             DeleteDc

@@ -8,7 +8,7 @@ namespace DecisionMaker
 {
     internal class DecisionCategory
     {
-        internal static readonly DecisionCategory EmptyDc = new("", "");
+        internal static readonly DecisionCategory EmptyDc = new(TU.BLANK, TU.BLANK);
 
         private const string DC_INFO_HEADER = "DecisionCategory.cs:";
         private string _catName;

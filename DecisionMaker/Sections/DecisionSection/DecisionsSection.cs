@@ -280,7 +280,7 @@ namespace DecisionMaker
                 Console.WriteLine($"{DSC.DS_INFO_INTRO} Cannot get category object!");
                 TU.logErrorMsg(e);
             }
-            return dcVal;            
+            return dcVal;
         }
 
         // determine if the input is for an existing category
@@ -344,19 +344,24 @@ namespace DecisionMaker
         /// </returns>
         private bool createPermanentDC()
         {
-            printExistingDCs();
             Console.WriteLine(DSC.CREATE_DC_MSG);
             DC newDc = inputDC();
-            return newDc.IsValidDc() && newDc.saveFile() && _dcMap.TryAdd(newDc.CatName, newDc);
+            return newDc.IsValidDc() && saveAndAddDcToMap(newDc);
+        }
+
+        internal bool saveAndAddDcToMap(DC dc)
+        {
+            return dc.saveFile() && _dcMap.TryAdd(dc.CatName, dc);
         }
 
         // Read all saved categories.
-        private void printExistingDCs()
+        private void announceSavedDCs()
         {
             if(hasDCs())
             {
                 Console.WriteLine(DSC.SHOW_DCS_MSG);
                 printSavedDCs();
+                Console.WriteLine();
             }
         }
 
@@ -394,12 +399,13 @@ namespace DecisionMaker
 
         private string nameDC()
         {
+            announceSavedDCs();
             string dcName = TU.BLANK;
             do
             {
                 Console.WriteLine(DSC.NAME_DC_MSG);
                 dcName = Console.ReadLine()!;
-            }while(String.IsNullOrWhiteSpace(dcName) || _dcMap.Keys.Contains(dcName.Trim()));
+            }while(!TU.isInputAcceptable(dcName) || _dcMap.Keys.Contains(dcName.Trim()));
 
             return dcName;
         }
@@ -458,7 +464,7 @@ namespace DecisionMaker
             else if (!TU.isInputAcceptable(candidate))
                 outputMsg = DSC.ADD_CHOICE_REJECT_MSG;
 
-            if(outputMsg != "")
+            if(outputMsg != TU.BLANK)
                 Console.WriteLine(outputMsg + "\n");
         }
 
@@ -504,6 +510,9 @@ namespace DecisionMaker
                     break;
                 case (int) DSC.DcActionCodes.ChangeDesc:
                     confirmHalt = changeDescDC(selectedDc);
+                    break;
+                case (int) DSC.DcActionCodes.Rename:
+                    confirmHalt = renameDC(selectedDc);
                     break;
                 case (int) DSC.DcActionCodes.AddChoices:
                     confirmHalt = addChoicesToExistingDC(selectedDc);
@@ -571,7 +580,25 @@ namespace DecisionMaker
                 Console.WriteLine($"Changed {dc.CatName} description to \"{dc.CatDesc}\"!");
                 dc.saveFile();
             }
-            return !exists;            
+            return !exists;
+        }
+
+        private bool renameDC(DC dc)
+        {
+            if (!deleteAndRemoveDcFromMap(dc))
+            {
+                Console.WriteLine($"{DSC.DS_INFO_INTRO} Failed to delete old {dc.CatPath} file and remove {dc.CatName} from map...");            
+                return true;
+            }
+
+            Console.WriteLine($"Please rename the {dc.CatName} category (you may re-enter the same one)...");
+            dc.CatName = nameDC();
+            if (!saveAndAddDcToMap(dc))
+            {
+                Console.WriteLine($"{DSC.DS_INFO_INTRO} Failed to add new {dc.CatPath} file and add {dc.CatName} to map...");
+                return true;
+            }
+            return !dc.checkFileExists();
         }        
 
         private bool addChoicesToExistingDC(DC dc)
@@ -661,7 +688,7 @@ namespace DecisionMaker
                 Console.WriteLine($"All choices removed from {dc} category\n");
                 return;
             }
-            else if (removed == "")
+            else if (removed == TU.BLANK)
                 Console.WriteLine(DSC.REMOVE_CHOICE_REJECT_MSG);
             else
                 Console.WriteLine($"Successfully removed {removed} option!");
@@ -675,7 +702,7 @@ namespace DecisionMaker
             bool terminateConfirm = false;
             do
             {
-                Console.WriteLine($"Please confirm you want to delete the {dc} decision category:");
+                Console.WriteLine($"Please confirm you want to delete the {dc.CatName} decision category:");
                 MU.writeBinaryMenu();
                 opt = MU.promptUserAndReturnOpt();
                 terminateConfirm = processDeleteDCOpt(opt, dc);
@@ -688,7 +715,7 @@ namespace DecisionMaker
             switch(opt)
             {
                 case MU.YES_CODE:
-                    return dc.deleteFile() && _dcMap.Remove(dc.CatName);
+                    return deleteAndRemoveDcFromMap(dc);
                 case MU.NO_CODE:
                     Console.WriteLine(MU.MENU_EXIT_MSG);
                     return false;
@@ -698,6 +725,11 @@ namespace DecisionMaker
                     MU.writeInvalidMsg();
                     return false;
             }
+        }
+
+        internal bool deleteAndRemoveDcFromMap(DC dc)
+        {
+            return _dcMap.Remove(dc.CatName) && dc.deleteFile();
         }
 
         private int runRNG(int num1, int num2)

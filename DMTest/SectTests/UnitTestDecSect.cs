@@ -7,16 +7,18 @@ namespace DMTest;
 [TestClass]
 public class UnitTestDecSect
 {
-    internal readonly DC FULL_DC = new("name", "desc", DmUtConsts.TEST_DC_CHOICES_FEW);
+    // In initialize DS with DCs
     internal readonly DC CHOICELESS_DC = new("Category", "A category with no choices");
     internal readonly DC PASS_DC = new(DmUtConsts.TEST_DC_NAME, DmUtConsts.TEST_DC_DESC, DmUtConsts.TEST_DC_CHOICES_FEW);
     internal readonly DC PETS_DC = new("Pets To Get", "Pets I want to adopt", new() { "Dog", "Cat", "Hamster", "Snake", "Parrot" });
+
+    // Unbound from initialized DS
+    internal readonly DC FULL_DC = new("name", "desc", DmUtConsts.TEST_DC_CHOICES_FEW);
     internal readonly DC GAME_TYPES_DC = new(
         "Game Genres",
         "Which game genre I should play now",
         new() { "Puzzle", "FPS", "RPG", "Platformer", "Simulator", "Sandbox", "Open World", "Mystery", "Visual Novel" }
      );
-
     internal readonly DC HOBBIES_DC = new(
        "Hobbies",
        "What to do with my free time",
@@ -143,8 +145,7 @@ public class UnitTestDecSect
     [TestMethod]
     public void testDecideForUser()
     {
-        clearDir();
-        DS ds = new();
+        DS ds = giveDsWithoutDcs();
         Assert.IsFalse(ds.decideForUser(DC.EmptyDc));
 
         CHOICELESS_DC.saveFile();
@@ -159,10 +160,7 @@ public class UnitTestDecSect
     [TestMethod]
     public void testRemoveAllDcsInMap()
     {
-        clearDir();
-        DS ds = new();
-        initDsDcMap(ds);
-
+        DS ds = giveDsWithDcs();
         ds.removeDcsFromMapNotInDir();
         Assert.IsTrue(ds.DcMap.Count == 0);
     }
@@ -170,9 +168,7 @@ public class UnitTestDecSect
     [TestMethod]
     public void testRemoveNoDcsInMap()
     {
-        clearDir();
-        DS ds = new();
-        initDsDcMap(ds);
+        DS ds = giveDsWithDcs();
         int initCount = ds.DcMap.Count;
 
         ds.saveAllDcsInMap();
@@ -185,9 +181,7 @@ public class UnitTestDecSect
     [TestMethod]
     public void testRemoveSomeDcsInMap()
     {
-        clearDir();
-        DS ds = new();
-        initDsDcMap(ds);
+        DS ds = giveDsWithDcs();
         int initCount = ds.DcMap.Count;
 
         ds.saveAllDcsInMap();
@@ -199,19 +193,10 @@ public class UnitTestDecSect
         Assert.IsTrue(initCount > rmCount);
     }
 
-    private void initDsDcMap(DS ds)
-    {
-        ds.DcMap.Add(CHOICELESS_DC.CatName, CHOICELESS_DC);
-        ds.DcMap.Add(PETS_DC.CatName, PETS_DC);
-        ds.DcMap.Add(PASS_DC.CatName, PASS_DC);
-    }
-
     [TestMethod]
     public void testAddNoDcsToMapFromDir()
     {
-        clearDir();
-        DS ds = new();
-        initDsDcMap(ds);
+        DS ds = giveDsWithDcs();
         int initCount = ds.DcMap.Count;
 
         ds.addNewCategoriesToMapFromDir();
@@ -222,9 +207,7 @@ public class UnitTestDecSect
     [TestMethod]
     public void testAddADcToMapFromDir()
     {
-        clearDir();
-        DS ds = new();
-        initDsDcMap(ds);
+        DS ds = giveDsWithDcs();
         int initCount = ds.DcMap.Count;
 
         HOBBIES_DC.saveFile();
@@ -237,9 +220,7 @@ public class UnitTestDecSect
     [TestMethod]
     public void testAddSomeADcsToMapFromDir()
     {
-        clearDir();
-        DS ds = new();
-        initDsDcMap(ds);
+        DS ds = giveDsWithDcs();
         int initCount = ds.DcMap.Count;
 
         DC[] addDcs = { HOBBIES_DC, GAME_TYPES_DC, FULL_DC };
@@ -254,9 +235,7 @@ public class UnitTestDecSect
     [TestMethod]
     public void testIsChoiceExistingDc()
     {
-        clearDir();
-        DS ds = new();
-        initDsDcMap(ds);
+        DS ds = giveDsWithDcs();
         ds.saveAllDcsInMap();
 
         int dcCount = ds.DcMap.Count;
@@ -273,8 +252,7 @@ public class UnitTestDecSect
     [TestMethod]
     public void testIsDcAction()
     {
-        clearDir();
-        DS ds = new();
+        DS ds = giveDsWithoutDcs();
         int dcActCount = DSC.dcActions.Count;
         for (int i = MU.MENU_START; i <= dcActCount; i++)
             Assert.IsTrue(ds.isChoiceDCAction(i));
@@ -289,9 +267,7 @@ public class UnitTestDecSect
     [TestMethod]
     public void testGetDcNameFromChoice()
     {
-        clearDir();
-        DS ds = new();
-        initDsDcMap(ds);
+        DS ds = giveDsWithDcs();
 
         int dcCount = ds.DcMap.Count;
         for (int i = MU.MENU_START; i <= dcCount; i++)
@@ -318,8 +294,7 @@ public class UnitTestDecSect
     [TestMethod]
     public void testGetDcItemFromChoice()
     {
-        clearDir();
-        DS ds = new();
+        DS ds = giveDsWithoutDcs();
         initDsDcMap(ds);
 
         int dcCount = ds.DcMap.Count;
@@ -340,7 +315,79 @@ public class UnitTestDecSect
         {
             DC actual = ds.getDCFromMenuChoice(pos);
             Assert.IsTrue(actual == DC.EmptyDc);
-        }    }
+        }
+    }
+
+    [TestMethod]
+    public void testSaveAndAddToEmptyMap()
+    {
+        DS ds = giveDsWithoutDcs();
+        Assert.IsFalse(ds.DcMap.ContainsKey(FULL_DC.CatName));
+        Assert.IsTrue(ds.saveAndAddDcToMap(FULL_DC));
+        Assert.IsTrue(FULL_DC.checkFileExists());
+        Assert.IsTrue(ds.DcMap.ContainsKey(FULL_DC.CatName));
+    }
+
+    [TestMethod]
+    public void testSaveAndAddToMap()
+    {
+        DS ds = giveDsWithDcs();
+        Assert.IsFalse(ds.DcMap.ContainsKey(HOBBIES_DC.CatName));
+        Assert.IsTrue(ds.saveAndAddDcToMap(HOBBIES_DC));
+        Assert.IsTrue(HOBBIES_DC.checkFileExists());
+        Assert.IsTrue(ds.DcMap.ContainsKey(HOBBIES_DC.CatName));
+    }
+
+    [TestMethod]
+    public void testSaveAndAddSavedToMap()
+    {
+        DS ds = giveDsWithDcs();
+        Assert.IsTrue(ds.DcMap.ContainsKey(CHOICELESS_DC.CatName));
+        Assert.IsFalse(ds.saveAndAddDcToMap(CHOICELESS_DC));
+        Assert.IsTrue(CHOICELESS_DC.checkFileExists());
+        Assert.IsTrue(ds.DcMap.ContainsKey(CHOICELESS_DC.CatName));
+    }
+
+    [TestMethod]
+    public void delAndRmDcFromEmptyMap()
+    {
+        DS ds = giveDsWithoutDcs();
+        Assert.IsFalse(ds.DcMap.ContainsKey(PASS_DC.CatName));
+        Assert.IsFalse(ds.deleteAndRemoveDcFromMap(PASS_DC));
+        Assert.IsFalse(ds.DcMap.ContainsKey(PASS_DC.CatName));
+    }    
+
+    [TestMethod]
+    public void delAndRmDcFromMap()
+    {
+        DS ds = giveDsWithDcs();
+        Assert.IsTrue(ds.DcMap.ContainsKey(PASS_DC.CatName));
+        Assert.IsTrue(ds.deleteAndRemoveDcFromMap(PASS_DC));
+        Assert.IsFalse(PASS_DC.checkFileExists());
+        Assert.IsFalse(ds.DcMap.ContainsKey(PASS_DC.CatName));
+    }
+
+    [TestMethod]
+    public void delAndRmUnsavedDcFromMap()
+    {
+        DS ds = giveDsWithDcs();
+        Assert.IsFalse(ds.DcMap.ContainsKey(FULL_DC.CatName));
+        Assert.IsFalse(ds.deleteAndRemoveDcFromMap(FULL_DC));
+        Assert.IsFalse(ds.DcMap.ContainsKey(FULL_DC.CatName));
+    }
+
+    private DS giveDsWithDcs()
+    {
+        DS ds = giveDsWithoutDcs();
+        initDsDcMap(ds);
+        return ds;
+    }
+
+    private DS giveDsWithoutDcs()
+    {
+        clearDir();
+        return new DS();
+    }
 
     private void clearDir()
     {
@@ -352,5 +399,12 @@ public class UnitTestDecSect
         {
             DmUtConsts.logPreProcessingFail(e);
         }
+    }
+
+    private void initDsDcMap(DS ds)
+    {
+        ds.DcMap.Add(CHOICELESS_DC.CatName, CHOICELESS_DC);
+        ds.DcMap.Add(PETS_DC.CatName, PETS_DC);
+        ds.DcMap.Add(PASS_DC.CatName, PASS_DC);
     }
 }
