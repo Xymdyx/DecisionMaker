@@ -355,7 +355,7 @@ public class UnitTestDecSect
         Assert.IsFalse(ds.DcMap.ContainsKey(PASS_DC.CatName));
         Assert.IsFalse(ds.deleteAndRemoveDcFromMap(PASS_DC));
         Assert.IsFalse(ds.DcMap.ContainsKey(PASS_DC.CatName));
-    }    
+    }
 
     [TestMethod]
     public void delAndRmDcFromMap()
@@ -375,6 +375,36 @@ public class UnitTestDecSect
         Assert.IsFalse(ds.deleteAndRemoveDcFromMap(FULL_DC));
         Assert.IsFalse(ds.DcMap.ContainsKey(FULL_DC.CatName));
     }
+
+    [TestMethod]
+    public void testReadEmptyDecSummary()
+    {
+        Assert.Inconclusive("Need to implement DecisionSummary");
+    }
+
+    [TestMethod]
+    public void testAddDecisionToDecSummary()
+    {
+        Assert.Inconclusive("Need to implement DecisionSummary");
+    }
+
+    [TestMethod]
+    public void testAddFewGoodToDecSummary()
+    {
+        Assert.Inconclusive("Need to implement DecisionSummary");
+    }    
+
+    [TestMethod]
+    public void testAddBadInputsToDecSummary()
+    {
+        Assert.Inconclusive("Need to implement DecisionSummary");
+    }
+
+    [TestMethod]
+    public void testAddMixedInputsToDecSummary()
+    {
+        Assert.Inconclusive("Need to implement DecisionSummary");
+    }    
 
     private DS giveDsWithDcs()
     {

@@ -10,13 +10,16 @@ namespace DecisionMaker
     {
         private readonly Random rng;
         private Dictionary<string, DC> _dcMap;
+        private List<string> _decisionSummary;
         internal Dictionary<string, DC> DcMap{ get => _dcMap; }
+        internal List<string> DecisionSummary { get => _decisionSummary; }
 
         internal DecisionsSection()
         {
             this.rng = new();
             this._dcMap = new();
             this._dcMap = new();
+            this._decisionSummary = new();
             checkAndInitDir();
             addNewCategoriesToMapFromDir();
         }
@@ -547,6 +550,30 @@ namespace DecisionMaker
             return dc.checkFileExists();
         }
 
+        /// <summary>
+        /// Add a decision made by decideForUser to _decisionSummary
+        /// to keep track of all decisions made this session
+        /// </summary>
+        /// <param name="dc"> Decision Category the user chose for a decision </param>
+        /// <param name="chosen"> the decision chosen by decideForUser </param>
+        /// <returns></returns>
+        internal bool addDecisionToSummary(DC dc, string chosen)
+        {
+            string decision = TU.BLANK;
+            int startSize = _decisionSummary.Count;
+            if (dc.CatChoices.Contains(chosen))
+            {
+                decision = $"{dc.CatName}: {chosen}";
+                _decisionSummary.Add(decision);
+            }
+            return wasDecisionPutInSummary(decision, startSize);
+        }
+
+        private bool wasDecisionPutInSummary(string decision, int startSize)
+        {
+            return (_decisionSummary.Count == startSize + 1) && (_decisionSummary.Last() == decision);
+        }
+
         // print all options in a categories file line-by-line
         private bool readExistingDC(DC dc)
         {
@@ -587,7 +614,7 @@ namespace DecisionMaker
         {
             if (!deleteAndRemoveDcFromMap(dc))
             {
-                Console.WriteLine($"{DSC.DS_INFO_INTRO} Failed to delete old {dc.CatPath} file and remove {dc.CatName} from map...");            
+                Console.WriteLine($"{DSC.DS_INFO_INTRO} Failed to delete old {dc.CatPath} file and remove {dc.CatName} from map...");
                 return true;
             }
 
@@ -599,7 +626,7 @@ namespace DecisionMaker
                 return true;
             }
             return !dc.checkFileExists();
-        }        
+        }
 
         private bool addChoicesToExistingDC(DC dc)
         {
