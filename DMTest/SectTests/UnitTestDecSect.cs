@@ -7,22 +7,27 @@ namespace DMTest;
 [TestClass]
 public class UnitTestDecSect
 {
+    internal static readonly List<string> PETS_CHOICES = new() { "Dog", "Cat", "Hamster", "Snake", "Parrot" };
+    internal static readonly List<string> GAME_TYPES_CHOICES = new() { "Puzzle", "FPS", "RPG", "Platformer", "Simulator", "Sandbox", "Open World", "Mystery", "Visual Novel" };
+    internal static readonly List<string> HOBBIES_CHOICES = new() 
+    { "Cooking", "Play a video game", "Program something", "Exercise", "Watch YouTube", "Contemplate", "Study a language", "Clean", "Hang out with friend(s)" };
+
     // In initialize DS with DCs
     internal readonly DC CHOICELESS_DC = new("Category", "A category with no choices");
-    internal readonly DC PASS_DC = new(DmUtConsts.TEST_DC_NAME, DmUtConsts.TEST_DC_DESC, DmUtConsts.TEST_DC_CHOICES_FEW);
-    internal readonly DC PETS_DC = new("Pets To Get", "Pets I want to adopt", new() { "Dog", "Cat", "Hamster", "Snake", "Parrot" });
+    internal readonly DC PASS_DC = new(DmUtConsts.TEST_DC_NAME, DmUtConsts.TEST_DC_DESC, new(DmUtConsts.TEST_DC_CHOICES_FEW));
+    internal readonly DC PETS_DC = new("Pets To Get", "Pets I want to adopt", new(PETS_CHOICES));
 
     // Unbound from initialized DS
-    internal readonly DC FULL_DC = new("name", "desc", DmUtConsts.TEST_DC_CHOICES_FEW);
+    internal readonly DC FULL_DC = new("name", "desc", new(DmUtConsts.TEST_DC_CHOICES_FEW));
     internal readonly DC GAME_TYPES_DC = new(
         "Game Genres",
         "Which game genre I should play now",
-        new() { "Puzzle", "FPS", "RPG", "Platformer", "Simulator", "Sandbox", "Open World", "Mystery", "Visual Novel" }
+        new(GAME_TYPES_CHOICES)
      );
     internal readonly DC HOBBIES_DC = new(
        "Hobbies",
        "What to do with my free time",
-       new() { "Cooking", "Play a video game", "Program something", "Exercise", "Watch YouTube", "Contemplate", "Study a language", "Clean", "Hang out with friend(s)" }
+       new(HOBBIES_CHOICES)
     );
 
     [TestMethod]
@@ -154,7 +159,7 @@ public class UnitTestDecSect
         Assert.IsFalse(ds.decideForUser(CHOICELESS_DC));
 
         PASS_DC.saveFile();
-        Assert.IsFalse(ds.decideForUser(PASS_DC));
+        Assert.IsTrue(ds.decideForUser(PASS_DC));
     }
 
     [TestMethod]
@@ -377,34 +382,90 @@ public class UnitTestDecSect
     }
 
     [TestMethod]
-    public void testReadEmptyDecSummary()
+    public void testAddNothingToDecSummary()
     {
-        Assert.Inconclusive("Need to implement DecisionSummary");
+        DS ds = giveDsWithDcs();
+        Assert.IsFalse(ds.tryAddDecisionToSummary(PETS_DC, TU.BLANK));
     }
 
     [TestMethod]
     public void testAddDecisionToDecSummary()
     {
-        Assert.Inconclusive("Need to implement DecisionSummary");
+        DS ds = giveDsWithDcs();
+        Assert.IsTrue(ds.tryAddDecisionToSummary(PETS_DC, PETS_DC.CatChoices[0]));
     }
 
     [TestMethod]
     public void testAddFewGoodToDecSummary()
     {
-        Assert.Inconclusive("Need to implement DecisionSummary");
-    }    
+        DS ds = giveDsWithDcs();
+        addFewGoodtoDecSummary(ds);
+    }
+
+    private void addFewGoodtoDecSummary(DS ds)
+    {
+        for (int i = 0; i < PETS_DC.CatChoices.Count; i++)
+            Assert.IsTrue(ds.tryAddDecisionToSummary(PETS_DC, PETS_DC.CatChoices[i]));
+
+        for (int i = 0; i < PASS_DC.CatChoices.Count; i++)
+            Assert.IsTrue(ds.tryAddDecisionToSummary(PASS_DC, PASS_DC.CatChoices[i]));        
+    }
 
     [TestMethod]
     public void testAddBadInputsToDecSummary()
     {
-        Assert.Inconclusive("Need to implement DecisionSummary");
+        DS ds = giveDsWithDcs();
+        addFewBadInputsToDecSummary(ds);
+    }
+
+    private void addFewBadInputsToDecSummary(DS ds)
+    {
+        Assert.IsFalse(ds.tryAddDecisionToSummary(PETS_DC, TU.BLANK));
+        Assert.IsFalse(ds.tryAddDecisionToSummary(PETS_DC, PASS_DC.CatChoices[0]));
+        Assert.IsFalse(ds.tryAddDecisionToSummary(PASS_DC, null));
+        Assert.IsFalse(ds.tryAddDecisionToSummary(PETS_DC, ""));
+        Assert.IsFalse(ds.tryAddDecisionToSummary(PASS_DC, PETS_DC.CatChoices[0]));
     }
 
     [TestMethod]
     public void testAddMixedInputsToDecSummary()
     {
-        Assert.Inconclusive("Need to implement DecisionSummary");
+        DS ds = giveDsWithDcs();
+        addFewGoodtoDecSummary(ds);
+        addFewBadInputsToDecSummary(ds);
+    }
+
+    [TestMethod]
+    public void testSaveEmptyDecSummary()
+    {
+        DS ds = giveDsWithDcs();
+        Assert.IsFalse(ds.showAndSaveDecSummary());        
+    }
+
+    [TestMethod]
+    public void testAddDecisionAndSaveDecSummary()
+    {
+        DS ds = giveDsWithDcs();
+        ds.decideForUser(PETS_DC);
+        Assert.IsTrue(ds.showAndSaveDecSummary());
+    }
+
+    [TestMethod]
+    public void testAddFewGoodAndSaveDecSummary()
+    {
+        DS ds = giveDsWithDcs();
+        for (int i = 0; i < PETS_DC.CatChoices.Count; i++)
+            ds.decideForUser(PETS_DC);
+        for (int i = 0; i < PASS_DC.CatChoices.Count; i++)
+            ds.decideForUser(PASS_DC);
+        Assert.IsTrue(ds.showAndSaveDecSummary());
     }    
+
+    [TestInitialize]
+    public void TestInitialize()
+    {
+        clearDir();
+    }
 
     private DS giveDsWithDcs()
     {
@@ -415,26 +476,23 @@ public class UnitTestDecSect
 
     private DS giveDsWithoutDcs()
     {
-        clearDir();
         return new DS();
     }
 
     private void clearDir()
     {
-        try
-        {
-            Directory.Delete(DSC.DEFAULT_DC_DIRECTORY, true);
-        }
-        catch(Exception e)
-        {
-            DmUtConsts.logPreProcessingFail(e);
-        }
+        DmUtConsts.clearADir(DSC.DEFAULT_DECISIONS_DIRECTORY);
     }
 
     private void initDsDcMap(DS ds)
     {
+        
         ds.DcMap.Add(CHOICELESS_DC.CatName, CHOICELESS_DC);
+        
+        PETS_DC.CatChoices = new(PETS_CHOICES);
         ds.DcMap.Add(PETS_DC.CatName, PETS_DC);
+
+        PASS_DC.CatChoices = new(DmUtConsts.TEST_DC_CHOICES_FEW);
         ds.DcMap.Add(PASS_DC.CatName, PASS_DC);
     }
 }

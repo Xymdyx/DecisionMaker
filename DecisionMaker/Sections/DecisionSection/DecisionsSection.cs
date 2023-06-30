@@ -6,12 +6,12 @@
 */
 namespace DecisionMaker
 {
-    internal class DecisionsSection:IDecisionMakerSection
+    internal class DecisionsSection : IDecisionMakerSection
     {
         private readonly Random rng;
         private Dictionary<string, DC> _dcMap;
         private List<string> _decisionSummary;
-        internal Dictionary<string, DC> DcMap{ get => _dcMap; }
+        internal Dictionary<string, DC> DcMap { get => _dcMap; }
         internal List<string> DecisionSummary { get => _decisionSummary; }
 
         internal DecisionsSection()
@@ -32,7 +32,7 @@ namespace DecisionMaker
 
         internal void removeDcsFromMapNotInDir()
         {
-            if(checkAndInitDir())
+            if (checkAndInitDir())
                 removeOldCategoriesFromMap();
         }
 
@@ -41,27 +41,14 @@ namespace DecisionMaker
         /// </summary>
         internal static bool checkAndInitDir()
         {
-            if (!Directory.Exists(DSC.DEFAULT_DC_DIRECTORY))
-            {
-                try
-                {
-                    Console.WriteLine(DSC.NO_DC_DIR_MSG);
-                    Directory.CreateDirectory(DSC.DEFAULT_DC_DIRECTORY);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine($"{DSC.DS_INFO_INTRO} failed to initialize {DSC.DEFAULT_DC_DIRECTORY} directory...");
-                    TU.logErrorMsg(e);
-                }
-            }
-            return Directory.Exists(DSC.DEFAULT_DC_DIRECTORY);
+            return MU.checkAndInitADir(DSC.DEFAULT_DC_DIRECTORY);
         }
 
         // initialize the category map by reading files in Categories directory
         internal void addNewCategoriesToMapFromDir()
         {
             List<string> existing = scanForDCs();
-            foreach(string cat in existing.Where(c => !_dcMap.ContainsKey(c)))
+            foreach (string cat in existing.Where(c => !_dcMap.ContainsKey(c)))
             {
                 string catPath = formatDCPath(cat);
                 string[] catLines = File.ReadAllLines(catPath);
@@ -77,13 +64,13 @@ namespace DecisionMaker
         private void removeOldCategoriesFromMap()
         {
             List<string> existing = scanForDCs();
-            foreach(string cat in _dcMap.Keys.Where(c => !existing.Contains(c)).ToList())
+            foreach (string cat in _dcMap.Keys.Where(c => !existing.Contains(c)).ToList())
                 _dcMap.Remove(cat);
         }
 
         internal static string formatDCPath(string fName)
         {
-            if(TU.isInputAcceptable(fName))
+            if (TU.isInputAcceptable(fName))
                 return DSC.DEFAULT_DC_DIRECTORY + fName + TU.TXT;
             return fName;
         }
@@ -91,10 +78,10 @@ namespace DecisionMaker
         internal bool saveAllDcsInMap()
         {
             bool success = true;
-            foreach(KeyValuePair<string, DC> d in _dcMap)
+            foreach (KeyValuePair<string, DC> d in _dcMap)
                 success &= d.Value.saveFile();
 
-            if(!success)
+            if (!success)
                 Console.WriteLine($"{DSC.DS_INFO_INTRO} Failed to save all Decision Category files!");
             return success;
         }
@@ -117,7 +104,7 @@ namespace DecisionMaker
                 }
                 return files;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.WriteLine(DSC.DS_INFO_INTRO + $"Error scanning for categories...");
                 TU.logErrorMsg(e);
@@ -144,7 +131,7 @@ namespace DecisionMaker
                 writeDCsMenu();
                 opt = MU.promptUserAndReturnOpt();
                 processMenuInput(opt);
-            }while(!MU.isChoiceMenuExit(opt));
+            } while (!MU.isChoiceMenuExit(opt));
             return opt;
         }
 
@@ -164,25 +151,25 @@ namespace DecisionMaker
         internal void printSavedDCs()
         {
             int totalCategories = _dcMap.Count;
-            for(int i = 0; i < totalCategories; i++)
+            for (int i = 0; i < totalCategories; i++)
             {
                 DC dc = _dcMap.ElementAt(i).Value;
-                Console.WriteLine($"{i+1}. {dc}");
+                Console.WriteLine($"{i + 1}. {dc}");
             }
         }
 
         private void printNonDcActions()
         {
             MU.printExitChoice();
-            Console.WriteLine($"{(int) DSC.NonDcActions.AddNewDc}. Add a whole new Decision Category");
-            Console.WriteLine($"{(int) DSC.NonDcActions.DoOneOff}. Make a quick one-off decision");
-            Console.WriteLine($"{(int) DSC.NonDcActions.PickRandomInt}. Have us pick a random number in a range");
+            Console.WriteLine($"{(int)DSC.NonDcActions.AddNewDc}. Add a whole new Decision Category");
+            Console.WriteLine($"{(int)DSC.NonDcActions.DoOneOff}. Make a quick one-off decision");
+            Console.WriteLine($"{(int)DSC.NonDcActions.PickRandomInt}. Have us pick a random number in a range");
         }
 
         // processes entry point menu
         private void processMenuInput(int opt)
         {
-            if(isChoiceExistingDc(opt))
+            if (isChoiceExistingDc(opt))
                 enterDCActionsMenu(opt);
             else
             {
@@ -193,15 +180,15 @@ namespace DecisionMaker
 
         private void processNonDcActions(int opt)
         {
-            switch(opt)
+            switch (opt)
             {
-                case (int) DSC.NonDcActions.AddNewDc:
+                case (int)DSC.NonDcActions.AddNewDc:
                     createPermanentDC();
                     break;
-                case (int) DSC.NonDcActions.DoOneOff:
+                case (int)DSC.NonDcActions.DoOneOff:
                     doOneOffDecision();
                     break;
-                case (int) DSC.NonDcActions.PickRandomInt:
+                case (int)DSC.NonDcActions.PickRandomInt:
                     doRandomInt();
                     break;
                 case MU.EXIT_CODE:
@@ -221,7 +208,7 @@ namespace DecisionMaker
                 Console.WriteLine(DSC.ONE_OFF_DECIDE_MSG);
                 return decideForUser(oneTimeDecision);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.WriteLine($"{DSC.DS_INFO_INTRO} Failed to do one-off decision...");
                 TU.logErrorMsg(e);
@@ -239,12 +226,12 @@ namespace DecisionMaker
             bool succ1 = TU.convertTextToInt32(Console.ReadLine()!, out int num1);
             bool succ2 = TU.convertTextToInt32(Console.ReadLine()!, out int num2);
 
-            if(!succ1) num1 = DSC.DEFAULT_LOWER_BOUND;
-            if(!succ2) num2 = DSC.DEFAULT_UPPER_BOUND;
+            if (!succ1) num1 = DSC.DEFAULT_LOWER_BOUND;
+            if (!succ2) num2 = DSC.DEFAULT_UPPER_BOUND;
 
             int rand = runRNG(num1, num2);
             commentIfBoundsSame(num1, num2);
-            (int,int) bounds = returnBoundsTuple(num1, num2);
+            (int, int) bounds = returnBoundsTuple(num1, num2);
 
             Console.WriteLine($"Given the range of [{bounds.Item1}, {bounds.Item2}], we've decided upon {rand}...");
             return true;
@@ -252,7 +239,7 @@ namespace DecisionMaker
 
         private void commentIfBoundsSame(int num1, int num2)
         {
-            if(num1 == num2)
+            if (num1 == num2)
                 Console.WriteLine(DSC.SAME_BOUNDS_COMMENT);
         }
 
@@ -263,7 +250,7 @@ namespace DecisionMaker
             {
                 dcName = this._dcMap.ElementAt(opt - 1).Key;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.WriteLine($"{DSC.DS_INFO_INTRO} Cannot get category name!");
                 TU.logErrorMsg(e);
@@ -278,7 +265,7 @@ namespace DecisionMaker
             {
                 dcVal = _dcMap.ElementAt(opt - 1).Value;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.WriteLine($"{DSC.DS_INFO_INTRO} Cannot get category object!");
                 TU.logErrorMsg(e);
@@ -289,7 +276,7 @@ namespace DecisionMaker
         // determine if the input is for an existing category
         internal bool isChoiceExistingDc(int opt)
         {
-            return(hasDCs()) && ((opt >= MU.MENU_START) && (opt <= _dcMap.Count));
+            return (hasDCs()) && ((opt >= MU.MENU_START) && (opt <= _dcMap.Count));
         }
 
         // loop for choosing what to do with a selected decision category
@@ -304,7 +291,7 @@ namespace DecisionMaker
                 writeDCActionsMenu(selectedDc.CatName);
                 dcOpt = MU.promptUserAndReturnOpt();
                 doesTerminate = processDCActionsMenuInput(dcOpt, selected, selectedDc);
-            }while(!MU.isChoiceMenuExit(dcOpt) && !doesTerminate);
+            } while (!MU.isChoiceMenuExit(dcOpt) && !doesTerminate);
         }
 
         private void writeDCActionsMenu(string dc)
@@ -324,7 +311,7 @@ namespace DecisionMaker
         private bool processDCActionsMenuInput(int opt, string dc, DC selectedDC)
         {
             bool doesTerminate = false;
-            if(isChoiceDCAction(opt))
+            if (isChoiceDCAction(opt))
                 doesTerminate = processDCAction(opt, dc, selectedDC);
             else if (MU.isChoiceMenuExit(opt))
             {
@@ -360,7 +347,7 @@ namespace DecisionMaker
         // Read all saved categories.
         private void announceSavedDCs()
         {
-            if(hasDCs())
+            if (hasDCs())
             {
                 Console.WriteLine(DSC.SHOW_DCS_MSG);
                 printSavedDCs();
@@ -382,7 +369,7 @@ namespace DecisionMaker
                 dc.CatChoices = addChoicesToDC(dc);
                 return dc;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.WriteLine($"{DSC.DS_INFO_INTRO} Failed to add new decision category. Saving any made progress...");
                 TU.logErrorMsg(e);
@@ -394,9 +381,17 @@ namespace DecisionMaker
         private bool saveUnfinishedDC(string name, string desc, List<string> choices)
         {
             FS.checkAndInitDir();
-            File.WriteAllText(FSC.DEFAULT_WIP_FILE, name + DSC.DECISION_DELIMITER);
-            File.AppendAllText(FSC.DEFAULT_WIP_FILE, desc + DSC.DECISION_DELIMITER);
-            File.AppendAllLines(FSC.DEFAULT_WIP_FILE, choices);
+            try
+            {
+                File.WriteAllText(FSC.DEFAULT_WIP_FILE, name + DSC.DECISION_DELIMITER);
+                File.AppendAllText(FSC.DEFAULT_WIP_FILE, desc + DSC.DECISION_DELIMITER);
+                File.AppendAllLines(FSC.DEFAULT_WIP_FILE, choices);
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine($"{DSC.DS_INFO_INTRO} failure in saving wipcat file.");
+                TU.logErrorMsg(e);
+            }
             return File.Exists(FSC.DEFAULT_WIP_FILE);
         }
 
@@ -408,10 +403,15 @@ namespace DecisionMaker
             {
                 Console.WriteLine(DSC.NAME_DC_MSG);
                 dcName = Console.ReadLine()!;
-            }while(!TU.isInputAcceptable(dcName) || _dcMap.Keys.Contains(dcName.Trim()));
+            } while (!TU.isInputAcceptable(dcName) || doesMapHaveDcName(dcName.Trim()));
 
             return dcName;
         }
+
+        private bool doesMapHaveDcName(string dcName)
+        {
+            return _dcMap.Keys.Contains(dcName);
+        }        
 
         private string describeDC()
         {
@@ -420,7 +420,7 @@ namespace DecisionMaker
             {
                 Console.WriteLine(DSC.DESCRIBE_DC_MSG);
                 dcDesc = Console.ReadLine()!;
-            }while(!TU.isInputAcceptable(dcDesc));
+            } while (!TU.isInputAcceptable(dcDesc));
             return dcDesc;
         }
 
@@ -435,11 +435,11 @@ namespace DecisionMaker
                 choiceInput = Console.ReadLine()!;
                 stopWanted = TU.isInputStopCommand(choiceInput);
                 bool accepted = false;
-                if(!stopWanted)
+                if (!stopWanted)
                     accepted = tryAcceptNewDCChoice(choiceInput, acceptedChoices); // choose to accept or reject into choiceInputs
 
                 printAddChoiceLoopMsg(accepted, choiceInput, acceptedChoices);
-            }while(TU.isStringListEmpty(acceptedChoices) || !stopWanted);
+            } while (TU.isStringListEmpty(acceptedChoices) || !stopWanted);
 
             Console.WriteLine($"Choices for {selectedDc.CatName}: {TU.prettyStringifyList(acceptedChoices)}\n");
             return acceptedChoices;
@@ -460,20 +460,20 @@ namespace DecisionMaker
         private void printAddChoiceLoopMsg(bool wasAccepted, string candidate, List<string> acceptedChoices)
         {
             string outputMsg = TU.BLANK;
-            if(wasAccepted)
+            if (wasAccepted)
                 outputMsg = $"{candidate} accepted!";
             else if (isItemAlreadyAccepted(candidate, acceptedChoices))
                 outputMsg = $"{candidate} was already accepted";
             else if (!TU.isInputAcceptable(candidate))
                 outputMsg = DSC.ADD_CHOICE_REJECT_MSG;
 
-            if(outputMsg != TU.BLANK)
+            if (outputMsg != TU.BLANK)
                 Console.WriteLine(outputMsg + "\n");
         }
 
         private bool tryAcceptNewDCChoice(string candidate, List<string> acceptedChoices)
         {
-            if(TU.isInputAcceptable(candidate) && !isItemAlreadyAccepted(candidate, acceptedChoices))
+            if (TU.isInputAcceptable(candidate) && !isItemAlreadyAccepted(candidate, acceptedChoices))
             {
                 acceptedChoices.Add(candidate);
                 return true;
@@ -500,37 +500,37 @@ namespace DecisionMaker
         private bool processDCAction(int actionNum, string dc, DC selectedDc)
         {
             bool confirmHalt = true;
-            switch(actionNum)
+            switch (actionNum)
             {
-                case (int) DSC.DcActionCodes.Decide:
+                case (int)DSC.DcActionCodes.Decide:
                     confirmHalt = decideForUser(selectedDc);
                     break;
-                case (int) DSC.DcActionCodes.ReadChoices:
+                case (int)DSC.DcActionCodes.ReadChoices:
                     confirmHalt = readExistingDC(selectedDc);
                     break;
-                case (int) DSC.DcActionCodes.ReadDesc:
+                case (int)DSC.DcActionCodes.ReadDesc:
                     confirmHalt = readDescDC(selectedDc);
                     break;
-                case (int) DSC.DcActionCodes.ChangeDesc:
+                case (int)DSC.DcActionCodes.ChangeDesc:
                     confirmHalt = changeDescDC(selectedDc);
                     break;
-                case (int) DSC.DcActionCodes.Rename:
+                case (int)DSC.DcActionCodes.Rename:
                     confirmHalt = renameDC(selectedDc);
                     break;
-                case (int) DSC.DcActionCodes.AddChoices:
+                case (int)DSC.DcActionCodes.AddChoices:
                     confirmHalt = addChoicesToExistingDC(selectedDc);
                     break;
-                case (int) DSC.DcActionCodes.RemoveChoices:
+                case (int)DSC.DcActionCodes.RemoveChoices:
                     confirmHalt = removeChoicesFromDC(selectedDc);
                     break;
-                case (int) DSC.DcActionCodes.DeleteDc:
+                case (int)DSC.DcActionCodes.DeleteDc:
                     confirmHalt = confirmDeleteDC(selectedDc);
                     break;
                 default:
                     Console.WriteLine(DSC.DS_INFO_INTRO + "Invalid Category Action in process action. Something's up");
                     break;
             }
-            return getDCActionTerminateVals()[actionNum-1] && confirmHalt;
+            return getDCActionTerminateVals()[actionNum - 1] && confirmHalt;
         }
 
         /// <summary>
@@ -539,31 +539,35 @@ namespace DecisionMaker
         /// <param name="dc">- the category to pull a choice from </param>
         internal bool decideForUser(DC dc)
         {
-            if(!dc.hasChoices())
+            if (!dc.hasChoices())
             {
                 Console.WriteLine(DSC.NO_CHOICES_MSG);
                 return false;
             }
 
-            int chosen = runRNG(DSC.ORIGIN_IDX, dc.CatChoices.Count - 1);
-            Console.WriteLine($"For {dc.CatName}, we've decided upon: {dc.CatChoices[chosen]}");
+            int chosenInt = runRNG(DSC.ORIGIN_IDX, dc.CatChoices.Count - 1);
+            string chosenOpt = dc.CatChoices[chosenInt];
+            Console.WriteLine($"For {dc.CatName}, we've decided upon: {chosenOpt}");
+            tryAddDecisionToSummary(dc, chosenOpt);
             return dc.checkFileExists();
         }
 
         /// <summary>
         /// Add a decision made by decideForUser to _decisionSummary
         /// to keep track of all decisions made this session
+        /// pre-cond: the DC is non-null and in _dcMap
         /// </summary>
         /// <param name="dc"> Decision Category the user chose for a decision </param>
-        /// <param name="chosen"> the decision chosen by decideForUser </param>
-        /// <returns></returns>
-        internal bool addDecisionToSummary(DC dc, string chosen)
+        /// <param name="chosenOpt"> the decision chosen by decideForUser </param>
+        /// <returns>whether the decision was successfully recorded to the summary</returns>
+        internal bool tryAddDecisionToSummary(DC dc, string chosenOpt)
         {
             string decision = TU.BLANK;
             int startSize = _decisionSummary.Count;
-            if (dc.CatChoices.Contains(chosen))
+            if (dc.CatChoices.Contains(chosenOpt))
             {
-                decision = $"{dc.CatName}: {chosen}";
+                string decisionType = (doesMapHaveDcName(dc.CatName)) ? DC.DC_SUMMARY_TAG : DC.ONE_OFF_SUMMARY_TAG;
+                decision = $"{dc.CatName} {decisionType}: {chosenOpt}";
                 _decisionSummary.Add(decision);
             }
             return wasDecisionPutInSummary(decision, startSize);
@@ -577,7 +581,7 @@ namespace DecisionMaker
         // print all options in a categories file line-by-line
         private bool readExistingDC(DC dc)
         {
-            if(!dc.hasChoices())
+            if (!dc.hasChoices())
             {
                 Console.WriteLine(DSC.NO_CHOICES_MSG);
                 return false;
@@ -591,7 +595,7 @@ namespace DecisionMaker
         private bool readDescDC(DC dc)
         {
             bool exists = dc.checkFileExists();
-            if(exists)
+            if (exists)
                 Console.WriteLine($"Description for {dc.CatName}: {dc.CatDesc}");
             return !exists;
         }
@@ -658,19 +662,19 @@ namespace DecisionMaker
             List<string> remainingChoices = selectedDc.CatChoices;
             int opt = MU.INVALID_OPT;
             bool isExit = false;
-            while(!TU.isStringListEmpty(remainingChoices) && !isExit)
+            while (!TU.isStringListEmpty(remainingChoices) && !isExit)
             {
                 writeRemoveChoicesMenu(remainingChoices);
                 opt = MU.promptUserAndReturnOpt();
                 isExit = MU.isChoiceMenuExit(opt);
                 string removed = processRemoveDecisionChoice(opt, remainingChoices);
-                if(!isExit) printRemoveChoicesLoopMsg(removed, remainingChoices, selectedDc.CatName);
+                if (!isExit) printRemoveChoicesLoopMsg(removed, remainingChoices, selectedDc.CatName);
             }
             return remainingChoices;
         }
 
-         private void writeRemoveChoicesMenu(List<string> remaining)
-         {
+        private void writeRemoveChoicesMenu(List<string> remaining)
+        {
             Console.WriteLine(DSC.REMOVE_CHOICES_MENU_MSG);
             TU.writeListAsNumberMenu(remaining);
             MU.printExitChoice();
@@ -683,7 +687,7 @@ namespace DecisionMaker
             if (opt == DSC.DELETE_ALL_CHOICES_CODE)
                 remainingChoices.Clear();
             else
-               removedEl = tryRemoveChoice(opt, remainingChoices);
+                removedEl = tryRemoveChoice(opt, remainingChoices);
 
             return removedEl;
         }
@@ -691,7 +695,7 @@ namespace DecisionMaker
         internal string tryRemoveChoice(int choiceOpt, List<string> remainingChoices)
         {
             string removed = TU.BLANK;
-            if((MU.MENU_START <= choiceOpt) && (choiceOpt <= remainingChoices.Count))
+            if ((MU.MENU_START <= choiceOpt) && (choiceOpt <= remainingChoices.Count))
             {
                 try
                 {
@@ -699,7 +703,7 @@ namespace DecisionMaker
                     removed = remainingChoices.ElementAt(choiceIdx);
                     remainingChoices.RemoveAt(choiceIdx);
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     Console.WriteLine(e);
                     Console.WriteLine($"{DSC.DS_INFO_INTRO} Failed to remove decision choice from {remainingChoices} given option {choiceOpt}");
@@ -739,7 +743,7 @@ namespace DecisionMaker
 
         private bool processDeleteDCOpt(int opt, DC dc)
         {
-            switch(opt)
+            switch (opt)
             {
                 case MU.YES_CODE:
                     return deleteAndRemoveDcFromMap(dc);
@@ -772,7 +776,7 @@ namespace DecisionMaker
         {
             int lb = Math.Min(num1, num2);
             int ub = Math.Max(num1, num2);
-            return (lb,ub);
+            return (lb, ub);
         }
 
         internal string[] getDCActionKeys()
@@ -787,6 +791,45 @@ namespace DecisionMaker
             bool[] terminateVals = new bool[DSC.dcActions.Count];
             DSC.dcActions.Values.CopyTo(terminateVals, DSC.ORIGIN_IDX);
             return terminateVals;
+        }
+
+        /// <summary>
+        /// displays a list of every thing in _decisionSummary to console 
+        /// and tries to save it to a file if _decisionSummary is non-empty
+        /// </summary>
+        /// <returns>whether the summary was saved to a file or not</returns>
+        internal bool showAndSaveDecSummary()
+        {
+            string decisionsMade = TU.BLANK;
+            if (!TU.isStringListEmpty(_decisionSummary))
+            {
+                decisionsMade = TU.getListAsNumberMenu(_decisionSummary);
+                Console.WriteLine($"Decisions made this session:\n{decisionsMade}");
+            }
+            else
+                Console.WriteLine(DSC.NO_DECISIONS_MSG);
+            return trySaveDecSummaryFile(decisionsMade);
+        }
+
+        private bool trySaveDecSummaryFile(string decisionsList)
+        {
+            bool saved = false;
+            if (!String.IsNullOrWhiteSpace(decisionsList))
+            {
+                try
+                {
+                    MU.checkAndInitADir(DSC.DEFAULT_LAST_SESSION_DIRECTORY);
+                    string decisionsMadeFile = $"{DSC.DEC_SUMMARY_FILE_INTRO} {DateTime.Now}:\n{decisionsList}";
+                    File.WriteAllText(DSC.DEFAULT_LAST_SESSION_FPATH, decisionsMadeFile);
+                    saved = true;
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"{DSC.DS_INFO_INTRO} failed to save decisions summary file");
+                    TU.logErrorMsg(e);
+                }
+            }
+            return saved;
         }
     }
 }

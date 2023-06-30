@@ -28,7 +28,7 @@ public class UnitTestFileSect
     [TestMethod]
     public void testDir()
     {
-        Directory.Delete(FSC.DEFAULT_FILES_DIR, true);
+        clearDir();
         Assert.IsTrue(FS.checkAndInitDir());
     }
 
@@ -126,8 +126,20 @@ public class UnitTestFileSect
         return true;
     }
 
+    [TestInitialize]
+    public void TestInitialize()
+    {
+        DmUtConsts.clearADir(PASS_DIR);
+        deletePassDir();
+    }
+
+    private void clearDir()
+    {
+        DmUtConsts.clearADir(FSC.DEFAULT_FILES_DIR);
+    }
+
     private void deletePassDir()
     {
-        Directory.Delete(PASS_DIR, true);
+        DmUtConsts.clearADir(PASS_DIR);
     }
 }

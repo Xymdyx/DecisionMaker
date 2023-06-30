@@ -12,7 +12,6 @@ public class UnitTestProfSect
     [TestMethod]
     public void testDir()
     {
-        clearDir();
         Assert.IsTrue(PS.checkAndInitDir());
     }
 
@@ -25,9 +24,6 @@ public class UnitTestProfSect
         Assert.IsFalse(ps.trySaveProfilePart(DSC.DEFAULT_DC_DIRECTORY + FAIL_DC_PATH, DmUtConsts.TEST_DN));
         Assert.IsFalse(ps.trySaveProfilePart(FSC.DEFAULT_FILES_DIR + FAIL_FS_PATH, DmUtConsts.TEST_GREET));
         Assert.IsFalse(ps.trySaveProfilePart(PSC.PROFILE_GREETING_PATH + FAIL_PS_PATh, DmUtConsts.TEST_DEPART));
-
-        Directory.Delete(PSC.DEFAULT_PROFILE_DIR, true);
-        clearDir();
     }
 
     private void makeCustomProfile(PS ps)
@@ -38,11 +34,11 @@ public class UnitTestProfSect
     }
 
     [TestMethod]
-    public void testSaveProfile()
+    public void testSaveEntireProfile()
     {
         PS ps = new();
         Assert.IsTrue(ps.saveEntireProfile());
-        
+
         clearDir();
         Assert.IsTrue(ps.saveEntireProfile());
 
@@ -50,16 +46,15 @@ public class UnitTestProfSect
         Assert.IsTrue(ps.saveEntireProfile());
     }
 
+    [TestInitialize]
+    public void TestInitialize()
+    {
+        clearDir();
+    }
+
     private void clearDir()
     {
-        try
-        {
-            Directory.Delete(PSC.DEFAULT_PROFILE_DIR, true);
-        }
-        catch(Exception e)
-        {
-            DmUtConsts.logPreProcessingFail(e);
-        }        
+        DmUtConsts.clearADir(PSC.DEFAULT_PROFILE_DIR);
     }
 
 }

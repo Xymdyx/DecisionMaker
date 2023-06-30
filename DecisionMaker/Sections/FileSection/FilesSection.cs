@@ -121,7 +121,7 @@ namespace DecisionMaker
             this.decSect.removeDcsFromMapNotInDir();
         }
 
-        private void deleteDirAndContents(string dir)
+        internal static void deleteDirAndContents(string dir)
         {
             try
             {

@@ -87,5 +87,22 @@ namespace DecisionMaker
         {
             Console.WriteLine(MenuUtils.INVALID_CHOICE_MSG);
         }
+
+        internal static bool checkAndInitADir(string dirPath)
+        {
+            if (!Directory.Exists(dirPath))
+            {
+                try
+                {
+                    Directory.CreateDirectory(dirPath);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"{MU_INFO_INTRO} failed to initialize {dirPath} directory...");
+                    TU.logErrorMsg(e);
+                }
+            }
+            return Directory.Exists(dirPath);
+        }        
     }
 }

@@ -31,6 +31,7 @@ namespace DecisionMaker
         {
             greet();
             doMenuLoop();
+            decisionsSect.showAndSaveDecSummary();
             depart();
             fileSect.saveFilesBeforeExit();
             return 0;
@@ -60,6 +61,8 @@ namespace DecisionMaker
             Console.WriteLine(this.personality.mainExit);
             if(this.personality.isDisplayNameCustom())
                 Console.WriteLine($"Until next time, {this.personality.displayName}!");
+
+            Console.WriteLine();
         }    
 
         private void writeMenu()

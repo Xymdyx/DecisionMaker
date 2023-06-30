@@ -9,6 +9,8 @@ namespace DecisionMaker
     internal class DecisionCategory
     {
         internal static readonly DecisionCategory EmptyDc = new(TU.BLANK, TU.BLANK);
+        internal const string DC_SUMMARY_TAG = "(saved category)";
+        internal const string ONE_OFF_SUMMARY_TAG = "(one-off decision)";
 
         private const string DC_INFO_HEADER = "DecisionCategory.cs:";
         private string _catName;
