@@ -10,7 +10,7 @@ namespace DecisionMaker
         internal const string DEFAULT_GREETING = "We will ask you what you want a decision for shortly...";
         internal const string DEFAULT_EXITING = "Thanks for consulting us!";
         internal const string DEFAULT_DISPLAY_NAME = "friend";
-        private const string PERSONALITY_ERR_HEADER = "Personality.cs:";
+        private const string PERS_INFO_INTRO = "Personality.cs:";
 
         private string? _mainGreetingMsg;
         private string? _mainExitMsg;
@@ -32,33 +32,35 @@ namespace DecisionMaker
             this._displayName = displayName;
         }
 
+        // syncs the profile to what's inside the profile directory
         internal void applyFileChangesToPersonality()
         {
             try
             {
-                if (File.Exists(PSC.PROFILE_GREETING_PATH))
-                    _mainGreetingMsg = File.ReadAllText(PSC.PROFILE_GREETING_PATH);
-                if (File.Exists(PSC.PROFILE_EXITING_PATH))
-                    _mainExitMsg = File.ReadAllText(PSC.PROFILE_EXITING_PATH);
-                if (File.Exists(PSC.PROFILE_DISPLAY_NAME_PATH))
-                    _displayName = File.ReadAllText(PSC.PROFILE_DISPLAY_NAME_PATH);
+                if (File.Exists(PSC.PROF_GREETING_PATH))
+                    _mainGreetingMsg = File.ReadAllText(PSC.PROF_GREETING_PATH);
+                if (File.Exists(PSC.PROF_EXITING_PATH))
+                    _mainExitMsg = File.ReadAllText(PSC.PROF_EXITING_PATH);
+                if (File.Exists(PSC.PROF_DISPLAY_NAME_PATH))
+                    _displayName = File.ReadAllText(PSC.PROF_DISPLAY_NAME_PATH);
 
                 fillInBlankFields();
             }
             catch (Exception e)
             {
-                Console.WriteLine($"{PERSONALITY_ERR_HEADER} failed to update personality parts...");
+                Console.WriteLine($"{PERS_INFO_INTRO} failed to update personality parts...");
                 TU.logErrorMsg(e);
             }
         }
 
+        /// sets personality parts to stored defaults if there's nothing in theie corresponding files
         private void fillInBlankFields()
         {
-            if (!isGreetCustom() || !File.Exists(PSC.PROFILE_GREETING_PATH))
+            if (!isGreetCustom() || !File.Exists(PSC.PROF_GREETING_PATH))
                 this._mainGreetingMsg = DEFAULT_GREETING;
-            if (!isExitCustom() || !File.Exists(PSC.PROFILE_EXITING_PATH))
+            if (!isExitCustom() || !File.Exists(PSC.PROF_EXITING_PATH))
                 this._mainExitMsg = DEFAULT_EXITING;
-            if (!isDisplayNameCustom() || !File.Exists(PSC.PROFILE_DISPLAY_NAME_PATH))
+            if (!isDisplayNameCustom() || !File.Exists(PSC.PROF_DISPLAY_NAME_PATH))
                 this._displayName = DEFAULT_DISPLAY_NAME;
         }
 
@@ -84,7 +86,7 @@ namespace DecisionMaker
 
         public override string ToString()
         {
-            return $"Personality: greeting = \"{_mainGreetingMsg}\", exiting = \"{_mainExitMsg}\", displayName = \"{_displayName}\"";
+            return $"{PERS_INFO_INTRO}: greeting = \"{_mainGreetingMsg}\", exiting = \"{_mainExitMsg}\", displayName = \"{_displayName}\"";
         }
     }
 }

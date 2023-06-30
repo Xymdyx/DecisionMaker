@@ -8,7 +8,10 @@ namespace DecisionMaker
 {
     internal static class DecisionSectConstants
     {
-        internal const string DEFAULT_DC_DIRECTORY = @".\Decisions\Categories\";
+        internal const string DEFAULT_DECISIONS_DIRECTORY = @".\Decisions\";
+        internal const string DEFAULT_DC_DIRECTORY = DEFAULT_DECISIONS_DIRECTORY + @"Categories\";
+        internal const string DEFAULT_LAST_SESSION_DIRECTORY = DEFAULT_DECISIONS_DIRECTORY + @"LastSessionDecisions\";
+        internal const string DEFAULT_LAST_SESSION_FPATH = DEFAULT_LAST_SESSION_DIRECTORY + "LastSessionDecisions.txt";
         internal const string DECISION_DELIMITER = "\n";
         internal const string NO_DC_DIR_MSG = "No decisions directory detected in the desired location...Creating";
         internal const string HAS_DCS_MSG = "What would you like us to choose today?";
@@ -29,7 +32,8 @@ namespace DecisionMaker
         internal const string ONE_OFF_DECIDE_MSG = "Deciding now for this one time decision....!";
         internal static readonly string RAND_BOUNDS_INFO = $"Please pick two numbers between {Int32.MinValue} and {Int32.MaxValue} (default is {DEFAULT_LOWER_BOUND}--{DEFAULT_UPPER_BOUND} inclusive):";
         internal const string SAME_BOUNDS_COMMENT = "Same bounds, huh? Not very random but we'll allow it...";
-
+        internal const string DEC_SUMMARY_FILE_INTRO = "Summary of all decisions made on";
+        internal const string NO_DECISIONS_MSG = "No decisions made this session. Maybe next time!\n";
         internal const int ORIGIN_IDX = 0;
         internal const int DELETE_ALL_CHOICES_CODE = -1;
         internal const int DESC_LINE_IDX = 1;

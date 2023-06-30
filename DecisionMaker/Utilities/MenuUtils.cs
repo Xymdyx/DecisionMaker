@@ -7,7 +7,7 @@ namespace DecisionMaker
 {
     internal static class MenuUtils
     {
-        internal static string BINARY_CHOICE_MSG ="1. Yes\n2. No"; 
+        internal const string BINARY_CHOICE_MSG ="1. Yes\n2. No"; 
         internal const string CHOOSE_NUM_MSG = "Please choose a valid number: "; 
         internal const string INVALID_CHOICE_MSG = "What you inputted was not a valid choice, please try again."; 
         internal const string MENU_EXIT_MSG = "Exiting to previous menu";
@@ -87,5 +87,22 @@ namespace DecisionMaker
         {
             Console.WriteLine(MenuUtils.INVALID_CHOICE_MSG);
         }
+
+        internal static bool checkAndInitADir(string dirPath)
+        {
+            if (!Directory.Exists(dirPath))
+            {
+                try
+                {
+                    Directory.CreateDirectory(dirPath);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"{MU_INFO_INTRO} failed to initialize {dirPath} directory...");
+                    TU.logErrorMsg(e);
+                }
+            }
+            return Directory.Exists(dirPath);
+        }        
     }
 }

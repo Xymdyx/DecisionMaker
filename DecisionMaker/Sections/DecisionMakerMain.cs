@@ -31,6 +31,7 @@ namespace DecisionMaker
         {
             greet();
             doMenuLoop();
+            decisionsSect.showAndSaveDecSummary();
             depart();
             fileSect.saveFilesBeforeExit();
             return 0;
@@ -49,7 +50,7 @@ namespace DecisionMaker
             do
             {
                 writeMenu();
-                opt = MenuUtils.promptUserAndReturnOpt();
+                opt = MU.promptUserAndReturnOpt();
                 processMenuInput(opt);
             }while(!MU.isChoiceMenuExit(opt));
             return 0;
@@ -60,12 +61,14 @@ namespace DecisionMaker
             Console.WriteLine(this.personality.mainExit);
             if(this.personality.isDisplayNameCustom())
                 Console.WriteLine($"Until next time, {this.personality.displayName}!");
+
+            Console.WriteLine();
         }    
 
         private void writeMenu()
         {
-            TextUtils.writeListAsNumberMenu(navigationMenu.ToList());
-            MenuUtils.printExitChoice();
+            TU.writeListAsNumberMenu(navigationMenu.ToList());
+            MU.printExitChoice();
         }
 
         private void processMenuInput(int opt)
@@ -84,10 +87,10 @@ namespace DecisionMaker
                 case (int) DSE.Help:
                     helpSect.doMenuLoop();
                     break;
-                case MenuUtils.EXIT_CODE:
+                case MU.EXIT_CODE:
                     break;
                 default:
-                    MenuUtils.writeInvalidMsg();
+                    MU.writeInvalidMsg();
                     break;
             }
         }

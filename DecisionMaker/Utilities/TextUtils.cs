@@ -12,9 +12,9 @@ namespace DecisionMaker
         internal const string BLANK = "";
         internal const string TXT = ".txt";
         internal const int MAX_STRING_LEN = 360;
-        internal static string[] stopWords = { "stop", "exit", "done", "good", "quit", "finished" };
+        internal static readonly string[] stopWords = { "stop", "exit", "done", "good", "quit", "leave", "finish", "end"};
         internal const string PAUSE_PROMPT = "\nPress any key to continue...\n";
-        private const string TU_INFO_HEADER = "MenuUtils.cs: ";
+        private const string TU_INFO_HEADER = "TextUtils.cs: ";
 
         internal static bool isInputAcceptable(string input)
         {
@@ -53,9 +53,18 @@ namespace DecisionMaker
         /// <param name="list"> - the list to print</param>
          internal static void writeListAsNumberMenu(List<string> list)
          {
+            string numberMenu = getListAsNumberMenu(list);
+            if(numberMenu != TU.BLANK)
+                Console.Write(numberMenu);
+        }
+
+         internal static string getListAsNumberMenu(List<string> list)
+         {
+            string numberMenu = TU.BLANK;
             for(int i = 0; i < list.Count; i++)
-                Console.WriteLine($"{i+1}. {list[i]}");
-         }
+                numberMenu += ($"{i+1}. {list[i]}\n");
+            return numberMenu;
+        }
 
          internal static bool isStringListEmpty(List<string> strings)
          {

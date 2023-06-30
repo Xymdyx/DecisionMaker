@@ -15,6 +15,18 @@ public static class DmUtConsts
     internal static readonly List<string> TEST_DC_CHOICES = new() { "Item1", "Item2" };
     internal static readonly List<string> TEST_DC_CHOICES_FEW = new() { "Choice", "option", "thingamajig" };
 
+    internal static void clearADir(string dir)
+    {
+        try
+        {
+            Directory.Delete(dir, true);
+        }
+        catch(Exception e)
+        {
+            DmUtConsts.logPreProcessingFail(e);
+        }
+    }
+
     internal static void logPreProcessingFail(Exception e)
     {
         Console.WriteLine($"{DmUtConsts.UT_INFO_HEADER}: pre-processing failed for test, failing now!");

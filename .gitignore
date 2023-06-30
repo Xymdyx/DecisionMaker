@@ -134,9 +134,13 @@ _NCrunch*
 # ignore jsons
 *.json
 
+# ignore VSCode workspace files
+*.code-workspace
+
 # ignore personal Decision Categories
-/DecisionMaker/Decisions/Categories/
-/DecisionMaker/ProfileStorage
+DecisionMaker/Decisions/
+DecisionMaker/ProfileStorage
+DecisionMaker/FileManagement
 DMTest/.vs/DMTest/DesignTimeBuild/
 DMTest/.vs/DMTest/FileContentIndex/
 DMTest/.vs/DMTest/v17/
