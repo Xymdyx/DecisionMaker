@@ -18,37 +18,28 @@ namespace DecisionMaker
 
         internal static bool checkAndInitDir()
         {
-            try
-            {
-                Directory.CreateDirectory(PSC.DEFAULT_PROFILE_DIR);
-            }
-            catch(Exception e)
-            {
-                Console.WriteLine($"{PSC.PS_INFO_INTRO} failed to initialize {PSC.DEFAULT_PROFILE_DIR} directory...");
-                TU.logErrorMsg(e);
-            }
-            return Directory.Exists(PSC.DEFAULT_PROFILE_DIR);
+            return MU.checkAndInitADir(PSC.DEFAULT_PROF_DIR);
         }
 
         internal int doMenuLoop()
         {
             Console.WriteLine(PSC.PROFILE_MENU_GREETING);
-            int opt = MenuUtils.INVALID_OPT;
+            int opt = MU.INVALID_OPT;
             do
             {
                 checkAndInitDir();
                 writeMenu();
-                opt = MenuUtils.promptUserAndReturnOpt();
+                opt = MU.promptUserAndReturnOpt();
                 processMenuInput(opt);
-            } while(!MenuUtils.isChoiceMenuExit(opt));
+            } while(!MU.isChoiceMenuExit(opt));
             scanForProfileUpdates();
             return opt;
         }
 
         private void writeMenu()
         {
-            TextUtils.writeListAsNumberMenu(PSC.profileOptions.ToList());
-            MenuUtils.printExitChoice();
+            TU.writeListAsNumberMenu(PSC.profileOptions.ToList());
+            MU.printExitChoice();
         }
 
         private void processMenuInput(int opt)
@@ -64,50 +55,58 @@ namespace DecisionMaker
                 case (int) PSC.ProfileParts.DisplayName:
                     changeDisplayName();
                     break;
-                case MenuUtils.EXIT_CODE:
-                    MenuUtils.printToPreviousMenu();
+                case MU.EXIT_CODE:
+                    MU.printToPreviousMenu();
                     break;
                 default:
-                    MenuUtils.writeInvalidMsg();
+                    MU.writeInvalidMsg();
                     break;
             }
         }
 
         private void changeGreeting()
         {
-            trySaveAnswerToProfile(PSC.PROFILE_GREETING_PATH, PSC.CHANGE_GREETING_MSG, PSC.ProfileParts.Greeting);
+            trySaveAnswerToProfile(PSC.PROF_GREETING_PATH, PSC.CHANGE_GREETING_MSG, PSC.ProfileParts.Greeting);
         }
 
         private void changeExitMsg()
         {
-            trySaveAnswerToProfile(PSC.PROFILE_EXITING_PATH, PSC.CHANGE_EXITING_MSG, PSC.ProfileParts.Exiting);
+            trySaveAnswerToProfile(PSC.PROF_EXITING_PATH, PSC.CHANGE_EXITING_MSG, PSC.ProfileParts.Exiting);
         }
 
         private void changeDisplayName()
         {
-            trySaveAnswerToProfile(PSC.PROFILE_DISPLAY_NAME_PATH, PSC.CHANGE_DISPLAY_NAME_MSG, PSC.ProfileParts.DisplayName);
+            trySaveAnswerToProfile(PSC.PROF_DISPLAY_NAME_PATH, PSC.CHANGE_DISPLAY_NAME_MSG, PSC.ProfileParts.DisplayName);
         }
 
-        private void trySaveAnswerToProfile(string path, string prompt, PSC.ProfileParts part)
+        /// <summary>
+        /// helper method that tries to save a text input by user to a corresponding profile part
+        /// </summary>
+        /// <param name="path">a constant path given another method in this file</param>
+        /// <param name="prompt">a constant prompt given by another method in this file</param>
+        /// <param name="part">the ProfileParts enum that corresponds to the prompt and path</param>
+        /// <returns>bool- whether the user's answer was saved to the desired profile path</returns>
+        private bool trySaveAnswerToProfile(string path, string prompt, PSC.ProfileParts part)
         {
             string ans = TU.BLANK;
-            int opt = MenuUtils.INVALID_OPT;
+            int opt = MU.INVALID_OPT;
             do
             {
-                displayProfilePart(part);
-                ans = promptAndGetInput(prompt);
+                printProfilePart(part);
+                ans = promptAndGetText(prompt);
                 opt = promptUserConfirmation(ans);
-            } while(!MenuUtils.isBinaryInputExit(opt));
+            } while(!MU.isBinaryInputExit(opt));
 
-            bool saved = MenuUtils.isChoiceYes(opt) ? trySaveProfilePart(path, ans) : false;
+            bool saved = MU.isChoiceYes(opt) ? trySaveProfilePart(path, ans) : false;
             writeProfilePartExitMsg(path, ans, saved);
             scanForProfileUpdates();
+            return saved;
         }
 
-        private void displayProfilePart(PSC.ProfileParts part)
+        private void printProfilePart(PSC.ProfileParts part)
         {
-            string partName = "unknown partname";
-            string partVal = "invalid val";
+            string partName = PSC.PS_UNKNOWN_PROF_PART;
+            string partVal = TU.BLANK;
             switch(part)
             {
                 case PSC.ProfileParts.Greeting:
@@ -125,10 +124,10 @@ namespace DecisionMaker
                 default:
                     break;
             }
-            Console.WriteLine($"Current {partName} is {partVal}");
+            Console.WriteLine($"Current profile {partName}: {partVal}");
         }
 
-        private string promptAndGetInput(string prompt)
+        private string promptAndGetText(string prompt)
         {
             Console.WriteLine(prompt);
             return Console.ReadLine()!;
@@ -136,39 +135,47 @@ namespace DecisionMaker
 
         private int promptUserConfirmation(string ans)
         {
-            int opt = MenuUtils.INVALID_OPT;
-            if (TextUtils.isInputAcceptable(ans))
+            int opt = MU.INVALID_OPT;
+            if (TU.isInputAcceptable(ans))
             {
-                Console.WriteLine($"Please confirm you want: {ans}");
-                MenuUtils.writeBinaryMenu();
-                opt = MenuUtils.promptUserAndReturnOpt();
+                Console.WriteLine($"{PSC.PROF_CONFIRM_PART} {ans}");
+                MU.writeBinaryMenu();
+                opt = MU.promptUserAndReturnOpt();
             }
             return opt;
         }
 
+        /// <summary>
+        /// helper method for trySaveAnswerToProfile
+        /// </summary>
+        /// <param name="path">a constant path given another method in this file</param>
+        /// <param name="ans">validated text answer given by user</param>
+        /// <returns>bool- whether the user's answer was saved to the desired profile path</returns>
         internal bool trySaveProfilePart(string path, string ans)
         {
+            bool saved = false;
             try
             {
-                if (isPathProfilePart(path))
+                if (isPathProfilePart(path) && TU.isInputAcceptable(ans))
                 {
                     checkAndInitDir();
                     File.WriteAllText(path, ans);
+                    saved = true;
                 }
                 else
-                    Console.WriteLine($"{PSC.PS_INFO_INTRO} {path} doesn't belong in {PSC.DEFAULT_PROFILE_DIR} directory!");
+                    Console.WriteLine($"{PSC.PS_INFO_INTRO} {path} doesn't belong in {PSC.DEFAULT_PROF_DIR} directory!");
             }
             catch(Exception e)
             {
                 Console.WriteLine($"{PSC.PS_INFO_INTRO} Failed to save \"{ans}\" to {path}...");
                 TU.logErrorMsg(e);
             }
-            return File.Exists(path);
+            return saved;
         }
 
         private bool isPathProfilePart(string path)
         {
-            return path == PSC.PROFILE_DISPLAY_NAME_PATH || path == PSC.PROFILE_EXITING_PATH || path == PSC.PROFILE_GREETING_PATH;
+            return path == PSC.PROF_DISPLAY_NAME_PATH || path == PSC.PROF_EXITING_PATH || path == PSC.PROF_GREETING_PATH;
         }
 
         private void writeProfilePartExitMsg(string path, string ans, bool saved)
@@ -185,9 +192,9 @@ namespace DecisionMaker
         internal bool saveEntireProfile()
         {
             bool success = true;
-            success &= trySaveProfilePart(PSC.PROFILE_DISPLAY_NAME_PATH, appPersonality.displayName!);
-            success &= trySaveProfilePart(PSC.PROFILE_GREETING_PATH, appPersonality.mainGreeting!);
-            success &= trySaveProfilePart(PSC.PROFILE_EXITING_PATH, appPersonality.mainExit!);
+            success &= trySaveProfilePart(PSC.PROF_DISPLAY_NAME_PATH, appPersonality.displayName!);
+            success &= trySaveProfilePart(PSC.PROF_GREETING_PATH, appPersonality.mainGreeting!);
+            success &= trySaveProfilePart(PSC.PROF_EXITING_PATH, appPersonality.mainExit!);
 
             if(!success)
                 Console.WriteLine($"{PSC.PS_INFO_INTRO} Failed to save all personality files!");

@@ -23,14 +23,14 @@ public class UnitTestProfSect
 
         Assert.IsFalse(ps.trySaveProfilePart(DSC.DEFAULT_DC_DIRECTORY + FAIL_DC_PATH, DmUtConsts.TEST_DN));
         Assert.IsFalse(ps.trySaveProfilePart(FSC.DEFAULT_FILES_DIR + FAIL_FS_PATH, DmUtConsts.TEST_GREET));
-        Assert.IsFalse(ps.trySaveProfilePart(PSC.PROFILE_GREETING_PATH + FAIL_PS_PATh, DmUtConsts.TEST_DEPART));
+        Assert.IsFalse(ps.trySaveProfilePart(PSC.PROF_GREETING_PATH + FAIL_PS_PATh, DmUtConsts.TEST_DEPART));
     }
 
     private void makeCustomProfile(PS ps)
     {
-        Assert.IsTrue(ps.trySaveProfilePart(PSC.PROFILE_DISPLAY_NAME_PATH, DmUtConsts.TEST_DN));
-        Assert.IsTrue(ps.trySaveProfilePart(PSC.PROFILE_GREETING_PATH, DmUtConsts.TEST_GREET));
-        Assert.IsTrue(ps.trySaveProfilePart(PSC.PROFILE_EXITING_PATH, DmUtConsts.TEST_DEPART));
+        Assert.IsTrue(ps.trySaveProfilePart(PSC.PROF_DISPLAY_NAME_PATH, DmUtConsts.TEST_DN));
+        Assert.IsTrue(ps.trySaveProfilePart(PSC.PROF_GREETING_PATH, DmUtConsts.TEST_GREET));
+        Assert.IsTrue(ps.trySaveProfilePart(PSC.PROF_EXITING_PATH, DmUtConsts.TEST_DEPART));
     }
 
     [TestMethod]
@@ -54,7 +54,7 @@ public class UnitTestProfSect
 
     private void clearDir()
     {
-        DmUtConsts.clearADir(PSC.DEFAULT_PROFILE_DIR);
+        DmUtConsts.clearADir(PSC.DEFAULT_PROF_DIR);
     }
 
 }

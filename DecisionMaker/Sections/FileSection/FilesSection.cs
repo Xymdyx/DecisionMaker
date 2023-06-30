@@ -25,22 +25,22 @@ namespace DecisionMaker
 
         internal int doMenuLoop()
         {
-            int opt = MenuUtils.INVALID_OPT;
+            int opt = MU.INVALID_OPT;
             Console.WriteLine(FSC.FS_GREETING);
             checkAndInitDir();
             do
             {
                 writeMenu();
-                opt = MenuUtils.promptUserAndReturnOpt();
+                opt = MU.promptUserAndReturnOpt();
                 processMenuInput(opt);
-            } while (!MenuUtils.isChoiceMenuExit(opt));
+            } while (!MU.isChoiceMenuExit(opt));
             return opt;
         }
 
         private void writeMenu()
         {
-            TextUtils.writeListAsNumberMenu(FSC.fileTypes.ToList());
-            MenuUtils.printExitChoice();
+            TU.writeListAsNumberMenu(FSC.fileTypes.ToList());
+            MU.printExitChoice();
         }
 
         private void processMenuInput(int opt)
@@ -56,31 +56,31 @@ namespace DecisionMaker
                 case (int) FSC.FileTypeCodes.WipFile:
                     doFileMenuLoop(FSC.DEFAULT_WIP_FILE);
                     break;
-                case MenuUtils.EXIT_CODE:
-                    MenuUtils.printToPreviousMenu();
+                case MU.EXIT_CODE:
+                    MU.printToPreviousMenu();
                     break;
                 default:
-                    MenuUtils.writeInvalidMsg();
+                    MU.writeInvalidMsg();
                     break;
             }
         }
 
         private int doDcsLoop()
         {
-            int opt = MenuUtils.INVALID_OPT;
+            int opt = MU.INVALID_OPT;
             do
             {
                 writeManageDcsMenu();
-                opt = MenuUtils.promptUserAndReturnOpt();
+                opt = MU.promptUserAndReturnOpt();
                 processDcsMenuInput(opt);
-            } while (!MenuUtils.isChoiceMenuExit(opt));
+            } while (!MU.isChoiceMenuExit(opt));
             return opt;
         }
 
         private void writeManageDcsMenu()
         {
             decSect.printSavedDcs();
-            MenuUtils.printExitChoice();
+            MU.printExitChoice();
             Console.WriteLine($"{(int)FSC.FileActionCodes.DeleteAll}. Delete all decision categories");
         }
 
@@ -91,7 +91,7 @@ namespace DecisionMaker
             else if(isOptDeleteAllFiles(opt))
                 deleteAllDcs();
             else
-                MenuUtils.writeInvalidMsg();
+                MU.writeInvalidMsg();
         }
 
         private void manageChosenDc(int opt)
@@ -128,21 +128,21 @@ namespace DecisionMaker
 
         private int doProfileLoop()
         {
-            int opt = MenuUtils.INVALID_OPT;
+            int opt = MU.INVALID_OPT;
             do
             {
                 writeManageProfileMenu();
-                opt = MenuUtils.promptUserAndReturnOpt();
+                opt = MU.promptUserAndReturnOpt();
                 processProfileMenuInput(opt);
                 profSect.scanForProfileUpdates();
-            } while (!MenuUtils.isChoiceMenuExit(opt));
+            } while (!MU.isChoiceMenuExit(opt));
             return opt;
         }
 
         private void writeManageProfileMenu()
         {
-            TextUtils.writeListAsNumberMenu(FSC.manageProfileActions.ToList());
-            MenuUtils.printExitChoice();
+            TU.writeListAsNumberMenu(FSC.manageProfileActions.ToList());
+            MU.printExitChoice();
             Console.WriteLine($"{(int)FSC.FileActionCodes.DeleteAll}. Delete entire profile");
         }
 
@@ -151,22 +151,22 @@ namespace DecisionMaker
             switch(opt)
             {
                 case (int) FSC.ProfileActionCodes.GREETING:
-                    doFileMenuLoop(PSC.PROFILE_GREETING_PATH);
+                    doFileMenuLoop(PSC.PROF_GREETING_PATH);
                     break;
                 case (int) FSC.ProfileActionCodes.DEPARTING:
-                    doFileMenuLoop(PSC.PROFILE_EXITING_PATH);
+                    doFileMenuLoop(PSC.PROF_EXITING_PATH);
                     break;
                 case (int) FSC.ProfileActionCodes.DISPLAYNAME:
-                    doFileMenuLoop(PSC.PROFILE_DISPLAY_NAME_PATH);
+                    doFileMenuLoop(PSC.PROF_DISPLAY_NAME_PATH);
                     break;
                 case (int)FSC.FileActionCodes.DeleteAll:
-                    deleteDirAndContents(PSC.DEFAULT_PROFILE_DIR);
+                    deleteDirAndContents(PSC.DEFAULT_PROF_DIR);
                     break;
-                case MenuUtils.EXIT_CODE:
-                    MenuUtils.printToPreviousMenu();
+                case MU.EXIT_CODE:
+                    MU.printToPreviousMenu();
                     break;
                 default:
-                    MenuUtils.writeInvalidMsg();
+                    MU.writeInvalidMsg();
                     break;
             }
         }
@@ -178,11 +178,11 @@ namespace DecisionMaker
         /// <returns>int- the action chosen on fName</returns>
         private int doFileMenuLoop(string fName)
         {
-            int opt = MenuUtils.INVALID_OPT;
+            int opt = MU.INVALID_OPT;
             do
             {
                 writeFileMenu(fName);
-                opt = MenuUtils.promptUserAndReturnOpt();
+                opt = MU.promptUserAndReturnOpt();
                 processFileActions(opt, fName);
                 Console.WriteLine();
             } while (continueFileMenuLoop(opt));
@@ -191,14 +191,14 @@ namespace DecisionMaker
 
         private bool continueFileMenuLoop(int opt)
         {
-            return (!MenuUtils.isChoiceMenuExit(opt)) && (opt != (int)FSC.FileActionCodes.DeleteFile);
+            return (!MU.isChoiceMenuExit(opt)) && (opt != (int)FSC.FileActionCodes.DeleteFile);
         }
 
         private void writeFileMenu(string fName)
         {
             Console.WriteLine($"Please select what you would like to do with the {fName} file:");
-            TextUtils.writeListAsNumberMenu(FSC.manageFileActions.ToList());
-            MenuUtils.printExitChoice();
+            TU.writeListAsNumberMenu(FSC.manageFileActions.ToList());
+            MU.printExitChoice();
         }
 
         private void processFileActions(int opt, string fName)
@@ -211,11 +211,11 @@ namespace DecisionMaker
                 case (int) FSC.FileActionCodes.DeleteFile:
                     deleteManageableFile(fName);
                     break;
-                case MenuUtils.EXIT_CODE:
-                    MenuUtils.printToPreviousMenu();
+                case MU.EXIT_CODE:
+                    MU.printToPreviousMenu();
                     break;
                 default:
-                    MenuUtils.writeInvalidMsg();
+                    MU.writeInvalidMsg();
                     break;
             }
         }

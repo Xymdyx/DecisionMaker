@@ -12,9 +12,9 @@ namespace DecisionMaker
         internal const string BLANK = "";
         internal const string TXT = ".txt";
         internal const int MAX_STRING_LEN = 360;
-        internal static string[] stopWords = { "stop", "exit", "done", "good", "quit", "finished" };
+        internal static readonly string[] stopWords = { "stop", "exit", "done", "good", "quit", "leave", "finish", "end"};
         internal const string PAUSE_PROMPT = "\nPress any key to continue...\n";
-        private const string TU_INFO_HEADER = "MenuUtils.cs: ";
+        private const string TU_INFO_HEADER = "TextUtils.cs: ";
 
         internal static bool isInputAcceptable(string input)
         {

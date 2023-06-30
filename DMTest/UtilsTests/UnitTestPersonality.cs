@@ -19,7 +19,7 @@ public class UnitTestPersonality
     [TestMethod]
     public void testDefInitAfterDelete()
     {
-        string relativePerPath = DmCt.DM_RELATIVE_PATH + PSC.DEFAULT_PROFILE_DIR;
+        string relativePerPath = DmCt.DM_RELATIVE_PATH + PSC.DEFAULT_PROF_DIR;
         Directory.CreateDirectory(relativePerPath);
         DmUtConsts.clearADir(relativePerPath);
         Assert.IsFalse(Directory.Exists(relativePerPath));
