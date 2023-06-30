@@ -87,7 +87,7 @@ namespace DecisionMaker
 
         private void writeManageDCsMenu()
         {
-            decSect.printSavedDCs();
+            decSect.printSavedDcs();
             MenuUtils.printExitChoice();
             Console.WriteLine($"{(int)FSC.FileActionCodes.DeleteAll}. Delete all decision categories");
         }
@@ -104,7 +104,7 @@ namespace DecisionMaker
 
         private void manageChosenDC(int opt)
         {
-            DecisionCategory dc = decSect.getDCFromMenuChoice(opt);
+            DecisionCategory dc = decSect.getDcFromMenuChoice(opt);
             int dcOpt = doFileMenuLoop(dc.CatPath);
             if (dcOpt == (int)FSC.FileActionCodes.DeleteFile && !dc.checkFileExists())
                 this.decSect.DcMap.Remove(dc.CatName);

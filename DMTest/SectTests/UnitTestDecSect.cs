@@ -37,15 +37,15 @@ public class UnitTestDecSect
     }
 
     [TestMethod]
-    public void testFormatDcPath()
+    public void testformatDcPath()
     {
         const string result = DSC.DEFAULT_DC_DIRECTORY + "expected" + TU.TXT;
-        Assert.IsTrue(DS.formatDCPath("expected") == result);
+        Assert.IsTrue(DS.formatDcPath("expected") == result);
 
         const string same = "\t\n\n\n";
-        Assert.IsTrue(DS.formatDCPath(same) == same);
+        Assert.IsTrue(DS.formatDcPath(same) == same);
 
-        Assert.IsTrue(DS.formatDCPath(TU.BLANK) == TU.BLANK);
+        Assert.IsTrue(DS.formatDcPath(TU.BLANK) == TU.BLANK);
     }
 
     [TestMethod]
@@ -112,7 +112,7 @@ public class UnitTestDecSect
     public void testGetDcActions()
     {
         DS ds = new();
-        string[] dcActKeys = ds.getDCActionKeys();
+        string[] dcActKeys = ds.getDcActionKeys();
         foreach (string a in dcActKeys)
             Assert.IsTrue(DSC.dcActions.Contains(a));
     }
@@ -121,7 +121,7 @@ public class UnitTestDecSect
     public void testGetDcTermVals()
     {
         DS ds = new();
-        bool[] dcTermVals = ds.getDCActionTerminateVals();
+        bool[] dcTermVals = ds.getDcActionTerminateVals();
         int i = 0;
         foreach (DictionaryEntry de in DSC.dcActions)
         {
@@ -204,7 +204,7 @@ public class UnitTestDecSect
         DS ds = giveDsWithDcs();
         int initCount = ds.DcMap.Count;
 
-        ds.addNewCategoriesToMapFromDir();
+        ds.addNewDcsToMapFromDir();
         int addCount = ds.DcMap.Count;
         Assert.IsTrue(addCount == initCount);
     }
@@ -216,7 +216,7 @@ public class UnitTestDecSect
         int initCount = ds.DcMap.Count;
 
         HOBBIES_DC.saveFile();
-        ds.addNewCategoriesToMapFromDir();
+        ds.addNewDcsToMapFromDir();
         int addCount = ds.DcMap.Count;
 
         Assert.IsTrue(addCount == initCount + 1);
@@ -232,7 +232,7 @@ public class UnitTestDecSect
         foreach(DC d in addDcs)
             d.saveFile();
 
-        ds.addNewCategoriesToMapFromDir();
+        ds.addNewDcsToMapFromDir();
         int addCount = ds.DcMap.Count;
         Assert.IsTrue(addCount == initCount + addDcs.Length);
     }
@@ -260,7 +260,7 @@ public class UnitTestDecSect
         DS ds = giveDsWithoutDcs();
         int dcActCount = DSC.dcActions.Count;
         for (int i = MU.MENU_START; i <= dcActCount; i++)
-            Assert.IsTrue(ds.isChoiceDCAction(i));
+            Assert.IsTrue(ds.isChoiceDcAction(i));
 
         for (int neg = DmUtConsts.MIN_OPT; neg < MU.MENU_START; neg++)
             Assert.IsFalse(ds.isChoiceExistingDc(neg));
@@ -278,19 +278,19 @@ public class UnitTestDecSect
         for (int i = MU.MENU_START; i <= dcCount; i++)
         {
             string expected = ds.DcMap.ElementAt(i - 1).Key;
-            string actual = ds.getDCNameFromMenuChoice(i);
+            string actual = ds.getDcNameFromMenuChoice(i);
             Assert.IsTrue(expected == actual);
         }
 
         for (int neg = DmUtConsts.MIN_OPT; neg < MU.MENU_START; neg++)
         {
-            string actual = ds.getDCNameFromMenuChoice(neg);
+            string actual = ds.getDcNameFromMenuChoice(neg);
             Assert.IsTrue(actual == TU.BLANK);
         }
 
         for (int pos = DmUtConsts.MAX_OPT; pos > dcCount; pos--)
         {
-            string actual = ds.getDCNameFromMenuChoice(pos);
+            string actual = ds.getDcNameFromMenuChoice(pos);
             Assert.IsTrue(actual == TU.BLANK);
         }
     }
@@ -306,19 +306,19 @@ public class UnitTestDecSect
         for (int i = MU.MENU_START; i <= dcCount; i++)
         {
             DC expected = ds.DcMap.ElementAt(i - 1).Value;
-            DC actual = ds.getDCFromMenuChoice(i);
+            DC actual = ds.getDcFromMenuChoice(i);
             Assert.IsTrue(expected == actual);
         }
 
         for (int neg = DmUtConsts.MIN_OPT; neg < MU.MENU_START; neg++)
         {
-            DC actual = ds.getDCFromMenuChoice(neg);
+            DC actual = ds.getDcFromMenuChoice(neg);
             Assert.IsTrue(actual == DC.EmptyDc);
         }
 
         for (int pos = DmUtConsts.MAX_OPT; pos > dcCount; pos--)
         {
-            DC actual = ds.getDCFromMenuChoice(pos);
+            DC actual = ds.getDcFromMenuChoice(pos);
             Assert.IsTrue(actual == DC.EmptyDc);
         }
     }
@@ -422,7 +422,7 @@ public class UnitTestDecSect
     {
         Assert.IsFalse(ds.tryAddDecisionToSummary(PETS_DC, TU.BLANK));
         Assert.IsFalse(ds.tryAddDecisionToSummary(PETS_DC, PASS_DC.CatChoices[0]));
-        Assert.IsFalse(ds.tryAddDecisionToSummary(PASS_DC, null));
+        Assert.IsFalse(ds.tryAddDecisionToSummary(PASS_DC, "\t\n\r"));
         Assert.IsFalse(ds.tryAddDecisionToSummary(PETS_DC, ""));
         Assert.IsFalse(ds.tryAddDecisionToSummary(PASS_DC, PETS_DC.CatChoices[0]));
     }

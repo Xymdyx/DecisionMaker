@@ -24,7 +24,7 @@ namespace DecisionMaker
             set
             {
                 _catName = value;
-                _catPath = DS.formatDCPath(value);
+                _catPath = DS.formatDcPath(value);
             }
         }
         internal string CatDesc { get => _catDesc; set => _catDesc = value; }
@@ -35,7 +35,7 @@ namespace DecisionMaker
             _catName = name;
             _catDesc = desc;
             _catChoices = new();
-            _catPath = DS.formatDCPath(name);
+            _catPath = DS.formatDcPath(name);
         }
 
         internal DecisionCategory(string name, string desc, List<string> choices)
@@ -43,13 +43,15 @@ namespace DecisionMaker
             _catName = name;
             _catDesc = desc;
             _catChoices = choices;
-            _catPath = DS.formatDCPath(name);
+            _catPath = DS.formatDcPath(name);
             
-            if(!checkFileExists()) saveFile();
+            if(!checkFileExists())
+                saveFile();
         }
 
         internal bool saveFile()
         {
+            bool saved = false;
             try
             {
                 DS.checkAndInitDir();
@@ -57,28 +59,31 @@ namespace DecisionMaker
                 File.AppendAllText(_catPath, _catDesc + DSC.DECISION_DELIMITER);
                 File.AppendAllLines(_catPath, _catChoices);
                 Console.WriteLine($"Saved file {_catPath}!");
+                saved = true;
             }
             catch(Exception e)
             {
                 Console.WriteLine($"{DC_INFO_HEADER} failed to save file {_catPath}...");
                 TU.logErrorMsg(e);
             }
-            return checkFileExists();
+            return saved;
         }
 
         internal bool deleteFile()
         {
+            bool deleted = false;
             try
             {
                 File.Delete(_catPath);
                 Console.WriteLine($"Deleted file {_catPath}!");
+                deleted = true;
             }
             catch(Exception e)
             {
                 Console.WriteLine($"{DC_INFO_HEADER} failed to delete file ${_catPath}...");
                 TU.logErrorMsg(e);
             }
-            return !checkFileExists();            
+            return deleted;
         }
 
         internal bool checkFileExists()
@@ -91,12 +96,20 @@ namespace DecisionMaker
             return _catChoices.Count > 0;
         }
 
-        internal void printAllInfo()
+        internal void showAllInfo()
         {
             Console.WriteLine("DC " + _catName + ": " + _catDesc +
                     "\n" + TU.prettyStringifyList(_catChoices) + "\n");
         }
 
+        /// <summary>
+        /// Return this DC's choices in form
+        /// choice 1
+        /// .
+        /// .
+        /// choice N
+        /// </summary>
+        /// <returns></returns>
         internal string stringifyChoices()
         {
             return String.Join(DSC.DECISION_DELIMITER, _catChoices);
