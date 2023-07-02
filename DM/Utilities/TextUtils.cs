@@ -123,5 +123,10 @@ namespace DecisionMaker
         {
             Console.WriteLine($"{e.Message}\n");
         }
+
+        internal static bool doesStringListHaveNonBlankEl(int qIdx, List<string> strs)
+        {
+            return (qIdx >= 0 && qIdx < strs.Count) && !String.IsNullOrWhiteSpace(strs[qIdx]);
+        }        
     }
 }

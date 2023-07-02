@@ -1,6 +1,6 @@
 public static class DmUtConsts
 {
-    internal const string DM_RELATIVE_PATH = @"..\..\..\..\DecisionMaker";
+    internal const string DM_RELATIVE_PATH = @"..\..\..\..\DM";
     internal const string UT_INFO_HEADER = "DmUnitTests:";
 
     internal const int MIN_OPT = -9999;

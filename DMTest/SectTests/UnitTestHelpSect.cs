@@ -1,7 +1,4 @@
 namespace DMTest;
-/// <summary>
-/// dotnet test .\DMTest.csproj 
-/// </summary>
 [TestClass]
 public class UnitTestHelpSect
 {

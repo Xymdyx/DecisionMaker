@@ -34,9 +34,11 @@ namespace DecisionMaker
         internal const string SAME_BOUNDS_COMMENT = "Same bounds, huh? Not very random but we'll allow it...";
         internal const string DEC_SUMMARY_FILE_INTRO = "Summary of all decisions made on";
         internal const string NO_DECISIONS_MSG = "No decisions made this session. Maybe next time!\n";
+        internal const string ONLY_1_CONFIRM = "(any thing other than 1 is no)";
         internal const int ORIGIN_IDX = 0;
         internal const int DELETE_ALL_CHOICES_CODE = -1;
-        internal const int DESC_LINE_IDX = 1;
+        internal const int DC_NAME_LINE_IDX = 0;
+        internal const int DC_DESC_LINE_IDX = 1;
         internal const int INFO_LEN = 2;
         internal const int DEFAULT_LOWER_BOUND = 1;
         internal const int DEFAULT_UPPER_BOUND = 100;

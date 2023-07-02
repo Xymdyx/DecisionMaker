@@ -1,8 +1,4 @@
 namespace DMTest;
-
-/// <summary>
-/// dotnet test .\DMTest.csproj 
-/// </summary>
 [TestClass]
 public class UnitTestTextUtils
 {
@@ -86,9 +82,24 @@ public class UnitTestTextUtils
     }
 
     [TestMethod]
-    public void textConvertTextToInt32()
+    public void testConvertTextToInt32()
     {
         for (int i = DmCt.MIN_OPT; i < DmCt.MAX_OPT; i++)
             Assert.IsTrue(TU.convertTextToInt32(i.ToString(), out int j));        
+    }
+
+    [TestMethod]
+    public void testStringListHaveNonBlankElOnFew()
+    {
+        for (int i = 0; i < few.Count; i++)
+            Assert.IsTrue(TU.doesStringListHaveNonBlankEl(i, few));
+    }
+
+    [TestMethod]
+    public void testStringListHaveNonBlankElOnNone()
+    {
+        List<string> none = new();
+        for (int j = DmCt.MIN_OPT; j < DmCt.MAX_OPT; j++)
+            Assert.IsFalse(TU.doesStringListHaveNonBlankEl(j, none));        
     }
 }

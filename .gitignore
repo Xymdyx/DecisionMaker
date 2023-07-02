@@ -138,9 +138,10 @@ _NCrunch*
 *.code-workspace
 
 # ignore personal Decision Categories
-DecisionMaker/Decisions/
-DecisionMaker/ProfileStorage
-DecisionMaker/FileManagement
+DM/Decisions/
+DM/ProfileStorage
+DM/FileManagement
 DMTest/.vs/DMTest/DesignTimeBuild/
 DMTest/.vs/DMTest/FileContentIndex/
 DMTest/.vs/DMTest/v17/
+DM/.VSCodeCounter/
