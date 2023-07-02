@@ -14,7 +14,7 @@ namespace DecisionMaker
         internal const string DEFAULT_LAST_SESSION_FPATH = DEFAULT_LAST_SESSION_DIRECTORY + "LastSessionDecisions.txt";
         internal const string DECISION_DELIMITER = "\n";
         internal const string NO_DC_DIR_MSG = "No decisions directory detected in the desired location...Creating";
-        internal const string HAS_DCS_MSG = "\nWhat would you like us to choose today?";
+        internal const string HAS_DCS_MSG = "What would you like us to choose today?";
         internal const string NO_DCS_MSG = "Hmm. There appear to be no decision categories for us to choose from.";
         internal const string STOP_INFO_MSG = "to stop adding";
         internal const string NO_CHOICES_MSG = "No choices to choose from! Please add some...";

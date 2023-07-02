@@ -1,6 +1,6 @@
 /*
 * author: Sam Ford
-* desc: Section for existing decision categories and acting on them
+* desc: Section for saved decision categories and acting on them
 * Dependent on its parent DecisionSection instance for insantiation
 * note that DC == "Decision Category"
 * date started: approx 7/2/2023
@@ -10,6 +10,11 @@ namespace DecisionMaker
     internal class DcSection : IDecisionMakerSection
     {
         private DS _parentSect;
+
+        internal DcSection()
+        {
+            this._parentSect = null!;
+        }
 
         internal DcSection(DS decSect)
         {
@@ -30,6 +35,7 @@ namespace DecisionMaker
                 writeDcActionsMenu(selectedDc.CatName);
                 dcOpt = MU.promptUserAndReturnOpt();
                 doesTerminate = processDcActionsMenuInput(dcOpt, selectedDc);
+                Console.WriteLine();
             } while (!MU.isChoiceMenuExit(dcOpt) && !doesTerminate);
             return dcOpt;
         }
@@ -61,7 +67,6 @@ namespace DecisionMaker
             else
                 MU.writeInvalidMsg();
 
-            Console.WriteLine();
             return doesTerminate;
         }
 
@@ -82,7 +87,7 @@ namespace DecisionMaker
             switch (actionNum)
             {
                 case (int)DSC.DcActionCodes.Decide:
-                    confirmHalt = decideForUser(selectedDc);
+                    confirmHalt = _parentSect.decideForUser(selectedDc);
                     break;
                 case (int)DSC.DcActionCodes.ReadChoices:
                     confirmHalt = readExistingDc(selectedDc);
@@ -110,25 +115,6 @@ namespace DecisionMaker
                     break;
             }
             return getDcActionTerminateVals()[actionNum - 1] && confirmHalt;
-        }
-
-        /// <summary>
-        /// given a decision category, choose a random item from that decision category for the user to commit to
-        /// </summary>
-        /// <param name="dc">- the category to pull a choice from </param>
-        internal bool decideForUser(DC dc)
-        {
-            if (!dc.hasChoices())
-            {
-                Console.WriteLine(DSC.NO_CHOICES_MSG);
-                return false;
-            }
-
-            int chosenInt = _parentSect.runRNG(DSC.ORIGIN_IDX, dc.CatChoices.Count - 1);
-            string chosenOpt = dc.CatChoices[chosenInt];
-            Console.WriteLine($"For {dc.CatName}, we've decided upon: {chosenOpt}");
-            _parentSect.tryAddDecisionToSummary(dc, chosenOpt);
-            return dc.checkFileExists();
         }
 
         /// <summary>
