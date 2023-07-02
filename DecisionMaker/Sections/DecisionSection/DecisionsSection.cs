@@ -4,6 +4,14 @@
 * note that DC == "Decision Category"
 * date started: approx 4/23/2023
 */
+
+/*
+TODO:
+1. Don't write the DC file unless at least name was fulfilled
+2. ACTUALLY ACT ON A SAVED WIP DC FILE... allow user to decide if the WIP DC should be one-off or permanent
+3. Possibly extract the DcActions stuff to a new DcSection class for modularity. It is only concerned with saved DCs
+    So it's best left as a field of this section. Should implement the IDecisionMakerSection interface. Has the DcActions as fields.
+*/
 namespace DecisionMaker
 {
     internal class DecisionsSection : IDecisionMakerSection
@@ -291,10 +299,8 @@ namespace DecisionMaker
             return (hasDcs()) && ((opt >= MU.MENU_START) && (opt <= _dcMap.Count));
         }
 
-        // loop for choosing what to do with a selected decision category
         private void enterDcActionsMenu(int dcChoice)
         {
-            string selected = getDcNameFromMenuChoice(dcChoice);
             DC selectedDc = getDcFromMenuChoice(dcChoice);
             int dcOpt = MU.INVALID_OPT;
             bool doesTerminate = false;
@@ -302,7 +308,7 @@ namespace DecisionMaker
             {
                 writeDcActionsMenu(selectedDc.CatName);
                 dcOpt = MU.promptUserAndReturnOpt();
-                doesTerminate = processDcActionsMenuInput(dcOpt, selected, selectedDc);
+                doesTerminate = processDcActionsMenuInput(dcOpt, selectedDc);
             } while (!MU.isChoiceMenuExit(dcOpt) && !doesTerminate);
         }
 
@@ -320,11 +326,11 @@ namespace DecisionMaker
         /// <param name="opt">- the valid/invalid option a user inputted </param>
         /// <param name="dc">- the category we're currently in </param>
         /// <returns>whether the categoryActions loop should terminate</returns>
-        private bool processDcActionsMenuInput(int opt, string dc, DC selectedDC)
+        private bool processDcActionsMenuInput(int opt, DC selectedDC)
         {
             bool doesTerminate = false;
             if (isChoiceDcAction(opt))
-                doesTerminate = processDcAction(opt, dc, selectedDC);
+                doesTerminate = processDcAction(opt, selectedDC);
             else if (MU.isChoiceMenuExit(opt))
             {
                 Console.WriteLine(MU.MENU_EXIT_MSG);
@@ -516,7 +522,7 @@ namespace DecisionMaker
         /// <param name="actionNum">- the number the user inputted...</param>
         /// <param name="dc">- the existing chosen category... </param>
         /// <returns>- whether the chosen action should terminate the category menu loop</returns>
-        private bool processDcAction(int actionNum, string dc, DC selectedDc)
+        private bool processDcAction(int actionNum, DC selectedDc)
         {
             bool confirmHalt = true;
             switch (actionNum)
