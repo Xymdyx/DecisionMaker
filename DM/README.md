@@ -44,11 +44,11 @@ OptionalChoice1\
 .\
 OptionalChoiceN\
 ]\
-That is, the category name on the first line, the description of the 2nd line, and the rest containing category options.\
+That is, the category name on the first line, the description of the 2nd line, and the rest containing category options.
 
 ## Profile Files:
 These are stored in the ProfileStorage directory, these are scanned on bootup like Decision Category files\
-but are much simpler as profile customization is simple for now.\
+but are much simpler as profile customization is simple for now.
 
 ### Profile files format:
 [\
