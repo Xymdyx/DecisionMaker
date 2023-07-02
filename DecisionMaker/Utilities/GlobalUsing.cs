@@ -10,6 +10,7 @@ global using PSC = DecisionMaker.ProfileSectConstants;
 global using FSC = DecisionMaker.FileSectConstants;
 global using DSC = DecisionMaker.DecisionSectConstants;
 global using HSC = DecisionMaker.HelpSectConstants;
+global using DCSEC = DecisionMaker.DcSection;
 
 using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleToAttribute("DMTest")]

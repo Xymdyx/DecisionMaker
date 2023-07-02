@@ -18,6 +18,7 @@ namespace DecisionMaker
         private Dictionary<string, DC> _dcMap;
         private List<string> _decisionSummary;
         private bool _hasAddressedWipCat;
+        private DcSection _dcSect;
         internal Dictionary<string, DC> DcMap { get => _dcMap; }
         internal List<string> DecisionSummary { get => _decisionSummary; }
 
@@ -28,6 +29,7 @@ namespace DecisionMaker
             this._dcMap = new();
             this._decisionSummary = new();
             this._hasAddressedWipCat = false;
+            this._dcSect = new(this);
             checkAndInitDir();
             addNewDcsToMapFromDir();
         }
@@ -360,7 +362,7 @@ namespace DecisionMaker
         }
 
         // Read all saved categories.
-        private void announceSavedDcs()
+        internal void announceSavedDcs()
         {
             if (hasDcs())
             {
@@ -392,7 +394,7 @@ namespace DecisionMaker
             return DC.EmptyDc;
         }
 
-        private void logErrorAndSaveWipDc(Exception e, DC dc)
+        internal void logErrorAndSaveWipDc(Exception e, DC dc)
         {
             Console.WriteLine($"{DSC.DS_INFO_INTRO} Failed to make decision category. Saving any made progress...");
             TU.logErrorMsg(e);
@@ -419,7 +421,7 @@ namespace DecisionMaker
             return File.Exists(FSC.DEFAULT_WIP_FILE);
         }
 
-        private string nameDc()
+        internal string nameDc()
         {
             announceSavedDcs();
             string dcName = TU.BLANK;
@@ -432,12 +434,12 @@ namespace DecisionMaker
             return dcName;
         }
 
-        private bool doesMapHaveDcName(string dcName)
+        internal bool doesMapHaveDcName(string dcName)
         {
             return _dcMap.Keys.Contains(dcName);
         }
 
-        private string describeDc()
+        internal string describeDc()
         {
             string dcDesc = TU.BLANK;
             do
@@ -448,7 +450,7 @@ namespace DecisionMaker
             return dcDesc;
         }
 
-        private List<string> addChoicesToDc(DC selectedDc)
+        internal List<string> addChoicesToDc(DC selectedDc)
         {
             List<string> acceptedChoices = selectedDc.CatChoices;
             string choiceInput = TU.BLANK;
@@ -835,7 +837,7 @@ namespace DecisionMaker
             return terminateVals;
         }
 
-        private int runRNG(int num1, int num2)
+        internal int runRNG(int num1, int num2)
         {
             (int, int) bounds = returnBoundsTuple(num1, num2);
             return rng.Next(bounds.Item1, bounds.Item2);
