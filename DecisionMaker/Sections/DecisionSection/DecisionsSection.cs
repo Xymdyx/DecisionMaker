@@ -405,17 +405,20 @@ namespace DecisionMaker
 
         private bool saveUnfinishedDc(string name, string desc, List<string> choices)
         {
-            FS.checkAndInitDir();
-            try
+            if (TU.isInputAcceptable(name))
             {
-                File.WriteAllText(FSC.DEFAULT_WIP_FILE, name + DSC.DECISION_DELIMITER);
-                File.AppendAllText(FSC.DEFAULT_WIP_FILE, desc + DSC.DECISION_DELIMITER);
-                File.AppendAllLines(FSC.DEFAULT_WIP_FILE, choices);
-            }
-            catch(Exception e)
-            {
-                Console.WriteLine($"{DSC.DS_INFO_INTRO} failure in saving wipcat file.");
-                TU.logErrorMsg(e);
+                try
+                {
+                    FS.checkAndInitDir();
+                    File.WriteAllText(FSC.DEFAULT_WIP_FILE, name + DSC.DECISION_DELIMITER);
+                    File.AppendAllText(FSC.DEFAULT_WIP_FILE, desc + DSC.DECISION_DELIMITER);
+                    File.AppendAllLines(FSC.DEFAULT_WIP_FILE, choices);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"{DSC.DS_INFO_INTRO} failure in saving wipcat file.");
+                    TU.logErrorMsg(e);
+                }
             }
             return File.Exists(FSC.DEFAULT_WIP_FILE);
         }
@@ -520,7 +523,7 @@ namespace DecisionMaker
         /// process actions after choosing an existing category
         /// </summary>
         /// <param name="actionNum">- the number the user inputted...</param>
-        /// <param name="dc">- the existing chosen category... </param>
+        /// <param name="selectedDc">- the existing chosen category... </param>
         /// <returns>- whether the chosen action should terminate the category menu loop</returns>
         private bool processDcAction(int actionNum, DC selectedDc)
         {
@@ -676,7 +679,6 @@ namespace DecisionMaker
             return !dc.checkFileExists();
         }
 
-
         /// <summary>
         /// let user add more unique choices to a DC
         /// </summary>
@@ -688,7 +690,6 @@ namespace DecisionMaker
             dc.CatChoices = added;
             return dc.saveFile();
         }
-
 
         /// <summary>
         /// let user remove choices from a DC
