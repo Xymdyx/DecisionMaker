@@ -35,7 +35,7 @@ namespace DecisionMaker
         internal static bool checkAndInitDir()
         {
             return MU.checkAndInitADir(DSC.DEFAULT_DC_DIRECTORY);
-        }        
+        }
 
         internal void removeDcsFromMapNotInDir()
         {
@@ -45,25 +45,32 @@ namespace DecisionMaker
 
         internal void addNewDcsToMapFromDir()
         {
-            try
+            List<string> existing = scanForDcs();
+            foreach (string cat in existing.Where(c => !_dcMap.ContainsKey(c)))
             {
-                List<string> existing = scanForDcs();
-                foreach (string cat in existing.Where(c => !_dcMap.ContainsKey(c)))
-                {
+                try
+                {                    
                     string catPath = formatDcPath(cat);
-                    string[] catLines = File.ReadAllLines(catPath);
-                    string catDesc = catLines[DSC.DESC_LINE_IDX];
-                    List<string> catChoices = getChoicesFromDcFile(cat);
-
-                    DC dc = new(cat, catDesc, catChoices);
+                    DC dc = constructDcFromFile(catPath);
                     _dcMap.TryAdd(cat, dc);
                 }
+                catch(Exception e)
+                {
+                    Console.WriteLine($"{DSC.DS_INFO_INTRO} failed to add saved {cat} decision category from {DSC.DEFAULT_DC_DIRECTORY} dir");
+                    TU.logErrorMsg(e);
+                }
             }
-            catch(Exception e)
-            {
-                Console.WriteLine($"{DSC.DS_INFO_INTRO} failed to add new DCs from dc dir");
-                TU.logErrorMsg(e);
-            }
+        }
+
+        private DC constructDcFromFile(string dcPath)
+        {
+            List<string> catLines = File.ReadAllLines(dcPath).ToList();
+            string dcName = catLines[DSC.DC_NAME_LINE_IDX];
+            string catDesc = catLines[DSC.DC_DESC_LINE_IDX];
+            List<string> catChoices = catLines.Skip(DSC.INFO_LEN).ToList();
+
+            DC dc = new(dcName, catDesc, catChoices);
+            return dc;
         }
 
         // remove map categories no longer in Categories directory
@@ -112,26 +119,11 @@ namespace DecisionMaker
             }
             catch (Exception e)
             {
-                Console.WriteLine(DSC.DS_INFO_INTRO + $"Error scanning for categories...");
+                Console.WriteLine($"{DSC.DS_INFO_INTRO} Error scanning for categories...");
                 TU.logErrorMsg(e);
                 files.Clear();
             }
             return files;
-        }
-
-        private List<string> getChoicesFromDcFile(string dc)
-        {
-            List<string> choices = new();
-            try
-            {
-                choices = File.ReadAllLines(formatDcPath(dc)).Skip(DSC.INFO_LEN).ToList();
-            }
-            catch(Exception e)
-            {
-                Console.WriteLine($"{DSC.DS_INFO_INTRO} failed to read choices from existing {dc} category file...");
-                TU.logErrorMsg(e);
-            }
-            return choices;
         }
 
         /// <summary>
@@ -263,21 +255,6 @@ namespace DecisionMaker
                 Console.WriteLine(DSC.SAME_BOUNDS_COMMENT);
         }
 
-        internal string getDcNameFromMenuChoice(int opt)
-        {
-            string dcName = TU.BLANK;
-            try
-            {
-                dcName = this._dcMap.ElementAt(opt - 1).Key;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"{DSC.DS_INFO_INTRO} Cannot get category name!");
-                TU.logErrorMsg(e);
-            }
-            return dcName;
-        }
-
         internal DC getDcFromMenuChoice(int opt)
         {
             DC dcVal = DC.EmptyDc;
@@ -324,7 +301,7 @@ namespace DecisionMaker
         /// responds to what the user inputted in the category actions menu
         /// </summary>
         /// <param name="opt">- the valid/invalid option a user inputted </param>
-        /// <param name="dc">- the category we're currently in </param>
+        /// <param name="selectedDc">- the category we're currently in </param>
         /// <returns>whether the categoryActions loop should terminate</returns>
         private bool processDcActionsMenuInput(int opt, DC selectedDC)
         {
@@ -430,8 +407,8 @@ namespace DecisionMaker
             do
             {
                 Console.WriteLine(DSC.NAME_DC_MSG);
-                dcName = Console.ReadLine()!;
-            } while (!TU.isInputAcceptable(dcName) || doesMapHaveDcName(dcName.Trim()));
+                dcName = Console.ReadLine()!.Trim();
+            } while (!TU.isInputAcceptable(dcName) || doesMapHaveDcName(dcName));
 
             return dcName;
         }
@@ -439,7 +416,7 @@ namespace DecisionMaker
         private bool doesMapHaveDcName(string dcName)
         {
             return _dcMap.Keys.Contains(dcName);
-        }        
+        }
 
         private string describeDc()
         {
@@ -447,7 +424,7 @@ namespace DecisionMaker
             do
             {
                 Console.WriteLine(DSC.DESCRIBE_DC_MSG);
-                dcDesc = Console.ReadLine()!;
+                dcDesc = Console.ReadLine()!.Trim();
             } while (!TU.isInputAcceptable(dcDesc));
             return dcDesc;
         }
@@ -460,7 +437,7 @@ namespace DecisionMaker
             do
             {
                 printAddDcChoiceLoopInstructions(acceptedChoices);
-                choiceInput = Console.ReadLine()!;
+                choiceInput = Console.ReadLine()!.Trim();
                 stopWanted = TU.isInputStopCommand(choiceInput);
                 bool accepted = false;
                 if (!stopWanted)
@@ -816,13 +793,27 @@ namespace DecisionMaker
         }
 
         /// <summary>
-        /// completely remove DC from computer and dc dir
+        /// completely remove DC from dc map and dc dir
         /// </summary>
         /// <param name="dc"></param>
         /// <returns>bool - whether the file was completely removed from the program</returns>
         internal bool deleteAndRemoveDcFromMap(DC dc)
         {
             return _dcMap.Remove(dc.CatName) && dc.deleteFile();
+        }
+
+        internal string[] getDcActionKeys()
+        {
+            string[] actionKeys = new string[DSC.dcActions.Count];
+            DSC.dcActions.Keys.CopyTo(actionKeys, DSC.ORIGIN_IDX);
+            return actionKeys;
+        }
+
+        internal bool[] getDcActionTerminateVals()
+        {
+            bool[] terminateVals = new bool[DSC.dcActions.Count];
+            DSC.dcActions.Values.CopyTo(terminateVals, DSC.ORIGIN_IDX);
+            return terminateVals;
         }
 
         private int runRNG(int num1, int num2)
@@ -841,22 +832,8 @@ namespace DecisionMaker
             return (lb, ub);
         }
 
-        internal string[] getDcActionKeys()
-        {
-            string[] actionKeys = new string[DSC.dcActions.Count];
-            DSC.dcActions.Keys.CopyTo(actionKeys, DSC.ORIGIN_IDX);
-            return actionKeys;
-        }
-
-        internal bool[] getDcActionTerminateVals()
-        {
-            bool[] terminateVals = new bool[DSC.dcActions.Count];
-            DSC.dcActions.Values.CopyTo(terminateVals, DSC.ORIGIN_IDX);
-            return terminateVals;
-        }
-
         /// <summary>
-        /// displays a list of every thing in _decisionSummary to console 
+        /// displays a list of every thing in _decisionSummary to console
         /// and tries to save it to a file if _decisionSummary is non-empty
         /// </summary>
         /// <returns>whether the summary was saved to a file or not</returns>
@@ -892,6 +869,21 @@ namespace DecisionMaker
                 }
             }
             return saved;
+        }
+
+        /// <summary>
+        /// called only if WipCat in FileManagement has a partially saved DC
+        /// saved by this file
+        /// </summary>
+        /// <returns></returns>
+        internal bool continueFromWipDc()
+        {
+            bool success = false;
+            if(File.Exists(FSC.DEFAULT_WIP_FILE))
+            {
+                
+            }
+            return success;
         }
     }
 }

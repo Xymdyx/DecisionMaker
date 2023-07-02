@@ -23,6 +23,11 @@ namespace DecisionMaker
             return MU.checkAndInitADir(FSC.DEFAULT_FILES_DIR);
         }
 
+        internal bool isWipFilePresent()
+        {
+            return !String.IsNullOrEmpty(stringifyFileContents(FSC.DEFAULT_WIP_FILE));
+        }
+
         internal int doMenuLoop()
         {
             int opt = MU.INVALID_OPT;
@@ -220,31 +225,36 @@ namespace DecisionMaker
             }
         }
 
+        internal static string viewFileContents(string fPath)
+        {
+            string fileLines = stringifyFileContents(fPath);
+            string info = $"{fPath} doesn't exist therefore cannot view!";
+            if (!String.IsNullOrWhiteSpace(fileLines))
+                info = $"Contents of {fPath}:\n" + fileLines;
+            
+            Console.WriteLine(info);
+            return fileLines;
+        }
+
         /// <summary>
-        /// print out a files contents to console and return its string
+        /// get file contents to console and return its string
         /// </summary>
         /// <param name="fPath">a file path</param>
         /// <returns> string contents of a file or empty string if error</returns>
-        internal static string viewFileContents(string fPath)
+        internal static string stringifyFileContents(string fPath)
         {
             string fileLines = TU.BLANK;
             try
             {
                 if (File.Exists(fPath))
-                {
-                    string info = $"Contents of {fPath}:\n";
                     fileLines = string.Join("\n", File.ReadAllLines(fPath));
-                    Console.WriteLine(info + fileLines);
-                }
-                else
-                    Console.WriteLine($"{fPath} doesn't exist therefore cannot read!");
             }
             catch(Exception e)
             {
                 Console.WriteLine($"{FSC.FS_INFO_INTRO} failed to read contents of {fPath}...\n{e.Message}\n") ;
             }
             return fileLines;
-        }
+        }      
 
         /// <summary>
         /// try to delete a file
