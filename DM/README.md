@@ -2,9 +2,12 @@
 This program is a CLI program meant to help indecisive souls make a decision through picking a random choice from a provided list.\
 I often find myself knowing what category of thing I want to do but not a specific activity within said category. Hence this program.
 
-# Compiling
-dotnet and csc are required to compile the DecisionMaker.dll...\
-If you don't use the vscode builder, you can build the app as follows.\
+# Running & Compiling
+dotnet and csc are required to run/compile the DecisionMaker.dll...\
+To run the app, run this command from the top-level of the DM folder:
+**dotnet run**
+<br>
+If you don't use the vscode builder, you can build the app as follows.
 <br>
 For the dll :\
 dotnet build .\your\path\to\DecisionMaker\DecisionMaker.csproj\

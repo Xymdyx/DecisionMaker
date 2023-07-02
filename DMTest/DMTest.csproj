@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DecisionMaker\DecisionMaker.csproj" />
+    <ProjectReference Include="..\DM\DM.csproj" />
   </ItemGroup>
 
 </Project>
