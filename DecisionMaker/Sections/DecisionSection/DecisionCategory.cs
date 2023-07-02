@@ -30,21 +30,30 @@ namespace DecisionMaker
         internal string CatDesc { get => _catDesc; set => _catDesc = value; }
         internal List<string> CatChoices { get => _catChoices; set => _catChoices = value; }
         internal string CatPath { get => _catPath; }
+
+        internal DecisionCategory()
+        {
+            _catName = TU.BLANK;
+            _catDesc = TU.BLANK;
+            _catChoices = new();
+            _catPath = TU.BLANK;
+        }        
+      
         internal DecisionCategory(string name, string desc)
         {
-            _catName = name;
-            _catDesc = desc;
+            _catName = name ?? TU.BLANK;
+            _catDesc = desc ?? TU.BLANK;
             _catChoices = new();
-            _catPath = DS.formatDcPath(name);
+            _catPath = DS.formatDcPath(_catName);
         }
 
         internal DecisionCategory(string name, string desc, List<string> choices)
         {
-            _catName = name;
-            _catDesc = desc;
-            _catChoices = choices;
-            _catPath = DS.formatDcPath(name);
-            
+            _catName = name ?? TU.BLANK;
+            _catDesc = desc ?? TU.BLANK;
+            _catChoices = choices ?? new();
+            _catPath = DS.formatDcPath(_catName);
+
             if(!checkFileExists())
                 saveFile();
         }

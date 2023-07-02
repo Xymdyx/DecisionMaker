@@ -7,8 +7,6 @@
 
 /*
 TODO:
-1. Don't write the DC file unless at least name was fulfilled
-2. ACTUALLY ACT ON A SAVED WIP DC FILE... allow user to decide if the WIP DC should be one-off or permanent
 3. Possibly extract the DcActions stuff to a new DcSection class for modularity. It is only concerned with saved DCs
     So it's best left as a field of this section. Should implement the IDecisionMakerSection interface. Has the DcActions as fields.
 */
@@ -19,6 +17,7 @@ namespace DecisionMaker
         private readonly Random rng;
         private Dictionary<string, DC> _dcMap;
         private List<string> _decisionSummary;
+        private bool _hasAddressedWipCat;
         internal Dictionary<string, DC> DcMap { get => _dcMap; }
         internal List<string> DecisionSummary { get => _decisionSummary; }
 
@@ -28,6 +27,7 @@ namespace DecisionMaker
             this._dcMap = new();
             this._dcMap = new();
             this._decisionSummary = new();
+            this._hasAddressedWipCat = false;
             checkAndInitDir();
             addNewDcsToMapFromDir();
         }
@@ -49,28 +49,43 @@ namespace DecisionMaker
             foreach (string cat in existing.Where(c => !_dcMap.ContainsKey(c)))
             {
                 try
-                {                    
+                {
                     string catPath = formatDcPath(cat);
-                    DC dc = constructDcFromFile(catPath);
+                    DC dc = makeDcFromDcFile(catPath);
                     _dcMap.TryAdd(cat, dc);
                 }
                 catch(Exception e)
                 {
-                    Console.WriteLine($"{DSC.DS_INFO_INTRO} failed to add saved {cat} decision category from {DSC.DEFAULT_DC_DIRECTORY} dir");
+                    Console.WriteLine($"{DSC.DS_INFO_INTRO} failed to add saved {cat} decision category from {DSC.DEFAULT_DC_DIRECTORY} dir to program");
                     TU.logErrorMsg(e);
                 }
             }
         }
 
-        private DC constructDcFromFile(string dcPath)
+        private DC makeDcFromDcFile(string dcPath)
         {
-            List<string> catLines = File.ReadAllLines(dcPath).ToList();
-            string dcName = catLines[DSC.DC_NAME_LINE_IDX];
-            string catDesc = catLines[DSC.DC_DESC_LINE_IDX];
-            List<string> catChoices = catLines.Skip(DSC.INFO_LEN).ToList();
-
-            DC dc = new(dcName, catDesc, catChoices);
+            DC dc = DC.EmptyDc;
+            try
+            {
+                List<string> catLines = File.ReadAllLines(dcPath).ToList();
+                string dcName = catLines[DSC.DC_NAME_LINE_IDX];
+                string catDesc = catLines[DSC.DC_DESC_LINE_IDX];
+                List<string> catChoices = getDcChoicesFromFileLines(catLines);
+                dc = new(dcName, catDesc, catChoices);
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine($"{DSC.DS_INFO_INTRO} failed to construct decision category from {dcPath} file. File possibly in incorrect format...");
+                TU.logErrorMsg(e);
+            }
             return dc;
+        }
+
+        private List<string> getDcChoicesFromFileLines(List<string> catLines)
+        {
+            List<string> allChoices = (catLines != null) ? catLines.Skip(DSC.INFO_LEN).ToList() : new();
+            allChoices.RemoveAll(c => !TU.isInputAcceptable(c));
+            return allChoices;
         }
 
         // remove map categories no longer in Categories directory
@@ -133,6 +148,7 @@ namespace DecisionMaker
         internal int doMenuLoop()
         {
             Console.WriteLine(DSC.DECISIONS_WELCOME_MSG);
+            tryAddressDcInWipFile();
             int opt = MU.INVALID_OPT;
             do
             {
@@ -360,36 +376,39 @@ namespace DecisionMaker
         /// <returns> a new DC upon completion</returns>
         private DC inputDc()
         {
-            string dcName = TU.BLANK;
-            string dcDesc = TU.BLANK;
-            List<string> dcChoices = new();
+            DC dc = DC.EmptyDc;
             try
             {
-                dcName = nameDc();
-                dcDesc = describeDc();
-                DC dc = new(dcName, dcDesc);
+                string dcName = nameDc();
+                string dcDesc = describeDc();
+                dc = new(dcName, dcDesc);
                 dc.CatChoices = addChoicesToDc(dc);
                 return dc;
             }
             catch (Exception e)
             {
-                Console.WriteLine($"{DSC.DS_INFO_INTRO} Failed to add new decision category. Saving any made progress...");
-                TU.logErrorMsg(e);
-                saveUnfinishedDc(dcName, dcDesc, dcChoices);
+                logErrorAndSaveWipDc(e, dc);
             }
             return DC.EmptyDc;
         }
 
-        private bool saveUnfinishedDc(string name, string desc, List<string> choices)
+        private void logErrorAndSaveWipDc(Exception e, DC dc)
         {
-            if (TU.isInputAcceptable(name))
+            Console.WriteLine($"{DSC.DS_INFO_INTRO} Failed to make decision category. Saving any made progress...");
+            TU.logErrorMsg(e);
+            saveUnfinishedDcToWipCat(dc);            
+        }
+
+        internal bool saveUnfinishedDcToWipCat(DC dc)
+        {
+            if (TU.isInputAcceptable(dc.CatName))
             {
                 try
                 {
                     FS.checkAndInitDir();
-                    File.WriteAllText(FSC.DEFAULT_WIP_FILE, name + DSC.DECISION_DELIMITER);
-                    File.AppendAllText(FSC.DEFAULT_WIP_FILE, desc + DSC.DECISION_DELIMITER);
-                    File.AppendAllLines(FSC.DEFAULT_WIP_FILE, choices);
+                    File.WriteAllText(FSC.DEFAULT_WIP_FILE, dc.CatName + DSC.DECISION_DELIMITER);
+                    File.AppendAllText(FSC.DEFAULT_WIP_FILE, dc.CatDesc + DSC.DECISION_DELIMITER);
+                    File.AppendAllLines(FSC.DEFAULT_WIP_FILE, dc.CatChoices);
                 }
                 catch (Exception e)
                 {
@@ -872,18 +891,76 @@ namespace DecisionMaker
         }
 
         /// <summary>
-        /// called only if WipCat in FileManagement has a partially saved DC
-        /// saved by this file
+        /// called only if WipCat in FileManagement is a partially saved DC saved previously by this file
+        /// This is done in this section's entrance menu so a user has the chance to delete the file first
         /// </summary>
-        /// <returns></returns>
-        internal bool continueFromWipDc()
+        /// <returns>bool - if a valid decision category was successfully made from the wip file</returns>
+        internal bool tryAddressDcInWipFile()
         {
-            bool success = false;
-            if(File.Exists(FSC.DEFAULT_WIP_FILE))
+            DC wipDc = DC.EmptyDc;
+            if(!_hasAddressedWipCat && confirmCompleteWipDcOnce())
             {
-                
+                wipDc = tryToMakeDcFromWipFile();
+                FS.tryDeleteWipFile();
+                decideWipDcFate(wipDc);
             }
-            return success;
+            return wipDc.IsValidDc();
+        }
+
+        // confirm if the user wants to complete a wipcat only once
+        private bool confirmCompleteWipDcOnce()
+        {
+            bool confirmed = false;
+            if(FS.isWipFileNonEmpty())
+            {
+                Console.WriteLine($"There is a WIP decision category in FileManagement, would you like to finish it {DSC.ONLY_1_CONFIRM}? ");
+                MU.writeBinaryMenu();
+                int opt = MU.promptUserAndReturnOpt();
+                confirmed = MU.isChoiceYes(opt);
+                _hasAddressedWipCat = true;
+                if(!confirmed)
+                    Console.WriteLine(FSC.HOW_FIND_WIP);
+            }
+            return confirmed;
+        }
+
+        // helper to addressDcInWipfile, meant to continue where a user left off in making a DC
+        private DC tryToMakeDcFromWipFile()
+        {
+            DC wipDc = DC.EmptyDc;
+            if (FS.isWipFileNonEmpty())
+            {
+                try
+                {
+                    List<string> dcLines = File.ReadAllLines(FSC.DEFAULT_WIP_FILE).ToList();
+                    string dcName = (TU.doesStringListHaveNonBlankEl(DSC.DC_NAME_LINE_IDX, dcLines)) ? dcLines[DSC.DC_NAME_LINE_IDX] : nameDc();
+
+                    Console.WriteLine($"WIP DC name: {dcName}");
+                    string dcDesc = (TU.doesStringListHaveNonBlankEl(DSC.DC_DESC_LINE_IDX, dcLines)) ? dcLines[DSC.DC_DESC_LINE_IDX] : describeDc();
+
+                    wipDc = new(dcName, dcDesc);
+                    wipDc.CatChoices = getDcChoicesFromFileLines(dcLines);
+                    if(!wipDc.hasChoices())
+                        addChoicesToDc(wipDc);
+                }
+                catch(Exception e)
+                {
+                    logErrorAndSaveWipDc(e, wipDc);
+                }
+            }
+            return wipDc;
+        }
+
+        // helper that lets user decides whether to save a finished dc from wipcat or not
+        private bool decideWipDcFate(DC wipDc)
+        {
+            Console.WriteLine($"\nWIP {wipDc.CatName} Decision category completed. Confirm if you want to save it for future use {DSC.ONLY_1_CONFIRM}: ");
+            MU.writeBinaryMenu();
+            int opt = MU.promptUserAndReturnOpt();
+            if(MU.isChoiceYes(opt))
+                return saveAndAddDcToMap(wipDc);
+
+            return decideForUser(wipDc);
         }
     }
 }
