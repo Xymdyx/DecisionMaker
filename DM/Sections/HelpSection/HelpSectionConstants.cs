@@ -8,6 +8,7 @@ namespace DecisionMaker
 {
     internal static class HelpSectConstants
     {
+        internal const string HELP_SECTION_GREETING = "Welcome to the Help Menu. This is where you can learn more about the app if the README wasn't enough.";
         internal enum HelpMenuTopics
         {
             Overview = 1,
@@ -16,9 +17,6 @@ namespace DecisionMaker
         }
 
         internal static readonly string[] mainTopics = { "Overview", "Navigation", "GeneratedFiles" };
-
-        internal const string HELP_SECTION_GREETING = "Welcome to the Help Menu. This is where you can learn more about the app if the README wasn't enough.";
-
         internal const string OVERVIEW_INFO = @"
 This application's purpose is to help you make a decision that you are struggling with.
 If it's a recurring thing, e.g. deciding what takeout food to order,

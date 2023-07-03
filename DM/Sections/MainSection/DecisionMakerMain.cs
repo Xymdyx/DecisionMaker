@@ -14,7 +14,7 @@ namespace DecisionMaker
         private FilesSection fileSect;
         private HelpSection helpSect;
 
-        private readonly string[] navigationMenu = { "Decisions menu", "Profile menu", "File management menu", "Help"};
+        private readonly string[] navigationMenu = { "Decisions menu", "Profile menu", "File management menu", "Help menu"};
         
         public DecisionMakerMain()
         {
