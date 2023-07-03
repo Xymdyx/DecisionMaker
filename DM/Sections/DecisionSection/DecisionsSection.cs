@@ -24,7 +24,7 @@ namespace DecisionMaker
             this._decisionSummary = new();
             this._hasAddressedWipCat = false;
             this.DcSect = new(this);
-            
+
             checkAndInitDir();
             addNewDcsToMapFromDir();
         }
@@ -352,7 +352,7 @@ namespace DecisionMaker
         {
             Console.WriteLine($"{DSC.DS_INFO_INTRO} Failed to make decision category. Saving any made progress...");
             TU.logErrorMsg(e);
-            saveUnfinishedDcToWipCat(dc);            
+            saveUnfinishedDcToWipCat(dc);
         }
 
         internal bool saveUnfinishedDcToWipCat(DC dc)
@@ -407,58 +407,72 @@ namespace DecisionMaker
         internal List<string> addChoicesToDc(DC selectedDc)
         {
             List<string> acceptedChoices = selectedDc.CatChoices;
-            string choiceInput = TU.BLANK;
             bool stopWanted = false;
             do
             {
-                printAddDcChoiceLoopInstructions(acceptedChoices);
-                choiceInput = TU.readLineAndTrim();
+                Console.WriteLine(getAddDcChoiceLoopIntro(acceptedChoices, selectedDc.CatName));
+                string choiceInput = TU.readLineAndTrim();
                 stopWanted = TU.isInputStopCommand(choiceInput);
+
                 bool accepted = false;
                 if (!stopWanted)
-                    accepted = tryAcceptNewDcChoice(choiceInput, acceptedChoices); // choose to accept or reject into choiceInputs
+                    accepted = tryAcceptNewDcChoice(choiceInput, acceptedChoices);
 
-                printAddDcChoiceLoopMsg(accepted, choiceInput, acceptedChoices);
-            } while (TU.isStringListEmpty(acceptedChoices) || !stopWanted);
+                Console.WriteLine(getAddDcChoiceLoopEndMsg(accepted, choiceInput, selectedDc));
+            } while (!stopWanted);
 
-            Console.WriteLine($"Choices for {selectedDc.CatName}: {TU.prettyStringifyList(acceptedChoices)}\n");
+            Console.WriteLine(selectedDc.stringifyToReadableForm());
             return acceptedChoices;
         }
 
-        private void printAddDcChoiceLoopInstructions(List<string> acceptedChoices)
+        private string getAddDcChoiceLoopIntro(List<string> acceptedChoices, string catName)
         {
+            string introStart = (TU.isStringListEmpty(acceptedChoices)) ? TU.BLANK : DSC.HOW_SEE_CHOICES_MSG;
             string introEnd = (TU.isStringListEmpty(acceptedChoices)) ? ":" : $" {getAddDcChoicesStopMsg()}:";
-            Console.WriteLine(DSC.ADD_CHOICE_INTRO_MSG + introEnd);
+            return introStart + DSC.ADD_CHOICE_INTRO_MSG + catName + introEnd;
         }
 
         private string getAddDcChoicesStopMsg()
         {
             string stops = TU.prettyStringifyList(TU.stopWords.ToList());
-            return $"({DSC.STOP_INFO_MSG}, type any positive number or any of the following in lowercase: {stops})";
+            return $"({DSC.STOP_ADDING_INFO_MSG} {stops})";
         }
 
-        private void printAddDcChoiceLoopMsg(bool wasAccepted, string candidate, List<string> acceptedChoices)
+        private string getAddDcChoiceLoopEndMsg(bool wasAccepted, string candidate, DC dc)
         {
             string outputMsg = TU.BLANK;
             if (wasAccepted)
                 outputMsg = $"{candidate} accepted!";
-            else if (isItemAlreadyAccepted(candidate, acceptedChoices))
+            else if (isItemAlreadyAccepted(candidate, dc.CatChoices))
                 outputMsg = $"{candidate} was already accepted";
+            else if (isInputViewDcChoices(candidate) && dc.hasChoices())
+                outputMsg = dc.stringifyToReadableForm();
             else if (!TU.isInputAcceptable(candidate))
                 outputMsg = DSC.ADD_CHOICE_REJECT_MSG;
-
-            if (outputMsg != TU.BLANK)
-                Console.WriteLine(outputMsg + "\n");
+            
+            if(outputMsg != TU.BLANK)
+                outputMsg += "\n";
+            return outputMsg;
         }
 
-        private bool tryAcceptNewDcChoice(string candidate, List<string> acceptedChoices)
+        private bool isInputViewDcChoices(string candidate)
         {
-            if (TU.isInputAcceptable(candidate) && !isItemAlreadyAccepted(candidate, acceptedChoices))
+            return candidate == DSC.SEE_CHOICES_WORD;
+        }
+
+        private bool tryAcceptNewDcChoice(string candidate, List<string> dcChoices)
+        {
+            if (isNewDcChoice(candidate, dcChoices))
             {
-                acceptedChoices.Add(candidate);
+                dcChoices.Add(candidate);
                 return true;
             }
             return false;
+        }
+
+        private bool isNewDcChoice(string candidate, List<string> dcChoices)
+        {
+            return TU.isInputAcceptable(candidate) && !isInputViewDcChoices(candidate) && !isItemAlreadyAccepted(candidate, dcChoices);
         }
 
         internal bool isItemAlreadyAccepted(string candidate, List<string> accepted)

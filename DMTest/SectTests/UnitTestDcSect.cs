@@ -11,14 +11,14 @@ public class UnitTestDcSect
     {
         DCSEC dcSec = new();
 
-        List<string> fullChoices = DsUt.FULL_DC.CatChoices;
+        List<string> fullChoices = DmCt.FULL_DC.CatChoices;
         removeChoiceBlankUb(1, fullChoices, dcSec);
         removeChoiceBlankLb(fullChoices.Count, fullChoices, dcSec);
 
         while (fullChoices.Count > 0)
             Assert.AreNotEqual(dcSec.tryRemoveChoice(1, fullChoices), TU.BLANK);
 
-        List<string> none = DsUt.CHOICELESS_DC.CatChoices;
+        List<string> none = DmCt.CHOICELESS_DC.CatChoices;
         removeChoiceBlankLb(0, none, dcSec);
         removeChoiceBlankUb(0, none, dcSec);
     }
@@ -68,6 +68,6 @@ public class UnitTestDcSect
     [TestInitialize]
     public void TestInitialize()
     {
-        DmUtConsts.clearADir(DSC.DEFAULT_DECISIONS_DIRECTORY);
-    }    
+        DmCt.clearADir(DSC.DEFAULT_DECISIONS_DIRECTORY);
+    }
 }

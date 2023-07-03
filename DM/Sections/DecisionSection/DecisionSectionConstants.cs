@@ -16,10 +16,11 @@ namespace DecisionMaker
         internal const string NO_DC_DIR_MSG = "No decisions directory detected in the desired location...Creating";
         internal const string HAS_DCS_MSG = "What would you like us to choose today?";
         internal const string NO_DCS_MSG = "Hmm. There appear to be no decision categories for us to choose from.";
-        internal const string STOP_INFO_MSG = "to stop adding";
+        internal const string STOP_ADDING_INFO_MSG = "to stop adding, type any number or any of the following in lowercase:";
         internal const string NO_CHOICES_MSG = "No choices to choose from! Please add some...";
         internal const string DECISIONS_WELCOME_MSG = "Welcome to the Decisions menu. This is where the magic happens!";
-        internal const string ADD_CHOICE_INTRO_MSG = "Please provide an alphanumeric string for a choice that hasn't already been added";
+        internal const string ADD_CHOICE_INTRO_MSG = "Please provide a new choice that hasn't already been added for ";
+        internal const string HOW_SEE_CHOICES_MSG = "Type \"" + SEE_CHOICES_WORD + "\" to see choices added so far...\n";
         internal const string REMOVE_CHOICES_MENU_MSG = "Please select the number of the item you'd like to remove (can remove until nothing remains)...";
         internal const string CREATE_DC_MSG = "Please help us create a new decision category...";
         internal const string SHOW_DCS_MSG = "Here are the existing decision categories:";
@@ -35,6 +36,7 @@ namespace DecisionMaker
         internal const string DEC_SUMMARY_FILE_INTRO = "Summary of all decisions made on";
         internal const string NO_DECISIONS_MSG = "No decisions made this session. Maybe next time!\n";
         internal const string ONLY_1_CONFIRM = "(any thing other than 1 is no)";
+        internal const string SEE_CHOICES_WORD = "choices";
         internal const int ORIGIN_IDX = 0;
         internal const int DELETE_ALL_CHOICES_CODE = -1;
         internal const int DC_NAME_LINE_IDX = 0;

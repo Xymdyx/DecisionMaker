@@ -18,7 +18,7 @@ namespace DecisionMaker
 
         internal static bool isInputAcceptable(string input)
         {
-            return !String.IsNullOrWhiteSpace(input) && input.Length <= MAX_STRING_LEN;
+            return !String.IsNullOrWhiteSpace(input) && !isStringTooLong(input);
         }
 
         internal static bool isInputStopCommand(string input)
@@ -179,6 +179,11 @@ namespace DecisionMaker
                 }
             }
             return fContents;
+        }
+
+        internal static bool isStringTooLong(string s)
+        {
+            return (s != null) && (s.Length > MAX_STRING_LEN);
         }
     }
 }

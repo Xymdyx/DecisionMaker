@@ -42,7 +42,7 @@ namespace DecisionMaker
 
         private void writeDcActionsMenu(string dc)
         {
-            Console.WriteLine($"Here are the choices for the {dc} decision category: ");
+            Console.WriteLine($"Here are the actions for the {dc} decision category: ");
             List<string> actionNames = getDcActionKeys().ToList();
             TU.writeListAsNumberMenu(actionNames);
             MU.printExitChoice();
@@ -90,7 +90,7 @@ namespace DecisionMaker
                     confirmHalt = _parentSect.decideForUser(selectedDc);
                     break;
                 case (int)DSC.DcActionCodes.ReadChoices:
-                    confirmHalt = readExistingDc(selectedDc);
+                    confirmHalt = readDcChoices(selectedDc);
                     break;
                 case (int)DSC.DcActionCodes.ReadDesc:
                     confirmHalt = readDescDc(selectedDc);
@@ -122,7 +122,7 @@ namespace DecisionMaker
         /// </summary>
         /// <param name="dc"></param>
         /// <returns>whether it is safe to continue operation on dc</returns>
-        private bool readExistingDc(DC dc)
+        private bool readDcChoices(DC dc)
         {
             if (!dc.hasChoices())
             {
@@ -131,7 +131,7 @@ namespace DecisionMaker
             }
 
             Console.WriteLine(DSC.READ_DC_MSG);
-            Console.WriteLine(dc.stringifyChoices());
+            Console.WriteLine(dc.stringifyChoicesToReadableLines());
             return dc.checkFileExists();
         }
 
