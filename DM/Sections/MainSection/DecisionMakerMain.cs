@@ -1,6 +1,6 @@
 /*
 * description: personal project for helping me decide what to do with my free time
-* author: Sam Ford
+* author: Xymdyx
 * date started: 4/4/2023
 */
 

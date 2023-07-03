@@ -1,5 +1,5 @@
 /**
-* auth: Sam Ford
+* auth: Xymdyx
 * desc: struct to represent the personality of the user's decision maker.
 */
 

@@ -1,6 +1,6 @@
 /*
 * description: Section for the help menu, which tells the user more about the app
-* author: Sam Ford
+* author: Xymdyx
 * date: 6/13/23
 */
 namespace DecisionMaker

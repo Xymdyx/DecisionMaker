@@ -1,5 +1,5 @@
 /*
-* author: Sam Ford
+* author: Xymdyx
 * desc: Section for saved decision categories and acting on them
 * Dependent on its parent DecisionSection instance for insantiation
 * note that DC == "Decision Category"

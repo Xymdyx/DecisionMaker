@@ -1,5 +1,5 @@
 /*
-* author: Sam Ford
+* author: Xymdyx
 * desc: Static class purely for storing Profile Section constants
 * date started: approx 6/18/2023
 */

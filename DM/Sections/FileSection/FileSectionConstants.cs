@@ -1,5 +1,5 @@
 /*
-* author: Sam Ford
+* author: Xymdyx
 * desc: Static class purely for storing File Section constants
 * date started: approx 6/18/2023
 */
@@ -17,7 +17,7 @@ namespace DecisionMaker
         internal static readonly string[] fileTypes = { "Decision Categories", "Custom Profile", "WIP File" };
         internal static readonly string[] manageFileActions = {"View contents", "Delete file"};
         internal static readonly string[] manageProfileActions = { "Greeting", "Exiting", "Display Name" };
-        
+
         internal enum FileTypeCodes
         {
             DCFiles = 1,

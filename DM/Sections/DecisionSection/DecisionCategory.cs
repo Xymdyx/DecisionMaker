@@ -1,6 +1,6 @@
 /*
 * desc: class for a Decision a user wants this application to help with, whether it be recurring or one-time.
-* author: Sam Ford
+* author: Xymdyx
 * date: 6/13/23
 */
 

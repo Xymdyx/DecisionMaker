@@ -1,5 +1,5 @@
 /*
-* author: Sam Ford
+* author: Xymdyx
 * desc: Utilities for menu creation and loops
 * date started: approx 5/5/2023
 */

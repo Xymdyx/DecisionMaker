@@ -1,5 +1,5 @@
 /*
-* author: Sam Ford
+* author: Xymdyx
 * desc: Section for customizing certain messages said by the program
 * date started: approx 5/15/2023
 */

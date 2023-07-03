@@ -1,5 +1,5 @@
 /*
-* author: Sam Ford
+* author: Xymdyx
 * desc: Section for creating DCs and nonDcActions.
 * Holds all DCs saved to computer
 * note that DC == "Decision Category"
