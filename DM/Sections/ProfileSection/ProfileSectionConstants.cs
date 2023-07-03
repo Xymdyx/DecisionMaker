@@ -8,6 +8,9 @@ namespace DecisionMaker
 {
     internal static class ProfileSectConstants
     {
+        internal const string GREETING = "greeting";
+        internal const string EXITING = "exiting";
+        internal const string DISPLAY_NAME = "displayname";          
         internal const string DEFAULT_PROF_DIR = ".\\ProfileStorage\\";
         internal const string PROF_GREETING_PATH = DEFAULT_PROF_DIR + GREETING + TU.TXT;
         internal const string PROF_EXITING_PATH = DEFAULT_PROF_DIR + EXITING + TU.TXT;
@@ -26,10 +29,7 @@ namespace DecisionMaker
             Greeting = 1,
             Exiting,
             DisplayName
-        }
-        internal const string GREETING = "greeting";
-        internal const string EXITING = "exiting";
-        internal const string DISPLAY_NAME = "displayname";        
+        }      
         internal static readonly string[] profileOptions = { "Change app greeting message", "Change app exit message", "Change display name" };
     }
 }

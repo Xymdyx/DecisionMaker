@@ -130,7 +130,7 @@ namespace DecisionMaker
         private string promptAndGetText(string prompt)
         {
             Console.WriteLine(prompt);
-            return Console.ReadLine()!;
+            return TU.readLineAndTrim();
         }
 
         private int promptUserConfirmation(string ans)

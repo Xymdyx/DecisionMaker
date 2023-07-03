@@ -64,7 +64,7 @@ namespace DecisionMaker
             DC dc = DC.EmptyDc;
             try
             {
-                List<string> catLines = File.ReadAllLines(dcPath).ToList();
+                List<string> catLines = TU.readFileLinesAndTrim(dcPath);
                 string dcName = catLines[DSC.DC_NAME_LINE_IDX];
                 string catDesc = catLines[DSC.DC_DESC_LINE_IDX];
                 List<string> catChoices = getDcChoicesFromFileLines(catLines);
@@ -251,8 +251,8 @@ namespace DecisionMaker
         private bool doRandomInt()
         {
             Console.WriteLine(DSC.RAND_BOUNDS_INFO);
-            bool succ1 = TU.convertTextToInt32(Console.ReadLine()!, out int num1);
-            bool succ2 = TU.convertTextToInt32(Console.ReadLine()!, out int num2);
+            bool succ1 = TU.convertTextToInt32(TU.readLineAndTrim(), out int num1);
+            bool succ2 = TU.convertTextToInt32(TU.readLineAndTrim(), out int num2);
 
             if (!succ1) num1 = DSC.DEFAULT_LOWER_BOUND;
             if (!succ2) num2 = DSC.DEFAULT_UPPER_BOUND;
@@ -382,7 +382,7 @@ namespace DecisionMaker
             do
             {
                 Console.WriteLine(DSC.NAME_DC_MSG);
-                dcName = Console.ReadLine()!.Trim();
+                dcName = TU.readLineAndTrim();
             } while (!TU.isInputAcceptable(dcName) || doesMapHaveDcName(dcName));
 
             return dcName;
@@ -399,7 +399,7 @@ namespace DecisionMaker
             do
             {
                 Console.WriteLine(DSC.DESCRIBE_DC_MSG);
-                dcDesc = Console.ReadLine()!.Trim();
+                dcDesc = TU.readLineAndTrim();
             } while (!TU.isInputAcceptable(dcDesc));
             return dcDesc;
         }
@@ -412,7 +412,7 @@ namespace DecisionMaker
             do
             {
                 printAddDcChoiceLoopInstructions(acceptedChoices);
-                choiceInput = Console.ReadLine()!.Trim();
+                choiceInput = TU.readLineAndTrim();
                 stopWanted = TU.isInputStopCommand(choiceInput);
                 bool accepted = false;
                 if (!stopWanted)
@@ -623,7 +623,7 @@ namespace DecisionMaker
             {
                 try
                 {
-                    List<string> dcLines = File.ReadAllLines(FSC.DEFAULT_WIP_FILE).ToList();
+                    List<string> dcLines = TU.readFileLinesAndTrim(FSC.DEFAULT_WIP_FILE);
                     string dcName = (TU.doesStringListHaveNonBlankEl(DSC.DC_NAME_LINE_IDX, dcLines)) ? dcLines[DSC.DC_NAME_LINE_IDX] : nameDc();
 
                     Console.WriteLine($"WIP DC name: {dcName}");

@@ -127,6 +127,58 @@ namespace DecisionMaker
         internal static bool doesStringListHaveNonBlankEl(int qIdx, List<string> strs)
         {
             return (qIdx >= 0 && qIdx < strs.Count) && !String.IsNullOrWhiteSpace(strs[qIdx]);
-        }        
+        }
+
+        internal static string readLineAndTrim()
+        {
+            string trimmedIn = BLANK;
+            try
+            {
+                trimmedIn = Console.ReadLine()!.Trim();
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine($"{TU_INFO_HEADER} failed to read and trim input...");
+                logErrorMsg(e);
+            }
+            return trimmedIn;
+        }
+
+        internal static List<string> readFileLinesAndTrim(string fPath)
+        {
+            List<string> fLines = new();
+            if(File.Exists(fPath))
+            {
+                try
+                {
+                    fLines = File.ReadAllLines(fPath).ToList();
+                    fLines.ForEach(s => s.Trim());
+                }
+                catch(Exception e)
+                {
+                    Console.WriteLine($"{TU_INFO_HEADER} failed to read lines of {fPath} file...");
+                    logErrorMsg(e);
+                }
+            }
+            return fLines;
+        }
+
+        internal static string readWholeFileAndTrim(string fPath)
+        {
+            string fContents = BLANK;
+            if(File.Exists(fPath))
+            {
+                try
+                {
+                    fContents = File.ReadAllText(fPath).Trim();
+                }
+                catch(Exception e)
+                {
+                    Console.WriteLine($"{TU_INFO_HEADER} failed to read {fPath} file contents...");
+                    logErrorMsg(e);
+                }
+            }
+            return fContents;
+        }
     }
 }

@@ -30,7 +30,7 @@ namespace DecisionMaker
             int opt = INVALID_OPT;
             try
             {
-                string input = Console.ReadLine()!;
+                string input = TU.readLineAndTrim()!;
                 Console.WriteLine();
                 opt = TU.convertMenuInputToInt(input);
             }

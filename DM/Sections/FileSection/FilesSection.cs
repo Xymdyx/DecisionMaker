@@ -43,7 +43,7 @@ namespace DecisionMaker
             try
             {
                 if (File.Exists(fPath))
-                    fileLines = string.Join("\n", File.ReadAllLines(fPath));
+                    fileLines = string.Join("\n", TU.readFileLinesAndTrim(fPath));
             }
             catch(Exception e)
             {

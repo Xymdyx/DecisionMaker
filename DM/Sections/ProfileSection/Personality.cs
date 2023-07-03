@@ -37,12 +37,9 @@ namespace DecisionMaker
         {
             try
             {
-                if (File.Exists(PSC.PROF_GREETING_PATH))
-                    _mainGreetingMsg = File.ReadAllText(PSC.PROF_GREETING_PATH);
-                if (File.Exists(PSC.PROF_EXITING_PATH))
-                    _mainExitMsg = File.ReadAllText(PSC.PROF_EXITING_PATH);
-                if (File.Exists(PSC.PROF_DISPLAY_NAME_PATH))
-                    _displayName = File.ReadAllText(PSC.PROF_DISPLAY_NAME_PATH);
+                _mainGreetingMsg = TU.readWholeFileAndTrim(PSC.PROF_GREETING_PATH);
+                _mainExitMsg = TU.readWholeFileAndTrim(PSC.PROF_EXITING_PATH);
+                _displayName = TU.readWholeFileAndTrim(PSC.PROF_DISPLAY_NAME_PATH);
 
                 fillInBlankFields();
             }
@@ -66,22 +63,22 @@ namespace DecisionMaker
 
         internal bool isGreetCustom()
         {
-            return isPartCustom(_mainGreetingMsg!) && _mainGreetingMsg != DEFAULT_GREETING;
+            return isPartCustom(_mainGreetingMsg!, DEFAULT_GREETING);
         }
 
         internal bool isExitCustom()
         {
-            return isPartCustom(_mainExitMsg!) && _mainExitMsg != DEFAULT_EXITING;
+            return isPartCustom(_mainExitMsg!, DEFAULT_EXITING);
         }
 
         internal bool isDisplayNameCustom()
         {
-            return isPartCustom(_displayName!) && _displayName != DEFAULT_DISPLAY_NAME;
+            return isPartCustom(_displayName!, DEFAULT_DISPLAY_NAME);
         }
 
-        private bool isPartCustom(string field)
+        private bool isPartCustom(string field, string def)
         {
-            return TU.isInputAcceptable(field);
+            return TU.isInputAcceptable(field) && field != def;
         }
 
         public override string ToString()
