@@ -4,10 +4,15 @@ I often find myself knowing what category of thing I want to do but not a specif
 
 # Running & Compiling
 dotnet and csc are required to run/compile the DecisionMaker.dll...\
-To run the app, run this command from the top-level of the DM folder:\
+To run the app, run any of these from the top-level of the DM folder:
+<br>
+**.\your\path\to\DM.exe**
+<br>
+**.\your\path\to\DM.dll**
+<br>
 **dotnet run**
 <br><br>
-If you don't use the vscode builder, you can build the app as follows.
+If you don't use a vscode build config, you can build the app as follows.
 <br>
 For the dll :\
 dotnet build .\your\path\to\DecisionMaker\DecisionMaker.csproj\
