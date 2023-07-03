@@ -382,10 +382,31 @@ namespace DecisionMaker
             do
             {
                 Console.WriteLine(DSC.NAME_DC_MSG);
-                dcName = TU.readLineAndTrim();
+                dcName = TU.readLineAndTrim();            
+                dcName = tryFinalizeDcName(dcName);
             } while (!TU.isInputAcceptable(dcName) || doesMapHaveDcName(dcName));
 
             return dcName;
+        }
+
+        private string tryFinalizeDcName(string chosenDcName)
+        {
+            string fianlizedDcName = TU.replaceBadCharsinFname(chosenDcName);
+            if(fianlizedDcName != chosenDcName)
+                fianlizedDcName = confirmDcNameOrDiscard(fianlizedDcName);
+            return fianlizedDcName;
+        }
+
+        private string confirmDcNameOrDiscard(string corrected)
+        {
+            string finalDcName = corrected;
+            Console.WriteLine($"{DSC.BAD_DC_NAME_REPLACE_MSG} {corrected}");
+            Console.WriteLine(DSC.DISCARD_CORRECTED_NAME_MSG);
+            int opt = MU.promptUserAndReturnOpt();
+            if(MU.isChoiceYes(opt))
+                finalDcName = TU.BLANK;
+
+            return finalDcName;
         }
 
         internal bool doesMapHaveDcName(string dcName)
