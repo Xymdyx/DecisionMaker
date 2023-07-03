@@ -17,7 +17,7 @@ public class UnitTestPersonality
     {
         string relativePerPath = DmCt.DM_RELATIVE_PATH + PSC.DEFAULT_PROF_DIR;
         Directory.CreateDirectory(relativePerPath);
-        DmUtConsts.clearADir(relativePerPath);
+        DmCt.clearADir(relativePerPath);
         Assert.IsFalse(Directory.Exists(relativePerPath));
 
         PER def = new();

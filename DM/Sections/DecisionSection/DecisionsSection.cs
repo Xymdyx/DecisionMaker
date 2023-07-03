@@ -497,7 +497,7 @@ namespace DecisionMaker
                 return false;
             }
 
-            int chosenInt = runRNG(DSC.ORIGIN_IDX, dc.CatChoices.Count - 1);
+            int chosenInt = runRNG(DSC.ORIGIN_IDX, dc.getChoicesCount() - 1);
             string chosenOpt = dc.CatChoices[chosenInt];
             Console.WriteLine($"For {dc.CatName}, we've decided upon: {chosenOpt}");
             tryAddDecisionToSummary(dc, chosenOpt);

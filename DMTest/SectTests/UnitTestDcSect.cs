@@ -25,7 +25,7 @@ public class UnitTestDcSect
 
     private void removeChoiceBlankLb(int lb, List<string> opts, DCSEC dcSec)
     {
-        int i = DmUtConsts.MAX_OPT;
+        int i = DmCt.MAX_OPT;
         while (i > lb)
         {
             Assert.AreEqual(dcSec.tryRemoveChoice(i, opts), TU.BLANK);
@@ -35,7 +35,7 @@ public class UnitTestDcSect
 
     private void removeChoiceBlankUb(int ub, List<string> opts, DCSEC dcSec)
     {
-        int j = DmUtConsts.MIN_OPT;
+        int j = DmCt.MIN_OPT;
         while (j < ub)
         {
             Assert.AreEqual(dcSec.tryRemoveChoice(j, opts), TU.BLANK);

@@ -12,7 +12,10 @@ namespace DecisionMaker
         internal const string BLANK = "";
         internal const string TXT = ".txt";
         internal const int MAX_STRING_LEN = 360;
+        internal const int MAX_FNAME_LEN = 256;
         internal static readonly string[] stopWords = { "stop", "exit", "done", "good", "quit", "leave", "finish", "end"};
+        internal const string BAD_FNAME_CHARS = "!@#$%&*+=#`|\\/<>{}:?\"\'.";
+        internal const string GOOD_FNAME_CHAR = "-";
         internal const string PAUSE_PROMPT = "\nPress any key to continue...\n";
         private const string TU_INFO_HEADER = "TextUtils.cs: ";
 
@@ -29,12 +32,28 @@ namespace DecisionMaker
         internal static bool isNumeric(string input)
         {
             Regex numericOnly = new(@"^[0-9]+$");
-            return numericOnly.IsMatch(input);
+            return tryMatchRegex(numericOnly, input);
         }
 
-        internal static bool isAlpha(string input){
+        internal static bool isAlpha(string input)
+        {
             Regex alphaNumeric = new(@"^[a-zA-Z\s,]*$");
-            return alphaNumeric.IsMatch(input);
+            return tryMatchRegex(alphaNumeric, input);
+        }
+
+        private static bool tryMatchRegex(Regex r, string s)
+        {
+            bool matchesRegex = false;
+            try
+            {
+                matchesRegex = r.IsMatch(s);
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine($"{TU_INFO_HEADER} Error in matching {s} regex {r}...");
+                logErrorMsg(e);
+            }
+            return matchesRegex;
         }
 
         // return string as comma separated list
@@ -184,6 +203,22 @@ namespace DecisionMaker
         internal static bool isStringTooLong(string s)
         {
             return (s != null) && (s.Length > MAX_STRING_LEN);
+        }
+
+        internal static string replaceBadCharsinFname(string fName)
+        {
+            string goodName = fName;
+            try
+            {
+                Regex badFnameCharsRegex = new($"[{BAD_FNAME_CHARS}]+");
+                goodName = badFnameCharsRegex.Replace(fName, GOOD_FNAME_CHAR);
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine($"{TU_INFO_HEADER} failed to replace bad file name chars in {fName}...");
+                logErrorMsg(e);
+            }
+            return goodName;
         }
     }
 }

@@ -6,25 +6,25 @@ public class UnitTestDC1
     [TestMethod]
     public void test2ParamInit()
     {
-        DC partial = new(DmUtConsts.TEST_DC_NAME, DmUtConsts.TEST_DC_DESC);
+        DC partial = new(DmCt.TEST_DC_NAME, DmCt.TEST_DC_DESC);
         Assert.IsNotNull(partial);
         Assert.IsTrue(partial.IsValidDc());
         Assert.IsFalse(partial.hasChoices());
-        Assert.AreEqual(partial.CatName, DmUtConsts.TEST_DC_NAME);
-        Assert.AreEqual(partial.CatDesc, DmUtConsts.TEST_DC_DESC);
+        Assert.AreEqual(partial.CatName, DmCt.TEST_DC_NAME);
+        Assert.AreEqual(partial.CatDesc, DmCt.TEST_DC_DESC);
     }
 
     [TestMethod]
     public void testFullInit()
     {
-        DC full = new(DmUtConsts.TEST_DC_NAME, DmUtConsts.TEST_DC_DESC, DmUtConsts.TEST_DC_CHOICES);
+        DC full = new(DmCt.TEST_DC_NAME, DmCt.TEST_DC_DESC, DmCt.TEST_DC_CHOICES);
         Assert.IsNotNull(full);
 
         Assert.IsTrue(full.IsValidDc());
         Assert.IsTrue(full.hasChoices());
-        Assert.AreEqual(full.CatName, DmUtConsts.TEST_DC_NAME);
-        Assert.AreEqual(full.CatDesc, DmUtConsts.TEST_DC_DESC);
-        Assert.AreEqual(full.CatChoices, DmUtConsts.TEST_DC_CHOICES);
+        Assert.AreEqual(full.CatName, DmCt.TEST_DC_NAME);
+        Assert.AreEqual(full.CatDesc, DmCt.TEST_DC_DESC);
+        Assert.AreEqual(full.CatChoices, DmCt.TEST_DC_CHOICES);
         Assert.IsTrue(full.checkFileExists());
     }
 
@@ -40,7 +40,7 @@ public class UnitTestDC1
     [TestMethod]
     public void testSave()
     {
-        DC toSave = new(DmUtConsts.TEST_DC_DESC, DmUtConsts.TEST_DC_NAME);
+        DC toSave = new(DmCt.TEST_DC_DESC, DmCt.TEST_DC_NAME);
         Assert.IsTrue(toSave.saveFile());
         Assert.IsTrue(toSave.checkFileExists());
     }
@@ -48,7 +48,7 @@ public class UnitTestDC1
     [TestMethod]
     public void testDelete()
     {
-        DC toDelete = new(DmUtConsts.TEST_DC_DESC, DmUtConsts.TEST_DC_NAME);
+        DC toDelete = new(DmCt.TEST_DC_DESC, DmCt.TEST_DC_NAME);
         Assert.IsTrue(toDelete.deleteFile());
         Assert.IsFalse(toDelete.checkFileExists());
     }
@@ -111,15 +111,11 @@ public class UnitTestDC1
 
     private void assertStringifyForm(string result, int LinesExpected, int commasExpected)
     {
+        Console.WriteLine(result);
         int actualLines = result.Count(c => c == '\n');
         int actualCommas = result.Count(c => c == ',');
-
-        Console.WriteLine($"Expected newlines: {LinesExpected}\n Actual newlines: {actualLines}");
-        Console.WriteLine($"Expected commas: {commasExpected}\n Actual newlines: {actualCommas}");
-        Console.WriteLine(result);
-
-        Assert.IsTrue( actualLines == LinesExpected);
-        Assert.IsTrue( actualCommas == commasExpected);
+        Assert.AreEqual( actualLines, LinesExpected);
+        Assert.AreEqual( actualCommas, commasExpected);
     }
 
 }
