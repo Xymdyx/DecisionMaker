@@ -250,6 +250,26 @@ namespace DecisionMaker
         /// <returns>whether this operation was successful </returns>
         private bool doRandomInt()
         {
+            (int, int) bounds = inputRandomIntRange();
+            int lb = bounds.Item1;
+            int ub = bounds.Item2;
+
+            int rand = runRNG(lb, ub);
+            commentIfBoundsSame(lb, ub);
+            string intDecision = stringifyRandomIntDecision(lb, ub, rand);
+            
+            Console.WriteLine(intDecision);
+            tryAddDecisionToSummary(intDecision);
+            return true;
+        }
+
+        internal string stringifyRandomIntDecision(int lb, int ub, int rand )
+        {
+            return $"Given the range of [{lb}, {ub}], we've decided upon {rand}...";
+        }
+
+        private (int, int) inputRandomIntRange()
+        {
             Console.WriteLine(DSC.RAND_BOUNDS_INFO);
             bool succ1 = TU.convertTextToInt32(TU.readLineAndTrim(), out int num1);
             bool succ2 = TU.convertTextToInt32(TU.readLineAndTrim(), out int num2);
@@ -257,12 +277,7 @@ namespace DecisionMaker
             if (!succ1) num1 = DSC.DEFAULT_LOWER_BOUND;
             if (!succ2) num2 = DSC.DEFAULT_UPPER_BOUND;
 
-            int rand = runRNG(num1, num2);
-            commentIfBoundsSame(num1, num2);
-            (int, int) bounds = returnBoundsTuple(num1, num2);
-
-            Console.WriteLine($"Given the range of [{bounds.Item1}, {bounds.Item2}], we've decided upon {rand}...");
-            return true;
+            return returnBoundsTuple(num1, num2);
         }
 
         private void commentIfBoundsSame(int num1, int num2)
@@ -382,7 +397,7 @@ namespace DecisionMaker
             do
             {
                 Console.WriteLine(DSC.NAME_DC_MSG);
-                dcName = TU.readLineAndTrim();            
+                dcName = TU.readLineAndTrim();
                 dcName = tryFinalizeDcName(dcName);
             } while (!TU.isInputAcceptable(dcName) || doesMapHaveDcName(dcName));
 
@@ -470,7 +485,7 @@ namespace DecisionMaker
                 outputMsg = dc.stringifyToReadableForm();
             else if (!TU.isInputAcceptable(candidate))
                 outputMsg = DSC.ADD_CHOICE_REJECT_MSG;
-            
+
             if(outputMsg != TU.BLANK)
                 outputMsg += "\n";
             return outputMsg;
@@ -520,8 +535,10 @@ namespace DecisionMaker
 
             int chosenInt = runRNG(DSC.ORIGIN_IDX, dc.getChoicesCount() - 1);
             string chosenOpt = dc.CatChoices[chosenInt];
+            
             Console.WriteLine($"For {dc.CatName}, we've decided upon: {chosenOpt}");
-            tryAddDecisionToSummary(dc, chosenOpt);
+            string decision = stringifyDcDecisionForSummary(dc, chosenOpt);
+            tryAddDecisionToSummary(decision);
             return dc.checkFileExists();
         }
 
@@ -533,16 +550,23 @@ namespace DecisionMaker
         /// <param name="dc"> Decision Category the user chose for a decision </param>
         /// <param name="chosenOpt"> the decision chosen by decideForUser </param>
         /// <returns>whether the decision was successfully recorded to the summary</returns>
-        internal bool tryAddDecisionToSummary(DC dc, string chosenOpt)
+        internal string stringifyDcDecisionForSummary(DC dc, string chosenOpt)
         {
             string decision = TU.BLANK;
-            int startSize = _decisionSummary.Count;
             if (dc.CatChoices.Contains(chosenOpt))
             {
                 string decisionType = (doesMapHaveDcName(dc.CatName)) ? DC.DC_SUMMARY_TAG : DC.ONE_OFF_SUMMARY_TAG;
                 decision = $"{dc.CatName} {decisionType}: {chosenOpt}";
-                _decisionSummary.Add(decision);
             }
+            return decision;
+        }
+
+        internal bool tryAddDecisionToSummary(string decision)
+        {
+            int startSize = _decisionSummary.Count;
+            if (!String.IsNullOrWhiteSpace(decision))
+                _decisionSummary.Add(decision);
+
             return wasDecisionPutInSummary(decision, startSize);
         }
 

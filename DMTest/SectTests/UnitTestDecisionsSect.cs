@@ -268,17 +268,19 @@ public class UnitTestDecSect
     }
 
     [TestMethod]
-    public void testAddNothingToDecSummary()
+    public void testAddBlankToDecSummary()
     {
         DS ds = giveDsWithDcs();
-        Assert.IsFalse(ds.tryAddDecisionToSummary(DmCt.PETS_DC, TU.BLANK));
+        string dec = ds.stringifyDcDecisionForSummary(DmCt.PETS_DC, TU.BLANK);
+        Assert.IsFalse(ds.tryAddDecisionToSummary(dec));
     }
 
     [TestMethod]
     public void testAddDecisionToDecSummary()
     {
         DS ds = giveDsWithDcs();
-        Assert.IsTrue(ds.tryAddDecisionToSummary(DmCt.PETS_DC, DmCt.PETS_DC.CatChoices[0]));
+        string dec = ds.stringifyDcDecisionForSummary(DmCt.PETS_DC, DmCt.PETS_DC.CatChoices[0]);
+        Assert.IsTrue(ds.tryAddDecisionToSummary(dec));
     }
 
     [TestMethod]
@@ -290,11 +292,17 @@ public class UnitTestDecSect
 
     private void addFewGoodtoDecSummary(DS ds)
     {
+        string dec = TU.BLANK;
         for (int i = 0; i < DmCt.PETS_DC.getChoicesCount(); i++)
-            Assert.IsTrue(ds.tryAddDecisionToSummary(DmCt.PETS_DC, DmCt.PETS_DC.CatChoices[i]));
-
+        {
+            dec = ds.stringifyDcDecisionForSummary(DmCt.PETS_DC, DmCt.PETS_DC.CatChoices[i]);
+            Assert.IsTrue(ds.tryAddDecisionToSummary(dec));
+        }
         for (int i = 0; i < DmCt.PASS_DC.getChoicesCount(); i++)
-            Assert.IsTrue(ds.tryAddDecisionToSummary(DmCt.PASS_DC, DmCt.PASS_DC.CatChoices[i]));
+        {
+            dec = ds.stringifyDcDecisionForSummary(DmCt.PASS_DC, DmCt.PASS_DC.CatChoices[i]);
+            Assert.IsTrue(ds.tryAddDecisionToSummary(dec));
+        }
     }
 
     [TestMethod]
@@ -306,11 +314,20 @@ public class UnitTestDecSect
 
     private void addFewBadInputsToDecSummary(DS ds)
     {
-        Assert.IsFalse(ds.tryAddDecisionToSummary(DmCt.PETS_DC, TU.BLANK));
-        Assert.IsFalse(ds.tryAddDecisionToSummary(DmCt.PETS_DC, DmCt.PASS_DC.CatChoices[0]));
-        Assert.IsFalse(ds.tryAddDecisionToSummary(DmCt.PASS_DC, "\t\n\r"));
-        Assert.IsFalse(ds.tryAddDecisionToSummary(DmCt.PETS_DC, ""));
-        Assert.IsFalse(ds.tryAddDecisionToSummary(DmCt.PASS_DC, DmCt.PETS_DC.CatChoices[0]));
+        string dec = ds.stringifyDcDecisionForSummary(DmCt.PETS_DC, TU.BLANK);
+        Assert.IsFalse(ds.tryAddDecisionToSummary(dec));
+
+        dec = ds.stringifyDcDecisionForSummary(DmCt.PETS_DC, DmCt.PASS_DC.CatChoices[0]);
+        Assert.IsFalse(ds.tryAddDecisionToSummary(dec));
+
+        dec = ds.stringifyDcDecisionForSummary(DmCt.PASS_DC, "\t\n\r");
+        Assert.IsFalse(ds.tryAddDecisionToSummary(dec));
+
+        dec = ds.stringifyDcDecisionForSummary(DmCt.PETS_DC, null!);
+        Assert.IsFalse(ds.tryAddDecisionToSummary(dec));
+
+        dec = ds.stringifyDcDecisionForSummary(DmCt.PASS_DC, DmCt.PETS_DC.CatChoices[0]);
+        Assert.IsFalse(ds.tryAddDecisionToSummary(dec));
     }
 
     [TestMethod]
@@ -371,11 +388,11 @@ public class UnitTestDecSect
     {
         DS ds = giveDsWithoutDcs();
         DC named = new DC();
-        
+
         const string JUST_NAMED = "justNamedDc";
         named.CatName = JUST_NAMED;
         Assert.IsTrue(ds.saveUnfinishedDcToWipCat(named));
-    }       
+    }
 
     [TestMethod]
     public void testSaveDefaultDcToWip()
@@ -383,14 +400,14 @@ public class UnitTestDecSect
         DS ds = giveDsWithoutDcs();
         DC def = new DC();
         Assert.IsFalse(ds.saveUnfinishedDcToWipCat(def));
-    }    
+    }
 
     [TestMethod]
     public void testSaveEmptyDcToWip()
     {
         DS ds = giveDsWithoutDcs();
         Assert.IsFalse(ds.saveUnfinishedDcToWipCat(DC.EmptyDc));
-    }      
+    }
 
     [TestInitialize]
     public void TestInitialize()

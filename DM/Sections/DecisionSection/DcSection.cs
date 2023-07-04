@@ -225,13 +225,17 @@ namespace DecisionMaker
             List<string> remainingChoices = selectedDc.CatChoices;
             int opt = MU.INVALID_OPT;
             bool isExit = false;
-            while (!TU.isStringListEmpty(remainingChoices) && !isExit)
+            while (selectedDc.hasChoices() && !isExit)
             {
                 writeRemoveDcChoicesMenu(remainingChoices);
                 opt = MU.promptUserAndReturnOpt();
                 isExit = MU.isChoiceMenuExit(opt);
                 string removed = processRemoveDcChoice(opt, remainingChoices);
-                if (!isExit) printRemoveChoicesLoopMsg(removed, remainingChoices, selectedDc.CatName);
+                if (!isExit)
+                {
+                    string rmOutcome = getRemoveChoicesLoopMsg(removed, remainingChoices, selectedDc.CatName);
+                    Console.WriteLine(rmOutcome);
+                }
             }
             return remainingChoices;
         }
@@ -275,19 +279,15 @@ namespace DecisionMaker
             return removed;
         }
 
-        private void printRemoveChoicesLoopMsg(string removed, List<string> remainingChoices, string dc)
+        private string getRemoveChoicesLoopMsg(string removed, List<string> remainingChoices, string dc)
         {
+            string outcomeMsg = DSC.REMOVE_CHOICE_REJECT_MSG;
             if (TU.isStringListEmpty(remainingChoices))
-            {
-                Console.WriteLine($"All choices removed from {dc} category\n");
-                return;
-            }
-            else if (removed == TU.BLANK)
-                Console.WriteLine(DSC.REMOVE_CHOICE_REJECT_MSG);
-            else
-                Console.WriteLine($"Successfully removed {removed} option!");
-
-            Console.WriteLine($"{dc} choices remaining: {TU.prettyStringifyList(remainingChoices)}\n");
+                outcomeMsg = $"All choices removed from {dc} category\n";
+            else if (removed != TU.BLANK)
+                outcomeMsg = $"Successfully removed {removed} option!"; 
+                
+            return outcomeMsg;
         }
 
         /// <summary>
