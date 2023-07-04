@@ -1,6 +1,6 @@
 /*
 * desc: class for a Decision a user wants this application to help with, whether it be recurring or one-time.
-* author: Sam Ford
+* author: Xymdyx
 * date: 6/13/23
 */
 
@@ -8,10 +8,11 @@ namespace DecisionMaker
 {
     internal class DecisionCategory
     {
+        internal const int CHOICES_PER_MANY_LINE = 10;
+        private const int MANY_CHOICES_THRESHOLD = 80;
         internal static readonly DecisionCategory EmptyDc = new(TU.BLANK, TU.BLANK);
         internal const string DC_SUMMARY_TAG = "(saved category)";
         internal const string ONE_OFF_SUMMARY_TAG = "(one-off decision)";
-
         private const string DC_INFO_HEADER = "DecisionCategory.cs:";
         private string _catName;
         private string _catDesc;
@@ -30,21 +31,30 @@ namespace DecisionMaker
         internal string CatDesc { get => _catDesc; set => _catDesc = value; }
         internal List<string> CatChoices { get => _catChoices; set => _catChoices = value; }
         internal string CatPath { get => _catPath; }
+
+        internal DecisionCategory()
+        {
+            _catName = TU.BLANK;
+            _catDesc = TU.BLANK;
+            _catChoices = new();
+            _catPath = TU.BLANK;
+        }
+
         internal DecisionCategory(string name, string desc)
         {
-            _catName = name;
-            _catDesc = desc;
+            _catName = name ?? TU.BLANK;
+            _catDesc = desc ?? TU.BLANK;
             _catChoices = new();
-            _catPath = DS.formatDcPath(name);
+            _catPath = DS.formatDcPath(_catName);
         }
 
         internal DecisionCategory(string name, string desc, List<string> choices)
         {
-            _catName = name;
-            _catDesc = desc;
-            _catChoices = choices;
-            _catPath = DS.formatDcPath(name);
-            
+            _catName = name ?? TU.BLANK;
+            _catDesc = desc ?? TU.BLANK;
+            _catChoices = choices ?? new();
+            _catPath = DS.formatDcPath(_catName);
+
             if(!checkFileExists())
                 saveFile();
         }
@@ -90,11 +100,16 @@ namespace DecisionMaker
         {
             return File.Exists(_catPath);
         }
-   
+
         internal bool hasChoices()
         {
-            return _catChoices.Count > 0;
+            return getChoicesCount() > 0;
         }
+
+        internal int getChoicesCount()
+        {
+            return _catChoices.Count;
+        }        
 
         internal void showAllInfo()
         {
@@ -102,18 +117,48 @@ namespace DecisionMaker
                     "\n" + TU.prettyStringifyList(_catChoices) + "\n");
         }
 
-        /// <summary>
-        /// Return this DC's choices in form
-        /// choice 1
-        /// .
-        /// .
-        /// choice N
-        /// </summary>
-        /// <returns></returns>
-        internal string stringifyChoices()
+        internal string stringifyToReadableForm()
+        {
+            string bestForm = stringifyChoicesOnALine();
+            bool isCommasLong = TU.isStringTooLong(bestForm);
+            if(isCommasLong)
+                bestForm = stringifyChoicesToReadableLines();
+
+            return bestForm;
+        }
+
+        internal string stringifyChoicesToReadableLines()
+        {
+            return (getChoicesCount() >= MANY_CHOICES_THRESHOLD) ? stringifyManyChoicesPerLine() : stringifyChoicePerLine();
+        }
+
+        /// Return a string with each choice on its own line
+        internal string stringifyChoicePerLine()
         {
             return String.Join(DSC.DECISION_DELIMITER, _catChoices);
         }
+
+        // returns choices as comma separated list
+        internal string stringifyChoicesOnALine()
+        {
+            string choicesInfo = (hasChoices()) ? $"Choices for {CatName}: {TU.prettyStringifyList(CatChoices)}\n" : $"No choices in {CatName}\n";
+            return choicesInfo;
+        }
+
+        /// prints many choices as comma separated list per line
+        internal string stringifyManyChoicesPerLine()
+        {
+            string choicesInfo = TU.BLANK;
+            int choiceCount = getChoicesCount();
+            for (int i = 0; i < choiceCount; i+=CHOICES_PER_MANY_LINE)
+            {
+                int secLen = Math.Min(CHOICES_PER_MANY_LINE, choiceCount - i);
+                List<string> choicesSection = CatChoices.GetRange(i, secLen);
+                choicesInfo += (TU.prettyStringifyList(choicesSection) );
+                choicesInfo += (i + CHOICES_PER_MANY_LINE < choiceCount) ? ",\n" : "\n";
+            }
+            return choicesInfo;
+        }        
 
         internal bool IsValidDc()
         {

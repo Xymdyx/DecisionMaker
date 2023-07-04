@@ -1,16 +1,13 @@
 namespace DMTest;
 
-/// <summary>
-/// dotnet test .\DMTest.csproj
-/// </summary>
 [TestClass]
 public class UnitTestFileSect
 {
     private readonly string[] FAIL_PATHS =
     {
         @"..\DecisionsFun\funny.txt",
-        DmUtConsts.DM_RELATIVE_PATH + @"FunnyLand\DNE\doesntexist.txt",
-        DmUtConsts.DM_RELATIVE_PATH + @"\Help\README\reads.txt"
+        DmCt.DM_RELATIVE_PATH + @"FunnyLand\DNE\doesntexist.txt",
+        DmCt.DM_RELATIVE_PATH + @"\Help\README\reads.txt"
      };
 
     private const string PASS_DIR = @".\Pass\";
@@ -101,7 +98,7 @@ public class UnitTestFileSect
         }
         catch(Exception e)
         {
-            DmUtConsts.logPreProcessingFail(e);
+            DmCt.logPreProcessingFail(e);
             return false;
         }
         return true;
@@ -120,7 +117,7 @@ public class UnitTestFileSect
         }
         catch(Exception e)
         {
-            Console.WriteLine(DmUtConsts.UT_INFO_HEADER + $" failed to ensure all pass files exist...\n{e.Message}\n");
+            Console.WriteLine(DmCt.UT_INFO_HEADER + $" failed to ensure all pass files exist...\n{e.Message}\n");
             return false;
         }
         return true;
@@ -129,17 +126,17 @@ public class UnitTestFileSect
     [TestInitialize]
     public void TestInitialize()
     {
-        DmUtConsts.clearADir(PASS_DIR);
+        DmCt.clearADir(PASS_DIR);
         deletePassDir();
     }
 
     private void clearDir()
     {
-        DmUtConsts.clearADir(FSC.DEFAULT_FILES_DIR);
+        DmCt.clearADir(FSC.DEFAULT_FILES_DIR);
     }
 
     private void deletePassDir()
     {
-        DmUtConsts.clearADir(PASS_DIR);
+        DmCt.clearADir(PASS_DIR);
     }
 }

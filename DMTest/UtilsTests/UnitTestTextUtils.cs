@@ -1,8 +1,4 @@
 namespace DMTest;
-
-/// <summary>
-/// dotnet test .\DMTest.csproj 
-/// </summary>
 [TestClass]
 public class UnitTestTextUtils
 {
@@ -17,6 +13,20 @@ public class UnitTestTextUtils
     private const string ALPHABET_0_TO_9 = ALPHABET + ZERO_TO_NINE;
     private const string SPEECH = "Look at me!";
     private const string NUMBERED_SPEECH = "100K at Me!";
+    private readonly string[] BAD_FNAMES =
+    {
+        "hi@|\\/here", "choices@me", "choices&me", "2+2=fish", "stars*stars",
+        "dollar$", "#percent", "si||yname", "{urly", "wh}atts", "!@#$%&*+=#`|\\/<>{}:?",
+        "123andme.", "txt.", ".....hello.....", "...", ">_<", ">pleaspassme",
+        "please<", "no:colons", "hi!", "\'f\'il\'e", "ca\"te\"g\"ory", "questioning?",
+         "`ing me off", "~!@#>_fail", "#failing", "<angular>", "period.case.never"
+    };
+
+    private readonly string[] GOOD_FNAMES =
+    {
+        "(weird)but()fine)", "kebab-case", "camelCase", "snake_case", "PascalCase",
+        "UPPER_crown^me", "^_^", "()", "sem;colon", "abcde12345(^)", "tilde~case~when"
+    };
 
     private readonly List<string> empty = new();
      private readonly List<string> one = new() { "Sam" };
@@ -86,9 +96,53 @@ public class UnitTestTextUtils
     }
 
     [TestMethod]
-    public void textConvertTextToInt32()
+    public void testConvertTextToInt32()
     {
         for (int i = DmCt.MIN_OPT; i < DmCt.MAX_OPT; i++)
             Assert.IsTrue(TU.convertTextToInt32(i.ToString(), out int j));        
+    }
+
+    [TestMethod]
+    public void testStringListHaveNonBlankElOnFew()
+    {
+        for (int i = 0; i < few.Count; i++)
+            Assert.IsTrue(TU.doesStringListHaveNonBlankEl(i, few));
+    }
+
+    [TestMethod]
+    public void testStringListHaveNonBlankElOnNone()
+    {
+        List<string> none = new();
+        for (int j = DmCt.MIN_OPT; j < DmCt.MAX_OPT; j++)
+            Assert.IsFalse(TU.doesStringListHaveNonBlankEl(j, none));        
+    }
+
+    [TestMethod]
+    public void testReplaceBadFileNames()
+    {
+        foreach (string fName in BAD_FNAMES)
+        {
+            string updatedName = TU.replaceBadCharsinFname(fName);
+            logReplaceBadFileCharsResults(fName, updatedName);
+            Assert.AreNotEqual(fName, updatedName);
+        }
+    }
+
+    [TestMethod]
+    public void testReplaceGoodFileNames()
+    {
+        foreach(string fName in GOOD_FNAMES)
+        {
+            string updatedName = TU.replaceBadCharsinFname(fName);
+            logReplaceBadFileCharsResults(fName, updatedName);
+            Assert.AreEqual(fName, updatedName);            
+        }        
+    }
+
+    private void logReplaceBadFileCharsResults(string fName, string updatedName)
+    {
+        Console.WriteLine("Original:" + fName);
+        Console.WriteLine("Updated:" + updatedName);
+        Console.WriteLine();
     }
 }

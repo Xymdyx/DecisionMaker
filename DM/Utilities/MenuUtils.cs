@@ -1,5 +1,5 @@
 /*
-* author: Sam Ford
+* author: Xymdyx
 * desc: Utilities for menu creation and loops
 * date started: approx 5/5/2023
 */
@@ -30,7 +30,7 @@ namespace DecisionMaker
             int opt = INVALID_OPT;
             try
             {
-                string input = Console.ReadLine()!;
+                string input = TU.readLineAndTrim()!;
                 Console.WriteLine();
                 opt = TU.convertMenuInputToInt(input);
             }

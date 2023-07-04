@@ -1,12 +1,12 @@
 /*
-* author: Sam Ford
+* author: Xymdyx
 * desc: Section for deleting files made by the program
 * date started: approx 5/30/2023
 */
 
 namespace DecisionMaker
 {
-    internal class FilesSection:IDecisionMakerSection
+    internal class FilesSection : IDecisionMakerSection
     {
         private DecisionsSection decSect;
         private ProfileSection profSect;
@@ -22,6 +22,35 @@ namespace DecisionMaker
         {
             return MU.checkAndInitADir(FSC.DEFAULT_FILES_DIR);
         }
+
+        static internal bool isWipFileNonEmpty()
+        {
+            return !String.IsNullOrEmpty(stringifyFileContents(FSC.DEFAULT_WIP_FILE));
+        }
+        static internal bool tryDeleteWipFile()
+        {
+            return FS.deleteManageableFile(FSC.DEFAULT_WIP_FILE);
+        }
+
+    /// <summary>
+    /// get file contents to console and return its string
+    /// </summary>
+    /// <param name="fPath">a file path</param>
+    /// <returns> string contents of a file or empty string if error</returns>
+    internal static string stringifyFileContents(string fPath)
+        {
+            string fileLines = TU.BLANK;
+            try
+            {
+                if (File.Exists(fPath))
+                    fileLines = string.Join("\n", TU.readFileLinesAndTrim(fPath));
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine($"{FSC.FS_INFO_INTRO} failed to read contents of {fPath}...\n{e.Message}\n") ;
+            }
+            return fileLines;
+        }            
 
         internal int doMenuLoop()
         {
@@ -220,29 +249,14 @@ namespace DecisionMaker
             }
         }
 
-        /// <summary>
-        /// print out a files contents to console and return its string
-        /// </summary>
-        /// <param name="fPath">a file path</param>
-        /// <returns> string contents of a file or empty string if error</returns>
         internal static string viewFileContents(string fPath)
         {
-            string fileLines = TU.BLANK;
-            try
-            {
-                if (File.Exists(fPath))
-                {
-                    string info = $"Contents of {fPath}:\n";
-                    fileLines = string.Join("\n", File.ReadAllLines(fPath));
-                    Console.WriteLine(info + fileLines);
-                }
-                else
-                    Console.WriteLine($"{fPath} doesn't exist therefore cannot read!");
-            }
-            catch(Exception e)
-            {
-                Console.WriteLine($"{FSC.FS_INFO_INTRO} failed to read contents of {fPath}...\n{e.Message}\n") ;
-            }
+            string fileLines = stringifyFileContents(fPath);
+            string info = $"{fPath} has nothing to view either because it's blank or doesn't exist!";
+            if (!String.IsNullOrWhiteSpace(fileLines))
+                info = $"Contents of {fPath}:\n" + fileLines;
+            
+            Console.WriteLine(info);
             return fileLines;
         }
 

@@ -1,6 +1,6 @@
 /*
 * description: Section for the help menu, which tells the user more about the app
-* author: Sam Ford
+* author: Xymdyx
 * date: 6/13/23
 */
 namespace DecisionMaker
@@ -40,6 +40,9 @@ namespace DecisionMaker
                     break;                    
                 case (int) HSC.HelpMenuTopics.GeneratedFiles:
                     TU.writeInfoAndPause(HSC.GENERATED_FILES_INFO);
+                    break;
+                case (int) HSC.HelpMenuTopics.GitHub:
+                    TU.writeInfoAndPause(HSC.REPO_INFO);
                     break;
                 case MU.EXIT_CODE:
                     Console.WriteLine(MU.MENU_EXIT_MSG);

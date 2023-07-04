@@ -1,7 +1,4 @@
 namespace DMTest;
-/// <summary>
-/// dotnet test .\DMTest.csproj 
-/// </summary>
 [TestClass]
 public class UnitTestProfSect
 {
@@ -21,16 +18,16 @@ public class UnitTestProfSect
         PS ps = new();
         makeCustomProfile(ps);
 
-        Assert.IsFalse(ps.trySaveProfilePart(DSC.DEFAULT_DC_DIRECTORY + FAIL_DC_PATH, DmUtConsts.TEST_DN));
-        Assert.IsFalse(ps.trySaveProfilePart(FSC.DEFAULT_FILES_DIR + FAIL_FS_PATH, DmUtConsts.TEST_GREET));
-        Assert.IsFalse(ps.trySaveProfilePart(PSC.PROF_GREETING_PATH + FAIL_PS_PATh, DmUtConsts.TEST_DEPART));
+        Assert.IsFalse(ps.trySaveProfilePart(DSC.DEFAULT_DC_DIRECTORY + FAIL_DC_PATH, DmCt.TEST_DN));
+        Assert.IsFalse(ps.trySaveProfilePart(FSC.DEFAULT_FILES_DIR + FAIL_FS_PATH, DmCt.TEST_GREET));
+        Assert.IsFalse(ps.trySaveProfilePart(PSC.PROF_GREETING_PATH + FAIL_PS_PATh, DmCt.TEST_DEPART));
     }
 
     private void makeCustomProfile(PS ps)
     {
-        Assert.IsTrue(ps.trySaveProfilePart(PSC.PROF_DISPLAY_NAME_PATH, DmUtConsts.TEST_DN));
-        Assert.IsTrue(ps.trySaveProfilePart(PSC.PROF_GREETING_PATH, DmUtConsts.TEST_GREET));
-        Assert.IsTrue(ps.trySaveProfilePart(PSC.PROF_EXITING_PATH, DmUtConsts.TEST_DEPART));
+        Assert.IsTrue(ps.trySaveProfilePart(PSC.PROF_DISPLAY_NAME_PATH, DmCt.TEST_DN));
+        Assert.IsTrue(ps.trySaveProfilePart(PSC.PROF_GREETING_PATH, DmCt.TEST_GREET));
+        Assert.IsTrue(ps.trySaveProfilePart(PSC.PROF_EXITING_PATH, DmCt.TEST_DEPART));
     }
 
     [TestMethod]
@@ -54,7 +51,7 @@ public class UnitTestProfSect
 
     private void clearDir()
     {
-        DmUtConsts.clearADir(PSC.DEFAULT_PROF_DIR);
+        DmCt.clearADir(PSC.DEFAULT_PROF_DIR);
     }
 
 }
