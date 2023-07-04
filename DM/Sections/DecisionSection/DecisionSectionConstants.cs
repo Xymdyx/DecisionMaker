@@ -40,6 +40,7 @@ namespace DecisionMaker
         internal static readonly string RAND_BOUNDS_INFO = $"Please pick two numbers between {Int32.MinValue} and {Int32.MaxValue} (default is {DEFAULT_LOWER_BOUND}--{DEFAULT_UPPER_BOUND} inclusive):";
         internal const string SAME_BOUNDS_COMMENT = "Same bounds, huh? Not very random but we'll allow it...";
 
+        internal const string DEC_SUMMARY_EXIT_MSG = " Decisions made this session:\n";
         internal const string DEC_SUMMARY_FILE_INTRO = "Summary of all decisions made on";
         internal const string NO_DECISIONS_MSG = "No decisions made this session. Maybe next time!\n";
 
@@ -49,6 +50,7 @@ namespace DecisionMaker
         internal const string HOW_SEE_CHOICES_MSG = "Type \"" + SEE_CHOICES_WORD + "\" to see choices added so far...\n";
 
         internal const string ONLY_1_CONFIRM = "(any thing other than 1 is no)";
+        internal const string WIP_CAT_PRESENT_MSG = $"There is a WIP decision category in FileManagement, would you like to finish it {ONLY_1_CONFIRM}?";
 
         internal const int ORIGIN_IDX = 0;
         internal const int DELETE_ALL_CHOICES_CODE = -1;

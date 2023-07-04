@@ -295,7 +295,7 @@ namespace DecisionMaker
             }
             catch (Exception e)
             {
-                Console.WriteLine($"{DSC.DS_INFO_INTRO} Cannot get category object!");
+                Console.WriteLine($"{DSC.DS_INFO_INTRO} Cannot get category!");
                 TU.logErrorMsg(e);
             }
             return dcVal;
@@ -612,7 +612,7 @@ namespace DecisionMaker
             if (!TU.isStringListEmpty(_decisionSummary))
             {
                 decisionsMade = TU.getListAsNumberMenu(_decisionSummary);
-                Console.WriteLine($"Decisions made this session:\n{decisionsMade}");
+                Console.WriteLine($"{DSC.DEC_SUMMARY_EXIT_MSG}{decisionsMade}");
             }
             else
                 Console.WriteLine(DSC.NO_DECISIONS_MSG);
@@ -663,7 +663,7 @@ namespace DecisionMaker
             bool confirmed = false;
             if(FS.isWipFileNonEmpty())
             {
-                Console.WriteLine($"There is a WIP decision category in FileManagement, would you like to finish it {DSC.ONLY_1_CONFIRM}? ");
+                Console.WriteLine(DSC.WIP_CAT_PRESENT_MSG);
                 MU.writeBinaryMenu();
                 int opt = MU.promptUserAndReturnOpt();
                 confirmed = MU.isChoiceYes(opt);

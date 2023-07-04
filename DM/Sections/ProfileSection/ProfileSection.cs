@@ -109,15 +109,15 @@ namespace DecisionMaker
             switch(part)
             {
                 case PSC.ProfileParts.Greeting:
-                    partName = "greeting";
+                    partName = PSC.GREETING;
                     partVal = appPersonality.mainGreeting!;
                     break;
                 case PSC.ProfileParts.Exiting:
-                    partName = "exiting";
+                    partName = PSC.EXITING;
                     partVal = appPersonality.mainExit!;
                     break;
                 case PSC.ProfileParts.DisplayName:
-                    partName = "display name";
+                    partName = PSC.DISPLAY_NAME;
                     partVal = appPersonality.displayName!;
                     break;
                 default:

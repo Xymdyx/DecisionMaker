@@ -101,7 +101,6 @@ namespace DecisionMaker
             return File.Exists(_catPath);
         }
 
-
         internal bool hasChoices()
         {
             return getChoicesCount() > 0;
