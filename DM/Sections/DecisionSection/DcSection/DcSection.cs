@@ -1,5 +1,5 @@
 /*
-* author: Sam Ford
+* author: Xymdyx
 * desc: Section for saved decision categories and acting on them
 * Dependent on its parent DecisionSection instance for insantiation
 * note that DC == "Decision Category"
@@ -42,7 +42,7 @@ namespace DecisionMaker
 
         private void writeDcActionsMenu(string dc)
         {
-            Console.WriteLine($"Here are the choices for the {dc} decision category: ");
+            Console.WriteLine($"Here are the actions for the {dc} decision category: ");
             List<string> actionNames = getDcActionKeys().ToList();
             TU.writeListAsNumberMenu(actionNames);
             MU.printExitChoice();
@@ -90,7 +90,7 @@ namespace DecisionMaker
                     confirmHalt = _parentSect.decideForUser(selectedDc);
                     break;
                 case (int)DSC.DcActionCodes.ReadChoices:
-                    confirmHalt = readExistingDc(selectedDc);
+                    confirmHalt = readDcChoices(selectedDc);
                     break;
                 case (int)DSC.DcActionCodes.ReadDesc:
                     confirmHalt = readDescDc(selectedDc);
@@ -122,7 +122,7 @@ namespace DecisionMaker
         /// </summary>
         /// <param name="dc"></param>
         /// <returns>whether it is safe to continue operation on dc</returns>
-        private bool readExistingDc(DC dc)
+        private bool readDcChoices(DC dc)
         {
             if (!dc.hasChoices())
             {
@@ -131,7 +131,7 @@ namespace DecisionMaker
             }
 
             Console.WriteLine(DSC.READ_DC_MSG);
-            Console.WriteLine(dc.stringifyChoices());
+            Console.WriteLine(dc.stringifyChoicesToReadableLines());
             return dc.checkFileExists();
         }
 
@@ -225,13 +225,17 @@ namespace DecisionMaker
             List<string> remainingChoices = selectedDc.CatChoices;
             int opt = MU.INVALID_OPT;
             bool isExit = false;
-            while (!TU.isStringListEmpty(remainingChoices) && !isExit)
+            while (selectedDc.hasChoices() && !isExit)
             {
                 writeRemoveDcChoicesMenu(remainingChoices);
                 opt = MU.promptUserAndReturnOpt();
                 isExit = MU.isChoiceMenuExit(opt);
                 string removed = processRemoveDcChoice(opt, remainingChoices);
-                if (!isExit) printRemoveChoicesLoopMsg(removed, remainingChoices, selectedDc.CatName);
+                if (!isExit)
+                {
+                    string rmOutcome = getRemoveChoicesLoopMsg(removed, remainingChoices, selectedDc.CatName);
+                    Console.WriteLine(rmOutcome);
+                }
             }
             return remainingChoices;
         }
@@ -275,19 +279,15 @@ namespace DecisionMaker
             return removed;
         }
 
-        private void printRemoveChoicesLoopMsg(string removed, List<string> remainingChoices, string dc)
+        private string getRemoveChoicesLoopMsg(string removed, List<string> remainingChoices, string dc)
         {
+            string outcomeMsg = DSC.REMOVE_CHOICE_REJECT_MSG;
             if (TU.isStringListEmpty(remainingChoices))
-            {
-                Console.WriteLine($"All choices removed from {dc} category\n");
-                return;
-            }
-            else if (removed == TU.BLANK)
-                Console.WriteLine(DSC.REMOVE_CHOICE_REJECT_MSG);
-            else
-                Console.WriteLine($"Successfully removed {removed} option!");
-
-            Console.WriteLine($"{dc} choices remaining: {TU.prettyStringifyList(remainingChoices)}\n");
+                outcomeMsg = $"All choices removed from {dc} category\n";
+            else if (removed != TU.BLANK)
+                outcomeMsg = $"Successfully removed {removed} option!"; 
+                
+            return outcomeMsg;
         }
 
         /// <summary>

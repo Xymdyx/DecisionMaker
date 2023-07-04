@@ -4,33 +4,6 @@ namespace DMTest;
 [TestClass]
 public class UnitTestDecSect
 {
-    // In initialize DS with DCs
-    internal static readonly DC CHOICELESS_DC = new("Category", "A category with no choices");
-    internal static readonly DC PASS_DC = new(DmCt.TEST_DC_NAME, DmCt.TEST_DC_DESC, new(DmCt.TEST_DC_CHOICES_FEW));
-
-    internal static readonly List<string> PETS_CHOICES = new() { "Dog", "Cat", "Hamster", "Snake", "Parrot" };
-    internal static readonly DC PETS_DC = new("Pets To Get", "Pets I want to adopt", new(PETS_CHOICES));
-
-    // Unbound from initialized DS
-    internal static readonly DC FULL_DC = new("name", "desc", new(DmCt.TEST_DC_CHOICES_FEW));
-
-    internal static readonly List<string> GAME_TYPES_CHOICES = new() { "Puzzle", "FPS", "RPG", "Platformer", "Simulator", "Sandbox", "Open World", "Mystery", "Visual Novel" };
-    internal static readonly DC GAME_TYPES_DC = new(
-        "Game Genres",
-        "Which game genre I should play now",
-        new(GAME_TYPES_CHOICES)
-     );
-
-    internal static readonly List<string> HOBBIES_CHOICES = new()
-    { "Cooking", "Play a video game", "Program something", "Exercise", "Watch YouTube", "Contemplate", "Study a language", "Clean", "Hang out with friend(s)" };
-    internal static readonly DC HOBBIES_DC = new(
-       "Hobbies",
-       "What to do with my free time",
-       new(HOBBIES_CHOICES)
-    );
-
-    internal const string JUST_NAMED = "justNamedDc";
-
     [TestMethod]
     public void testDir()
     {
@@ -53,7 +26,7 @@ public class UnitTestDecSect
     public void testAlreadyAccepted()
     {
         DS ds = new();
-        List<string> fullChoices = FULL_DC.CatChoices;
+        List<string> fullChoices = DmCt.FULL_DC.CatChoices;
         const string cand = "candidate";
         Assert.IsFalse(ds.isItemAlreadyAccepted(cand, fullChoices));
 
@@ -64,7 +37,7 @@ public class UnitTestDecSect
             Assert.IsTrue(ds.isItemAlreadyAccepted(c.ToLower(), fullChoices));
         }
 
-        List<string> none = CHOICELESS_DC.CatChoices;
+        List<string> none = DmCt.CHOICELESS_DC.CatChoices;
         Assert.IsFalse(ds.isItemAlreadyAccepted(cand, none));
         foreach(string c in DmCt.TEST_DC_CHOICES)
             Assert.IsFalse(ds.isItemAlreadyAccepted(c, none));
@@ -93,13 +66,13 @@ public class UnitTestDecSect
         DS ds = giveDsWithoutDcs();
         Assert.IsFalse(ds.decideForUser(DC.EmptyDc));
 
-        CHOICELESS_DC.saveFile();
-        Assert.IsFalse(ds.decideForUser(CHOICELESS_DC));
-        CHOICELESS_DC.deleteFile();
-        Assert.IsFalse(ds.decideForUser(CHOICELESS_DC));
+        DmCt.CHOICELESS_DC.saveFile();
+        Assert.IsFalse(ds.decideForUser(DmCt.CHOICELESS_DC));
+        DmCt.CHOICELESS_DC.deleteFile();
+        Assert.IsFalse(ds.decideForUser(DmCt.CHOICELESS_DC));
 
-        PASS_DC.saveFile();
-        Assert.IsTrue(ds.decideForUser(PASS_DC));
+        DmCt.PASS_DC.saveFile();
+        Assert.IsTrue(ds.decideForUser(DmCt.PASS_DC));
     }
 
     [TestMethod]
@@ -130,8 +103,8 @@ public class UnitTestDecSect
         int initCount = ds.DcMap.Count;
 
         ds.saveAllDcsInMap();
-        ds.DcMap[PETS_DC.CatName].deleteFile();
-        ds.DcMap[PASS_DC.CatName].deleteFile();
+        ds.DcMap[DmCt.PETS_DC.CatName].deleteFile();
+        ds.DcMap[DmCt.PASS_DC.CatName].deleteFile();
         ds.removeDcsFromMapNotInDir();
         int rmCount = ds.DcMap.Count;
 
@@ -155,7 +128,7 @@ public class UnitTestDecSect
         DS ds = giveDsWithDcs();
         int initCount = ds.DcMap.Count;
 
-        HOBBIES_DC.saveFile();
+        DmCt.HOBBIES_DC.saveFile();
         ds.addNewDcsToMapFromDir();
         int addCount = ds.DcMap.Count;
 
@@ -168,7 +141,7 @@ public class UnitTestDecSect
         DS ds = giveDsWithDcs();
         int initCount = ds.DcMap.Count;
 
-        DC[] addDcs = { HOBBIES_DC, GAME_TYPES_DC, FULL_DC };
+        DC[] addDcs = { DmCt.HOBBIES_DC, DmCt.GAME_TYPES_DC, DmCt.FULL_DC };
         foreach(DC d in addDcs)
             d.saveFile();
 
@@ -240,72 +213,74 @@ public class UnitTestDecSect
     public void testSaveAndAddToEmptyMap()
     {
         DS ds = giveDsWithoutDcs();
-        Assert.IsFalse(ds.DcMap.ContainsKey(FULL_DC.CatName));
-        Assert.IsTrue(ds.saveAndAddDcToMap(FULL_DC));
-        Assert.IsTrue(FULL_DC.checkFileExists());
-        Assert.IsTrue(ds.DcMap.ContainsKey(FULL_DC.CatName));
+        Assert.IsFalse(ds.DcMap.ContainsKey(DmCt.FULL_DC.CatName));
+        Assert.IsTrue(ds.saveAndAddDcToMap(DmCt.FULL_DC));
+        Assert.IsTrue(DmCt.FULL_DC.checkFileExists());
+        Assert.IsTrue(ds.DcMap.ContainsKey(DmCt.FULL_DC.CatName));
     }
 
     [TestMethod]
     public void testSaveAndAddToMap()
     {
         DS ds = giveDsWithDcs();
-        Assert.IsFalse(ds.DcMap.ContainsKey(HOBBIES_DC.CatName));
-        Assert.IsTrue(ds.saveAndAddDcToMap(HOBBIES_DC));
-        Assert.IsTrue(HOBBIES_DC.checkFileExists());
-        Assert.IsTrue(ds.DcMap.ContainsKey(HOBBIES_DC.CatName));
+        Assert.IsFalse(ds.DcMap.ContainsKey(DmCt.HOBBIES_DC.CatName));
+        Assert.IsTrue(ds.saveAndAddDcToMap(DmCt.HOBBIES_DC));
+        Assert.IsTrue(DmCt.HOBBIES_DC.checkFileExists());
+        Assert.IsTrue(ds.DcMap.ContainsKey(DmCt.HOBBIES_DC.CatName));
     }
 
     [TestMethod]
     public void testSaveAndAddSavedToMap()
     {
         DS ds = giveDsWithDcs();
-        Assert.IsTrue(ds.DcMap.ContainsKey(CHOICELESS_DC.CatName));
-        Assert.IsFalse(ds.saveAndAddDcToMap(CHOICELESS_DC));
-        Assert.IsTrue(CHOICELESS_DC.checkFileExists());
-        Assert.IsTrue(ds.DcMap.ContainsKey(CHOICELESS_DC.CatName));
+        Assert.IsTrue(ds.DcMap.ContainsKey(DmCt.CHOICELESS_DC.CatName));
+        Assert.IsFalse(ds.saveAndAddDcToMap(DmCt.CHOICELESS_DC));
+        Assert.IsTrue(DmCt.CHOICELESS_DC.checkFileExists());
+        Assert.IsTrue(ds.DcMap.ContainsKey(DmCt.CHOICELESS_DC.CatName));
     }
 
     [TestMethod]
     public void delAndRmDcFromEmptyMap()
     {
         DS ds = giveDsWithoutDcs();
-        Assert.IsFalse(ds.DcMap.ContainsKey(PASS_DC.CatName));
-        Assert.IsFalse(ds.deleteAndRemoveDcFromMap(PASS_DC));
-        Assert.IsFalse(ds.DcMap.ContainsKey(PASS_DC.CatName));
+        Assert.IsFalse(ds.DcMap.ContainsKey(DmCt.PASS_DC.CatName));
+        Assert.IsFalse(ds.deleteAndRemoveDcFromMap(DmCt.PASS_DC));
+        Assert.IsFalse(ds.DcMap.ContainsKey(DmCt.PASS_DC.CatName));
     }
 
     [TestMethod]
     public void delAndRmDcFromMap()
     {
         DS ds = giveDsWithDcs();
-        Assert.IsTrue(ds.DcMap.ContainsKey(PASS_DC.CatName));
-        Assert.IsTrue(ds.deleteAndRemoveDcFromMap(PASS_DC));
-        Assert.IsFalse(PASS_DC.checkFileExists());
-        Assert.IsFalse(ds.DcMap.ContainsKey(PASS_DC.CatName));
+        Assert.IsTrue(ds.DcMap.ContainsKey(DmCt.PASS_DC.CatName));
+        Assert.IsTrue(ds.deleteAndRemoveDcFromMap(DmCt.PASS_DC));
+        Assert.IsFalse(DmCt.PASS_DC.checkFileExists());
+        Assert.IsFalse(ds.DcMap.ContainsKey(DmCt.PASS_DC.CatName));
     }
 
     [TestMethod]
     public void delAndRmUnsavedDcFromMap()
     {
         DS ds = giveDsWithDcs();
-        Assert.IsFalse(ds.DcMap.ContainsKey(FULL_DC.CatName));
-        Assert.IsFalse(ds.deleteAndRemoveDcFromMap(FULL_DC));
-        Assert.IsFalse(ds.DcMap.ContainsKey(FULL_DC.CatName));
+        Assert.IsFalse(ds.DcMap.ContainsKey(DmCt.FULL_DC.CatName));
+        Assert.IsFalse(ds.deleteAndRemoveDcFromMap(DmCt.FULL_DC));
+        Assert.IsFalse(ds.DcMap.ContainsKey(DmCt.FULL_DC.CatName));
     }
 
     [TestMethod]
-    public void testAddNothingToDecSummary()
+    public void testAddBlankToDecSummary()
     {
         DS ds = giveDsWithDcs();
-        Assert.IsFalse(ds.tryAddDecisionToSummary(PETS_DC, TU.BLANK));
+        string dec = ds.stringifyDcDecisionForSummary(DmCt.PETS_DC, TU.BLANK);
+        Assert.IsFalse(ds.tryAddDecisionToSummary(dec));
     }
 
     [TestMethod]
     public void testAddDecisionToDecSummary()
     {
         DS ds = giveDsWithDcs();
-        Assert.IsTrue(ds.tryAddDecisionToSummary(PETS_DC, PETS_DC.CatChoices[0]));
+        string dec = ds.stringifyDcDecisionForSummary(DmCt.PETS_DC, DmCt.PETS_DC.CatChoices[0]);
+        Assert.IsTrue(ds.tryAddDecisionToSummary(dec));
     }
 
     [TestMethod]
@@ -317,11 +292,17 @@ public class UnitTestDecSect
 
     private void addFewGoodtoDecSummary(DS ds)
     {
-        for (int i = 0; i < PETS_DC.CatChoices.Count; i++)
-            Assert.IsTrue(ds.tryAddDecisionToSummary(PETS_DC, PETS_DC.CatChoices[i]));
-
-        for (int i = 0; i < PASS_DC.CatChoices.Count; i++)
-            Assert.IsTrue(ds.tryAddDecisionToSummary(PASS_DC, PASS_DC.CatChoices[i]));
+        string dec = TU.BLANK;
+        for (int i = 0; i < DmCt.PETS_DC.getChoicesCount(); i++)
+        {
+            dec = ds.stringifyDcDecisionForSummary(DmCt.PETS_DC, DmCt.PETS_DC.CatChoices[i]);
+            Assert.IsTrue(ds.tryAddDecisionToSummary(dec));
+        }
+        for (int i = 0; i < DmCt.PASS_DC.getChoicesCount(); i++)
+        {
+            dec = ds.stringifyDcDecisionForSummary(DmCt.PASS_DC, DmCt.PASS_DC.CatChoices[i]);
+            Assert.IsTrue(ds.tryAddDecisionToSummary(dec));
+        }
     }
 
     [TestMethod]
@@ -333,11 +314,20 @@ public class UnitTestDecSect
 
     private void addFewBadInputsToDecSummary(DS ds)
     {
-        Assert.IsFalse(ds.tryAddDecisionToSummary(PETS_DC, TU.BLANK));
-        Assert.IsFalse(ds.tryAddDecisionToSummary(PETS_DC, PASS_DC.CatChoices[0]));
-        Assert.IsFalse(ds.tryAddDecisionToSummary(PASS_DC, "\t\n\r"));
-        Assert.IsFalse(ds.tryAddDecisionToSummary(PETS_DC, ""));
-        Assert.IsFalse(ds.tryAddDecisionToSummary(PASS_DC, PETS_DC.CatChoices[0]));
+        string dec = ds.stringifyDcDecisionForSummary(DmCt.PETS_DC, TU.BLANK);
+        Assert.IsFalse(ds.tryAddDecisionToSummary(dec));
+
+        dec = ds.stringifyDcDecisionForSummary(DmCt.PETS_DC, DmCt.PASS_DC.CatChoices[0]);
+        Assert.IsFalse(ds.tryAddDecisionToSummary(dec));
+
+        dec = ds.stringifyDcDecisionForSummary(DmCt.PASS_DC, "\t\n\r");
+        Assert.IsFalse(ds.tryAddDecisionToSummary(dec));
+
+        dec = ds.stringifyDcDecisionForSummary(DmCt.PETS_DC, null!);
+        Assert.IsFalse(ds.tryAddDecisionToSummary(dec));
+
+        dec = ds.stringifyDcDecisionForSummary(DmCt.PASS_DC, DmCt.PETS_DC.CatChoices[0]);
+        Assert.IsFalse(ds.tryAddDecisionToSummary(dec));
     }
 
     [TestMethod]
@@ -359,7 +349,7 @@ public class UnitTestDecSect
     public void testAddDecisionAndSaveDecSummary()
     {
         DS ds = giveDsWithDcs();
-        ds.decideForUser(PETS_DC);
+        ds.decideForUser(DmCt.PETS_DC);
         Assert.IsTrue(ds.showAndSaveDecSummary());
     }
 
@@ -367,10 +357,10 @@ public class UnitTestDecSect
     public void testAddFewGoodAndSaveDecSummary()
     {
         DS ds = giveDsWithDcs();
-        for (int i = 0; i < PETS_DC.CatChoices.Count; i++)
-            ds.decideForUser(PETS_DC);
-        for (int i = 0; i < PASS_DC.CatChoices.Count; i++)
-            ds.decideForUser(PASS_DC);
+        for (int i = 0; i < DmCt.PETS_DC.getChoicesCount(); i++)
+            ds.decideForUser(DmCt.PETS_DC);
+        for (int i = 0; i < DmCt.PASS_DC.getChoicesCount(); i++)
+            ds.decideForUser(DmCt.PASS_DC);
         Assert.IsTrue(ds.showAndSaveDecSummary());
     }
 
@@ -381,16 +371,16 @@ public class UnitTestDecSect
         foreach(DC dc in ds.DcMap.Values)
             Assert.IsTrue(ds.saveUnfinishedDcToWipCat(dc));
 
-        Assert.IsTrue(ds.saveUnfinishedDcToWipCat(GAME_TYPES_DC));
-        Assert.IsTrue(ds.saveUnfinishedDcToWipCat(HOBBIES_DC));
-        Assert.IsTrue(ds.saveUnfinishedDcToWipCat(FULL_DC));
+        Assert.IsTrue(ds.saveUnfinishedDcToWipCat(DmCt.GAME_TYPES_DC));
+        Assert.IsTrue(ds.saveUnfinishedDcToWipCat(DmCt.HOBBIES_DC));
+        Assert.IsTrue(ds.saveUnfinishedDcToWipCat(DmCt.FULL_DC));
     }
 
     [TestMethod]
     public void testSaveChoicelessDcToWip()
     {
         DS ds = giveDsWithoutDcs();
-        Assert.IsTrue(ds.saveUnfinishedDcToWipCat(CHOICELESS_DC));
+        Assert.IsTrue(ds.saveUnfinishedDcToWipCat(DmCt.CHOICELESS_DC));
     }
 
     [TestMethod]
@@ -398,9 +388,11 @@ public class UnitTestDecSect
     {
         DS ds = giveDsWithoutDcs();
         DC named = new DC();
+
+        const string JUST_NAMED = "justNamedDc";
         named.CatName = JUST_NAMED;
         Assert.IsTrue(ds.saveUnfinishedDcToWipCat(named));
-    }       
+    }
 
     [TestMethod]
     public void testSaveDefaultDcToWip()
@@ -408,14 +400,14 @@ public class UnitTestDecSect
         DS ds = giveDsWithoutDcs();
         DC def = new DC();
         Assert.IsFalse(ds.saveUnfinishedDcToWipCat(def));
-    }    
+    }
 
     [TestMethod]
     public void testSaveEmptyDcToWip()
     {
         DS ds = giveDsWithoutDcs();
         Assert.IsFalse(ds.saveUnfinishedDcToWipCat(DC.EmptyDc));
-    }      
+    }
 
     [TestInitialize]
     public void TestInitialize()
@@ -444,12 +436,12 @@ public class UnitTestDecSect
     private void initDsDcMap(DS ds)
     {
 
-        ds.DcMap.Add(CHOICELESS_DC.CatName, CHOICELESS_DC);
+        ds.DcMap.Add(DmCt.CHOICELESS_DC.CatName, DmCt.CHOICELESS_DC);
 
-        PETS_DC.CatChoices = new(PETS_CHOICES);
-        ds.DcMap.Add(PETS_DC.CatName, PETS_DC);
+        DmCt.PETS_DC.CatChoices = new(DmCt.PETS_CHOICES);
+        ds.DcMap.Add(DmCt.PETS_DC.CatName, DmCt.PETS_DC);
 
-        PASS_DC.CatChoices = new(DmCt.TEST_DC_CHOICES_FEW);
-        ds.DcMap.Add(PASS_DC.CatName, PASS_DC);
+        DmCt.PASS_DC.CatChoices = new(DmCt.TEST_DC_CHOICES_FEW);
+        ds.DcMap.Add(DmCt.PASS_DC.CatName, DmCt.PASS_DC);
     }
 }

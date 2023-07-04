@@ -1,5 +1,5 @@
 /*
-* author: Sam Ford
+* author: Xymdyx
 * desc: Section for deleting files made by the program
 * date started: approx 5/30/2023
 */
@@ -43,7 +43,7 @@ namespace DecisionMaker
             try
             {
                 if (File.Exists(fPath))
-                    fileLines = string.Join("\n", File.ReadAllLines(fPath));
+                    fileLines = string.Join("\n", TU.readFileLinesAndTrim(fPath));
             }
             catch(Exception e)
             {

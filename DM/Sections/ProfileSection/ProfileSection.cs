@@ -1,5 +1,5 @@
 /*
-* author: Sam Ford
+* author: Xymdyx
 * desc: Section for customizing certain messages said by the program
 * date started: approx 5/15/2023
 */
@@ -32,7 +32,6 @@ namespace DecisionMaker
                 opt = MU.promptUserAndReturnOpt();
                 processMenuInput(opt);
             } while(!MU.isChoiceMenuExit(opt));
-            scanForProfileUpdates();
             return opt;
         }
 
@@ -110,15 +109,15 @@ namespace DecisionMaker
             switch(part)
             {
                 case PSC.ProfileParts.Greeting:
-                    partName = "greeting";
+                    partName = PSC.GREETING;
                     partVal = appPersonality.mainGreeting!;
                     break;
                 case PSC.ProfileParts.Exiting:
-                    partName = "exiting";
+                    partName = PSC.EXITING;
                     partVal = appPersonality.mainExit!;
                     break;
                 case PSC.ProfileParts.DisplayName:
-                    partName = "display name";
+                    partName = PSC.DISPLAY_NAME;
                     partVal = appPersonality.displayName!;
                     break;
                 default:
@@ -130,7 +129,7 @@ namespace DecisionMaker
         private string promptAndGetText(string prompt)
         {
             Console.WriteLine(prompt);
-            return Console.ReadLine()!;
+            return TU.readLineAndTrim();
         }
 
         private int promptUserConfirmation(string ans)
@@ -163,7 +162,7 @@ namespace DecisionMaker
                     saved = true;
                 }
                 else
-                    Console.WriteLine($"{PSC.PS_INFO_INTRO} {path} doesn't belong in {PSC.DEFAULT_PROF_DIR} directory!");
+                    Console.WriteLine($"{PSC.PS_INFO_INTRO}  reject saving {ans} to {path}...");
             }
             catch(Exception e)
             {

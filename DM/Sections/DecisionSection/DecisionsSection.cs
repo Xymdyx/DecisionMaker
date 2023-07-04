@@ -1,5 +1,5 @@
 /*
-* author: Sam Ford
+* author: Xymdyx
 * desc: Section for creating DCs and nonDcActions.
 * Holds all DCs saved to computer
 * note that DC == "Decision Category"
@@ -24,7 +24,7 @@ namespace DecisionMaker
             this._decisionSummary = new();
             this._hasAddressedWipCat = false;
             this.DcSect = new(this);
-            
+
             checkAndInitDir();
             addNewDcsToMapFromDir();
         }
@@ -64,7 +64,7 @@ namespace DecisionMaker
             DC dc = DC.EmptyDc;
             try
             {
-                List<string> catLines = File.ReadAllLines(dcPath).ToList();
+                List<string> catLines = TU.readFileLinesAndTrim(dcPath);
                 string dcName = catLines[DSC.DC_NAME_LINE_IDX];
                 string catDesc = catLines[DSC.DC_DESC_LINE_IDX];
                 List<string> catChoices = getDcChoicesFromFileLines(catLines);
@@ -250,19 +250,34 @@ namespace DecisionMaker
         /// <returns>whether this operation was successful </returns>
         private bool doRandomInt()
         {
+            (int, int) bounds = inputRandomIntRange();
+            int lb = bounds.Item1;
+            int ub = bounds.Item2;
+
+            int rand = runRNG(lb, ub);
+            commentIfBoundsSame(lb, ub);
+            string intDecision = stringifyRandomIntDecision(lb, ub, rand);
+            
+            Console.WriteLine(intDecision);
+            tryAddDecisionToSummary(intDecision);
+            return true;
+        }
+
+        internal string stringifyRandomIntDecision(int lb, int ub, int rand )
+        {
+            return $"Given the range of [{lb}, {ub}], we've decided upon {rand}...";
+        }
+
+        private (int, int) inputRandomIntRange()
+        {
             Console.WriteLine(DSC.RAND_BOUNDS_INFO);
-            bool succ1 = TU.convertTextToInt32(Console.ReadLine()!, out int num1);
-            bool succ2 = TU.convertTextToInt32(Console.ReadLine()!, out int num2);
+            bool succ1 = TU.convertTextToInt32(TU.readLineAndTrim(), out int num1);
+            bool succ2 = TU.convertTextToInt32(TU.readLineAndTrim(), out int num2);
 
             if (!succ1) num1 = DSC.DEFAULT_LOWER_BOUND;
             if (!succ2) num2 = DSC.DEFAULT_UPPER_BOUND;
 
-            int rand = runRNG(num1, num2);
-            commentIfBoundsSame(num1, num2);
-            (int, int) bounds = returnBoundsTuple(num1, num2);
-
-            Console.WriteLine($"Given the range of [{bounds.Item1}, {bounds.Item2}], we've decided upon {rand}...");
-            return true;
+            return returnBoundsTuple(num1, num2);
         }
 
         private void commentIfBoundsSame(int num1, int num2)
@@ -280,7 +295,7 @@ namespace DecisionMaker
             }
             catch (Exception e)
             {
-                Console.WriteLine($"{DSC.DS_INFO_INTRO} Cannot get category object!");
+                Console.WriteLine($"{DSC.DS_INFO_INTRO} Cannot get category!");
                 TU.logErrorMsg(e);
             }
             return dcVal;
@@ -352,7 +367,7 @@ namespace DecisionMaker
         {
             Console.WriteLine($"{DSC.DS_INFO_INTRO} Failed to make decision category. Saving any made progress...");
             TU.logErrorMsg(e);
-            saveUnfinishedDcToWipCat(dc);            
+            saveUnfinishedDcToWipCat(dc);
         }
 
         internal bool saveUnfinishedDcToWipCat(DC dc)
@@ -382,10 +397,31 @@ namespace DecisionMaker
             do
             {
                 Console.WriteLine(DSC.NAME_DC_MSG);
-                dcName = Console.ReadLine()!.Trim();
+                dcName = TU.readLineAndTrim();
+                dcName = tryFinalizeDcName(dcName);
             } while (!TU.isInputAcceptable(dcName) || doesMapHaveDcName(dcName));
 
             return dcName;
+        }
+
+        private string tryFinalizeDcName(string chosenDcName)
+        {
+            string fianlizedDcName = TU.replaceBadCharsinFname(chosenDcName);
+            if(fianlizedDcName != chosenDcName)
+                fianlizedDcName = confirmDcNameOrDiscard(fianlizedDcName);
+            return fianlizedDcName;
+        }
+
+        private string confirmDcNameOrDiscard(string corrected)
+        {
+            string finalDcName = corrected;
+            Console.WriteLine($"{DSC.BAD_DC_NAME_REPLACE_MSG} {corrected}");
+            Console.WriteLine(DSC.DISCARD_CORRECTED_NAME_MSG);
+            int opt = MU.promptUserAndReturnOpt();
+            if(MU.isChoiceYes(opt))
+                finalDcName = TU.BLANK;
+
+            return finalDcName;
         }
 
         internal bool doesMapHaveDcName(string dcName)
@@ -399,7 +435,7 @@ namespace DecisionMaker
             do
             {
                 Console.WriteLine(DSC.DESCRIBE_DC_MSG);
-                dcDesc = Console.ReadLine()!.Trim();
+                dcDesc = TU.readLineAndTrim();
             } while (!TU.isInputAcceptable(dcDesc));
             return dcDesc;
         }
@@ -407,58 +443,72 @@ namespace DecisionMaker
         internal List<string> addChoicesToDc(DC selectedDc)
         {
             List<string> acceptedChoices = selectedDc.CatChoices;
-            string choiceInput = TU.BLANK;
             bool stopWanted = false;
             do
             {
-                printAddDcChoiceLoopInstructions(acceptedChoices);
-                choiceInput = Console.ReadLine()!.Trim();
+                Console.WriteLine(getAddDcChoiceLoopIntro(acceptedChoices, selectedDc.CatName));
+                string choiceInput = TU.readLineAndTrim();
                 stopWanted = TU.isInputStopCommand(choiceInput);
+
                 bool accepted = false;
                 if (!stopWanted)
-                    accepted = tryAcceptNewDcChoice(choiceInput, acceptedChoices); // choose to accept or reject into choiceInputs
+                    accepted = tryAcceptNewDcChoice(choiceInput, acceptedChoices);
 
-                printAddDcChoiceLoopMsg(accepted, choiceInput, acceptedChoices);
-            } while (TU.isStringListEmpty(acceptedChoices) || !stopWanted);
+                Console.WriteLine(getAddDcChoiceLoopEndMsg(accepted, choiceInput, selectedDc));
+            } while (!stopWanted);
 
-            Console.WriteLine($"Choices for {selectedDc.CatName}: {TU.prettyStringifyList(acceptedChoices)}\n");
+            Console.WriteLine(selectedDc.stringifyToReadableForm());
             return acceptedChoices;
         }
 
-        private void printAddDcChoiceLoopInstructions(List<string> acceptedChoices)
+        private string getAddDcChoiceLoopIntro(List<string> acceptedChoices, string catName)
         {
+            string introStart = (TU.isStringListEmpty(acceptedChoices)) ? TU.BLANK : DSC.HOW_SEE_CHOICES_MSG;
             string introEnd = (TU.isStringListEmpty(acceptedChoices)) ? ":" : $" {getAddDcChoicesStopMsg()}:";
-            Console.WriteLine(DSC.ADD_CHOICE_INTRO_MSG + introEnd);
+            return introStart + DSC.ADD_CHOICE_INTRO_MSG + catName + introEnd;
         }
 
         private string getAddDcChoicesStopMsg()
         {
             string stops = TU.prettyStringifyList(TU.stopWords.ToList());
-            return $"({DSC.STOP_INFO_MSG}, type any positive number or any of the following in lowercase: {stops})";
+            return $"({DSC.STOP_ADDING_INFO_MSG} {stops})";
         }
 
-        private void printAddDcChoiceLoopMsg(bool wasAccepted, string candidate, List<string> acceptedChoices)
+        private string getAddDcChoiceLoopEndMsg(bool wasAccepted, string candidate, DC dc)
         {
             string outputMsg = TU.BLANK;
             if (wasAccepted)
                 outputMsg = $"{candidate} accepted!";
-            else if (isItemAlreadyAccepted(candidate, acceptedChoices))
+            else if (isItemAlreadyAccepted(candidate, dc.CatChoices))
                 outputMsg = $"{candidate} was already accepted";
+            else if (isInputViewDcChoices(candidate) && dc.hasChoices())
+                outputMsg = dc.stringifyToReadableForm();
             else if (!TU.isInputAcceptable(candidate))
                 outputMsg = DSC.ADD_CHOICE_REJECT_MSG;
 
-            if (outputMsg != TU.BLANK)
-                Console.WriteLine(outputMsg + "\n");
+            if(outputMsg != TU.BLANK)
+                outputMsg += "\n";
+            return outputMsg;
         }
 
-        private bool tryAcceptNewDcChoice(string candidate, List<string> acceptedChoices)
+        private bool isInputViewDcChoices(string candidate)
         {
-            if (TU.isInputAcceptable(candidate) && !isItemAlreadyAccepted(candidate, acceptedChoices))
+            return candidate == DSC.SEE_CHOICES_WORD;
+        }
+
+        private bool tryAcceptNewDcChoice(string candidate, List<string> dcChoices)
+        {
+            if (isNewDcChoice(candidate, dcChoices))
             {
-                acceptedChoices.Add(candidate);
+                dcChoices.Add(candidate);
                 return true;
             }
             return false;
+        }
+
+        private bool isNewDcChoice(string candidate, List<string> dcChoices)
+        {
+            return TU.isInputAcceptable(candidate) && !isInputViewDcChoices(candidate) && !isItemAlreadyAccepted(candidate, dcChoices);
         }
 
         internal bool isItemAlreadyAccepted(string candidate, List<string> accepted)
@@ -483,10 +533,12 @@ namespace DecisionMaker
                 return false;
             }
 
-            int chosenInt = runRNG(DSC.ORIGIN_IDX, dc.CatChoices.Count - 1);
+            int chosenInt = runRNG(DSC.ORIGIN_IDX, dc.getChoicesCount() - 1);
             string chosenOpt = dc.CatChoices[chosenInt];
+            
             Console.WriteLine($"For {dc.CatName}, we've decided upon: {chosenOpt}");
-            tryAddDecisionToSummary(dc, chosenOpt);
+            string decision = stringifyDcDecisionForSummary(dc, chosenOpt);
+            tryAddDecisionToSummary(decision);
             return dc.checkFileExists();
         }
 
@@ -498,16 +550,23 @@ namespace DecisionMaker
         /// <param name="dc"> Decision Category the user chose for a decision </param>
         /// <param name="chosenOpt"> the decision chosen by decideForUser </param>
         /// <returns>whether the decision was successfully recorded to the summary</returns>
-        internal bool tryAddDecisionToSummary(DC dc, string chosenOpt)
+        internal string stringifyDcDecisionForSummary(DC dc, string chosenOpt)
         {
             string decision = TU.BLANK;
-            int startSize = _decisionSummary.Count;
             if (dc.CatChoices.Contains(chosenOpt))
             {
                 string decisionType = (doesMapHaveDcName(dc.CatName)) ? DC.DC_SUMMARY_TAG : DC.ONE_OFF_SUMMARY_TAG;
                 decision = $"{dc.CatName} {decisionType}: {chosenOpt}";
-                _decisionSummary.Add(decision);
             }
+            return decision;
+        }
+
+        internal bool tryAddDecisionToSummary(string decision)
+        {
+            int startSize = _decisionSummary.Count;
+            if (!String.IsNullOrWhiteSpace(decision))
+                _decisionSummary.Add(decision);
+
             return wasDecisionPutInSummary(decision, startSize);
         }
 
@@ -553,7 +612,7 @@ namespace DecisionMaker
             if (!TU.isStringListEmpty(_decisionSummary))
             {
                 decisionsMade = TU.getListAsNumberMenu(_decisionSummary);
-                Console.WriteLine($"Decisions made this session:\n{decisionsMade}");
+                Console.WriteLine($"{DSC.DEC_SUMMARY_EXIT_MSG}{decisionsMade}");
             }
             else
                 Console.WriteLine(DSC.NO_DECISIONS_MSG);
@@ -604,7 +663,7 @@ namespace DecisionMaker
             bool confirmed = false;
             if(FS.isWipFileNonEmpty())
             {
-                Console.WriteLine($"There is a WIP decision category in FileManagement, would you like to finish it {DSC.ONLY_1_CONFIRM}? ");
+                Console.WriteLine(DSC.WIP_CAT_PRESENT_MSG);
                 MU.writeBinaryMenu();
                 int opt = MU.promptUserAndReturnOpt();
                 confirmed = MU.isChoiceYes(opt);
@@ -623,7 +682,7 @@ namespace DecisionMaker
             {
                 try
                 {
-                    List<string> dcLines = File.ReadAllLines(FSC.DEFAULT_WIP_FILE).ToList();
+                    List<string> dcLines = TU.readFileLinesAndTrim(FSC.DEFAULT_WIP_FILE);
                     string dcName = (TU.doesStringListHaveNonBlankEl(DSC.DC_NAME_LINE_IDX, dcLines)) ? dcLines[DSC.DC_NAME_LINE_IDX] : nameDc();
 
                     Console.WriteLine($"WIP DC name: {dcName}");

@@ -1,6 +1,6 @@
 /*
 * description: personal project for helping me decide what to do with my free time
-* author: Sam Ford
+* author: Xymdyx
 * date started: 4/4/2023
 */
 
@@ -14,7 +14,7 @@ namespace DecisionMaker
         private FilesSection fileSect;
         private HelpSection helpSect;
 
-        private readonly string[] navigationMenu = { "Decisions menu", "Profile menu", "File management menu", "Help"};
+        private readonly string[] navigationMenu = { "Decisions menu", "Profile menu", "File management menu", "Help menu"};
         
         public DecisionMakerMain()
         {

@@ -11,21 +11,21 @@ public class UnitTestDcSect
     {
         DCSEC dcSec = new();
 
-        List<string> fullChoices = DsUt.FULL_DC.CatChoices;
+        List<string> fullChoices = DmCt.FULL_DC.CatChoices;
         removeChoiceBlankUb(1, fullChoices, dcSec);
         removeChoiceBlankLb(fullChoices.Count, fullChoices, dcSec);
 
         while (fullChoices.Count > 0)
             Assert.AreNotEqual(dcSec.tryRemoveChoice(1, fullChoices), TU.BLANK);
 
-        List<string> none = DsUt.CHOICELESS_DC.CatChoices;
+        List<string> none = DmCt.CHOICELESS_DC.CatChoices;
         removeChoiceBlankLb(0, none, dcSec);
         removeChoiceBlankUb(0, none, dcSec);
     }
 
     private void removeChoiceBlankLb(int lb, List<string> opts, DCSEC dcSec)
     {
-        int i = DmUtConsts.MAX_OPT;
+        int i = DmCt.MAX_OPT;
         while (i > lb)
         {
             Assert.AreEqual(dcSec.tryRemoveChoice(i, opts), TU.BLANK);
@@ -35,7 +35,7 @@ public class UnitTestDcSect
 
     private void removeChoiceBlankUb(int ub, List<string> opts, DCSEC dcSec)
     {
-        int j = DmUtConsts.MIN_OPT;
+        int j = DmCt.MIN_OPT;
         while (j < ub)
         {
             Assert.AreEqual(dcSec.tryRemoveChoice(j, opts), TU.BLANK);
@@ -68,6 +68,6 @@ public class UnitTestDcSect
     [TestInitialize]
     public void TestInitialize()
     {
-        DmUtConsts.clearADir(DSC.DEFAULT_DECISIONS_DIRECTORY);
-    }    
+        DmCt.clearADir(DSC.DEFAULT_DECISIONS_DIRECTORY);
+    }
 }
