@@ -32,7 +32,6 @@ namespace DecisionMaker
                 opt = MU.promptUserAndReturnOpt();
                 processMenuInput(opt);
             } while(!MU.isChoiceMenuExit(opt));
-            scanForProfileUpdates();
             return opt;
         }
 
@@ -163,7 +162,7 @@ namespace DecisionMaker
                     saved = true;
                 }
                 else
-                    Console.WriteLine($"{PSC.PS_INFO_INTRO} {path} doesn't belong in {PSC.DEFAULT_PROF_DIR} directory!");
+                    Console.WriteLine($"{PSC.PS_INFO_INTRO}  reject saving {ans} to {path}...");
             }
             catch(Exception e)
             {
