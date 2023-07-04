@@ -20,8 +20,9 @@ For a dll, exe, etc run:\
 <br><br>
 " -c Release" may be appended to optimize the code,\
 then you must subsitute "Debug" with "Release" in the following path:
+
 <br><br>
-.\DM\DM\bin\Debug\net7.0
+.\DM\bin\Debug\net7.0
 <br><br>
 Outputs a dll, exe, and their dependencies (which can be run per the "Running" section "):
 <br>
