@@ -14,9 +14,9 @@ I recommend running the following command from the top-level of the DMTest dir:\
 dotnet test .\DMTest.csproj
 <br>
 This will do the whole shebang.\
-Use VsCode to run individual tests as needed.
+Use VsCode/Visual Studio to run individual tests as needed.
 <br>
 https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-test
 
 ## Bug Reporting:
-If any failures are found with these tests, feel free to reach out.
+If any failures are found with the provided tests (in the provided version of the code), feel free to reach out with details.

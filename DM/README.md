@@ -2,30 +2,35 @@
 This program is a CLI program meant to help indecisive souls make a decision through picking a random choice from a provided list.\
 I often find myself knowing what category of thing I want to do but not a specific activity within said category. Hence this program.
 
-# Running & Compiling
-dotnet and csc are required to run/compile the DecisionMaker.dll...\
+# Running
+dotnet and csc are required to run/compile the DM.dll...\
 To run the app, run any of these from the top-level of the DM folder:
+<br><br>
+**.\your\path\to\DM.exe** (Release exe works alone on 64-bit windows. Building your own needs all files made by dotnet)
 <br>
-**.\your\path\to\DM.exe**
-<br>
-**.\your\path\to\DM.dll**
+**dotnet .\your\path\to\generated\DM.dll**
 <br>
 **dotnet run**
 <br><br>
-If you don't use a vscode build config, you can build the app as follows.
+# Building/Compiling
+If you're not a building wizard, you can build the app as follows:
 <br>
-For the dll :\
-dotnet build .\your\path\to\DecisionMaker\DecisionMaker.csproj\
+For a dll, exe, etc run:\
+**dotnet build .\your\path\to\DM\DM.csproj**
+<br><br>
+" -c Release" may be appended to optimize the code,\
+then you must subsitute "Debug" with "Release" in the following path:
+<br><br>
+
+.\DM\bin\Debug\net7.0
+<br><br>
+Outputs a dll, exe, and their dependencies (which can be run per the "Running" section "):
 <br>
-Outputs this dll (which you can run directly):\
-.\DM-App\DecisionMaker\bin\Debug\net7.0\DecisionMaker.dll\
-<br>
+
 # Usage Notes:
 This takes no command line arguments.\
-Run it with .\your\path\to\DecisionMaker.dll \
-on Windows or the other OS equivalents.\
 <br>
-One can create Decision Category files before running the program but must be of proper form...\
+One can create Decision Category files before running the program, but they must be in proper form...\
 Decision Category Minimum Format:\
 [\
 SampleDcName \
@@ -58,4 +63,4 @@ but are much simpler as profile customization is simple for now.
 ### Profile files format:
 [\
     one-line-of-text\
-]
+]\
