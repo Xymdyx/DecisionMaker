@@ -455,7 +455,7 @@ namespace DecisionMaker
                     accepted = tryAcceptNewDcChoice(choiceInput, acceptedChoices);
 
                 Console.WriteLine(getAddDcChoiceLoopEndMsg(accepted, choiceInput, selectedDc));
-            } while (!stopWanted);
+            } while (TU.isStringListEmpty(acceptedChoices) || !stopWanted);
 
             Console.WriteLine(selectedDc.stringifyToReadableForm());
             return acceptedChoices;
